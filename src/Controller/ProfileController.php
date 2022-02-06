@@ -53,24 +53,23 @@ use Symfony\Component\Security\Core\Role\SwitchUserRole;
  */
 class ProfileController extends AbstractController
 {
+
     use FileHelper;
     use ServiceHelper;
 
     /**
      * @Route("/profiles/{id}/view", name="profile_index", methods={"GET"}, options = { "expose" = true })
-     * @param Request $request
-     * @param User    $profileUser
+     * @param  Request  $request
+     * @param  User     $profileUser
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request, User $profileUser)
     {
-
         $user       = $this->getUser();
         $dashboards = [];
 
         if ($profileUser->isStudent()) {
-
             /** @var StudentUser $profileUser */
             $lessonFavorites                    = $this->lessonFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
             $companyFavorites                   = $this->companyFavoriteRepository->findBy(['user' => $profileUser], ['createdAt' => 'DESC']);
@@ -83,28 +82,28 @@ class ProfileController extends AbstractController
             ]);
 
             $dashboards = [
-                'companyFavorites' => $companyFavorites,
-                'lessonFavorites' => $lessonFavorites,
-                'upcomingEventsRegisteredForByUser' => $upcomingEventsRegisteredForByUser,
+                'companyFavorites'                   => $companyFavorites,
+                'lessonFavorites'                    => $lessonFavorites,
+                'upcomingEventsRegisteredForByUser'  => $upcomingEventsRegisteredForByUser,
                 'completedEventsRegisteredForByUser' => $completedEventsRegisteredForByUser,
-                'guestLectures' => $guestLectures,
-                'eventsWithFeedback' => [],
-                'eventsMissingFeedback' => [],
-                'eventsWithFeedbackFromOthers' => [],
-                'primaryIndustries' => $primaryIndustries,
+                'guestLectures'                      => $guestLectures,
+                'eventsWithFeedback'                 => [],
+                'eventsMissingFeedback'              => [],
+                'eventsWithFeedbackFromOthers'       => [],
+                'primaryIndustries'                  => $primaryIndustries,
             ];
 
             // let's see which events have feedback from the user and which don't
             foreach ($completedEventsRegisteredForByUser as $event) {
-
-
                 $allFeedback = $this->feedbackRepository->findBy([
                     'experience' => $event,
                 ]);
 
                 /** @var Feedback $feedback */
                 foreach ($allFeedback as $feedback) {
-                    if ($feedback->getUser()->getId() !== $profileUser->getId()) {
+                    if ($feedback->getUser()
+                                 ->getId() !== $profileUser->getId()
+                    ) {
                         $dashboards['eventsWithFeedbackFromOthers'][] = $event;
                         break;
                     }
@@ -112,41 +111,39 @@ class ProfileController extends AbstractController
 
 
                 $feedback = $this->feedbackRepository->findOneBy([
-                    'user' => $profileUser,
+                    'user'       => $profileUser,
                     'experience' => $event,
                 ]);
 
                 if (!$feedback) {
                     $dashboards['eventsMissingFeedback'][] = [
-                        'event' => $event,
+                        'event'    => $event,
                         'feedback' => $feedback,
                     ];
                 } else {
                     $dashboards['eventsWithFeedback'][] = [
-                        'event' => $event,
+                        'event'    => $event,
                         'feedback' => $feedback,
                     ];
                 }
             }
-
         }
 
         return $this->render('profile/index.html.twig', [
-            'user' => $user,
+            'user'        => $user,
             'profileUser' => $profileUser,
-            'dashboards' => $dashboards,
+            'dashboards'  => $dashboards,
         ]);
     }
 
     /**
      * @Route("/test", name="profile_test", methods={"GET"})
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function testAction(Request $request)
     {
-
         $user = $this->getUser();
 
         return $this->render('profile/test.html.twig', [
@@ -156,8 +153,8 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profiles/{id}/edit", name="profile_edit", options = { "expose" = true })
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return JsonResponse|Response
      */
@@ -180,37 +177,36 @@ class ProfileController extends AbstractController
         $countyJson = [];
         $counties   = $this->countyRepository->findAll();
         foreach ($counties as $county) {
-
             $countyJson[] = [
-                'coordinates' => $county->getCoordinates(),
-                'name' => $county->getName(),
-                'state_name' => $county->getStateName(),
-                'region_name' => $county->getRegionName(),
+                'coordinates'              => $county->getCoordinates(),
+                'name'                     => $county->getName(),
+                'state_name'               => $county->getStateName(),
+                'region_name'              => $county->getRegionName(),
                 'service_cooperative_name' => $county->getServiceCooperativeName(),
-                'color' => $county->getColor() ?? '#FF0000',
+                'color'                    => $county->getColor() ?? '#FF0000',
             ];
         }
 
         if ($user->isAdmin()) {
-            $form = $this->createForm(AdminProfileFormType::class, $user, $options);
+            $options['user'] = $user;
+            $form            = $this->createForm(AdminProfileFormType::class, $user, $options);
             /** @var AdminUser $user */
         } elseif (($user->isSiteAdmin())) {
             $options['user'] = $user;
             $form            = $this->createForm(SiteAdminProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isProfessional())) {
-
             $options = [
-                'method' => 'POST',
-                'user' => $user,
+                'method'          => 'POST',
+                'user'            => $user,
                 'skip_validation' => $request->request->get('skip_validation', false),
             ];
 
-            if(!$options['skip_validation']) {
+            if (!$options['skip_validation']) {
                 $options['validation_groups'] = $request->request->get('validation_groups', []);
             }
 
-            $form                       = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
+            $form = $this->createForm(ProfessionalEditProfileFormType::class, $user, $options);
             /** @var ProfessionalUser $user */
         } elseif (($user->isSchoolAdministrator())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
@@ -218,16 +214,15 @@ class ProfileController extends AbstractController
             $form                       = $this->createForm(SchoolAdministratorEditProfileFormType::class, $user, $options);
             /** @var SchoolAdministrator $user */
         } elseif (($user->isEducator())) {
-
             /** @var EducatorUser $user */
-            foreach($user->getSecondaryIndustries() as $secondaryIndustry) {
+            foreach ($user->getSecondaryIndustries() as $secondaryIndustry) {
                 $user->addPrimaryIndustry($secondaryIndustry->getPrimaryIndustry());
             }
 
-            $options['skip_validation'] = $request->request->get('skip_validation', false);
-            $options['educator']        = $user;
+            $options['skip_validation']   = $request->request->get('skip_validation', false);
+            $options['educator']          = $user;
             $options['validation_groups'] = $request->request->get('validation_groups', []);
-            $form                       = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
+            $form                         = $this->createForm(EducatorEditProfileFormType::class, $user, $options);
             /** @var EducatorUser $user */
         } elseif (($user->isStudent())) {
             $options['skip_validation'] = $request->request->get('skip_validation', false);
@@ -249,7 +244,6 @@ class ProfileController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             /** @var User $user */
             $user = $form->getData();
             $user->setProfileCompleted(true);
@@ -275,7 +269,6 @@ class ProfileController extends AbstractController
                 if (array_key_exists('schools', $data['school_administrator_edit_profile_form'])) {
                     $schools = $this->schoolRepository->findBy(['site' => $user->getSite()]);
                     foreach ($schools as $school) {
-
                         if (!$school->isUserSchoolAdministrator($user) && in_array($school->getId(), $data['school_administrator_edit_profile_form']['schools'])) {
                             $school->addSchoolAdministrator($user);
                         } else {
@@ -294,11 +287,10 @@ class ProfileController extends AbstractController
 
             $isGuestInstructor = $request->request->get('guestInstructor', null);
             if ($isGuestInstructor) {
-
                 return $this->redirectToRoute('lesson_index');
             } else {
+                $url = $this->generateUrl('profile_edit', ['id' => $user->getId()]).$tab;
 
-                $url = $this->generateUrl('profile_edit', ['id' => $user->getId()]) . $tab;
                 return $this->redirect($url);
             }
         }
@@ -306,13 +298,13 @@ class ProfileController extends AbstractController
         if ($request->request->has('primary_industry_change')) {
             return new JsonResponse(
                 [
-                    'success' => false,
+                    'success'    => false,
                     'formMarkup' => $this->renderView('profile/edit.html.twig', [
-                        'form' => $form->createView(),
-                        'user' => $user,
+                        'form'              => $form->createView(),
+                        'user'              => $user,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson,
-                        'loggedInUser' => $loggedInUser
+                        'countyJson'        => $countyJson,
+                        'loggedInUser'      => $loggedInUser,
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
@@ -321,37 +313,36 @@ class ProfileController extends AbstractController
         if ($request->request->has('changeableField')) {
             return new JsonResponse(
                 [
-                    'success' => false,
+                    'success'    => false,
                     'formMarkup' => $this->renderView('profile/edit.html.twig', [
-                        'form' => $form->createView(),
-                        'user' => $user,
+                        'form'              => $form->createView(),
+                        'user'              => $user,
                         'professionalVideo' => $professionalVideo,
-                        'countyJson' => $countyJson,
-                        'loggedInUser' => $loggedInUser
+                        'countyJson'        => $countyJson,
+                        'loggedInUser'      => $loggedInUser,
                     ]),
                 ], Response::HTTP_BAD_REQUEST
             );
         }
 
         return $this->render('profile/edit.html.twig', [
-            'form' => $form->createView(),
-            'user' => $user,
+            'form'              => $form->createView(),
+            'user'              => $user,
             'professionalVideo' => $professionalVideo,
-            'countyJson' => $countyJson,
-            'loggedInUser' => $loggedInUser
+            'countyJson'        => $countyJson,
+            'loggedInUser'      => $loggedInUser,
         ]);
     }
 
     /**
      * @Route("/profiles/{id}/activate-deactivate", name="profile_activate_deactivate", options = { "expose" = true })
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return JsonResponse|Response
      */
     public function activateDeactivateAction(Request $request, User $user)
     {
-
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
@@ -364,16 +355,15 @@ class ProfileController extends AbstractController
         if ($user->getActivated()) {
             $user->setActivated(false);
             if ($request->isXmlHttpRequest()) {
-                $button = '<button class="uk-button uk-button-small uk-label-warning" data-href="/dashboard/profiles/' . $user->getId() . '/activate-deactivate" data-id="' . $user->getId() . '">Inactive</button>';
-                $button .= '<button class="uk-button uk-button-small uk-label-danger" data-href="/dashboard/profile/' . $user->getId() . '/delete" data-id="' . $user->getId() . '">Delete</button>';
+                $button = '<button class="uk-button uk-button-small uk-label-warning" data-href="/dashboard/profiles/'.$user->getId().'/activate-deactivate" data-id="'.$user->getId().'">Inactive</button>';
+                $button .= '<button class="uk-button uk-button-small uk-label-danger" data-href="/dashboard/profile/'.$user->getId().'/delete" data-id="'.$user->getId().'">Delete</button>';
             } else {
                 $this->addFlash('success', 'User account deactivated');
             }
         } else {
             $user->setActivated(true);
             if ($request->isXmlHttpRequest()) {
-                $button = '<button class="uk-button uk-button-small uk-label-success" data-href="/dashboard/profiles/' . $user->getId() . '/activate-deactivate" data-id="' . $user->getId() . '">Active</button>';
-
+                $button = '<button class="uk-button uk-button-small uk-label-success" data-href="/dashboard/profiles/'.$user->getId().'/activate-deactivate" data-id="'.$user->getId().'">Active</button>';
             } else {
                 $this->addFlash('success', 'User account activated');
             }
@@ -394,14 +384,13 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profiles/{id}/reactivate-list", name="profile_list_reactivate", options = { "expose" = true })
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return JsonResponse|Response
      */
     public function reactivateListAction(Request $request, User $user)
     {
-
         /** @var User $loggedInUser */
         $loggedInUser = $this->getUser();
 
@@ -415,8 +404,7 @@ class ProfileController extends AbstractController
         $user->setActivated(true);
         $user->setDeleted(false);
         if ($request->isXmlHttpRequest()) {
-            $button = '<button class="uk-button uk-button-small uk-label-success" data-href="/dashboard/profiles/' . $user->getId() . '/activate-deactivate" data-id="' . $user->getId() . '">Active</button>';
-
+            $button = '<button class="uk-button uk-button-small uk-label-success" data-href="/dashboard/profiles/'.$user->getId().'/activate-deactivate" data-id="'.$user->getId().'">Active</button>';
         } else {
             $this->addFlash('success', 'User account activated');
         }
@@ -437,14 +425,13 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profiles/{id}/photo/add", name="profile_photo_add", options = { "expose" = true })
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return JsonResponse
      */
     public function profileAddPhotoAction(Request $request, User $user)
     {
-
         $this->denyAccessUnlessGranted('edit', $user);
 
         /** @var UploadedFile $uploadedFile */
@@ -453,7 +440,7 @@ class ProfileController extends AbstractController
         if ($profilePhoto) {
             $newFilename = $this->uploaderHelper->upload($profilePhoto);
             $user->setPhoto($newFilename);
-            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO) . '/' . $newFilename;
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::PROFILE_PHOTO).'/'.$newFilename;
             $this->imageCacheGenerator->cacheImageForAllFilters($path);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
@@ -461,7 +448,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(
                 [
                     'success' => true,
-                    'url' => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::PROFILE_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
+                    'url'     => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::PROFILE_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
                 ], Response::HTTP_OK
             );
         }
@@ -475,19 +462,18 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/{id}/delete", name="profile_delete")
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function deleteAction(Request $request, User $user)
     {
-
         //$this->denyAccessUnlessGranted('edit', $user);
 
         $email = $user->getEmail();
 
-        $email = "DELETED+" . $email;
+        $email = "DELETED+".$email;
 
         $user->setEmail($email);
         $user->setDeleted(true);
@@ -506,17 +492,20 @@ class ProfileController extends AbstractController
         $this->entityManager->flush();
 
         // if the user being deleted is you then log the user out
-        if ($this->getUser()->getId() === $user->getId()) {
-            $this->get('security.token_storage')->setToken(null);
-            $request->getSession()->invalidate();
+        if ($this->getUser()
+                 ->getId() === $user->getId()
+        ) {
+            $this->get('security.token_storage')
+                 ->setToken(null);
+            $request->getSession()
+                    ->invalidate();
 
             return $this->redirectToRoute('welcome');
         }
 
         if ($request->isXmlHttpRequest()) {
-
             $loggedInUser = $this->getUser();
-            $button       = '<button class="uk-button uk-button-small uk-label-gray" data-href="/dashboard/profiles/' . $user->getId() . '/reactivate-list" data-id="' . $user->getId() . '">Deleted</button>';
+            $button       = '<button class="uk-button uk-button-small uk-label-gray" data-href="/dashboard/profiles/'.$user->getId().'/reactivate-list" data-id="'.$user->getId().'">Deleted</button>';
 
             $html = $this->getUserRow($user, $loggedInUser, $button);
 
@@ -526,19 +515,17 @@ class ProfileController extends AbstractController
 
             return $this->redirectToRoute('manage_users');
         }
-
     }
 
     /**
      * @Route("/profile/{id}/deactivate", name="profile_deactivate")
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function deactivateAction(Request $request, User $user)
     {
-
         $this->denyAccessUnlessGranted('edit', $user);
 
         $user->setActivated(false);
@@ -550,14 +537,13 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profile/{id}/reactivate", name="profile_reactivate")
-     * @param Request $request
-     * @param User    $user
+     * @param  Request  $request
+     * @param  User     $user
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function reactivateAction(Request $request, User $user)
     {
-
         $this->denyAccessUnlessGranted('edit', $user);
 
         $user->setActivated(true);
@@ -569,17 +555,18 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profiles/mass-delete", name="profiles_mass_delete")
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function massDeleteAction(Request $request, UserRepository $userRepository)
     {
-
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('security.token_storage')
+                     ->getToken()
+                     ->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
 
-        $user_list = $request->request->get('user_id', array ());
+        $user_list = $request->request->get('user_id', []);
         $user_role = $request->request->get('user_role', 'manage_users');
 
         foreach ($user_list as $k => $v) {
@@ -598,17 +585,18 @@ class ProfileController extends AbstractController
 
     /**
      * @Route("/profiles/mass-deactivate", name="profiles_mass_deactivate")
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function massDeactivateAction(Request $request, UserRepository $userRepository)
     {
-
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('security.token_storage')
+                     ->getToken()
+                     ->getUser();
         $this->denyAccessUnlessGranted('edit', $user);
 
-        $user_list = $request->request->get('user_id', array ());
+        $user_list = $request->request->get('user_id', []);
         $user_role = $request->request->get('user_role', 'manage_users');
 
         foreach ($user_list as $k => $v) {
@@ -627,23 +615,29 @@ class ProfileController extends AbstractController
 
     private function getUserRow($user, $loggedInUser, $button)
     {
-        $login = '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user=' . urlencode($user->getEmail()) . '">Login</a></td>';
+        $login = '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user='.urlencode($user->getEmail()).'">Login</a></td>';
 
-        $html = '<td><input type="checkbox" class="select-users" value="' . $user->getId() . '" /></td>';
-        $html .= '<td>' . $user->getId() . '</td>';
-        $html .= '<td>' . $user->getFirstName() . '</td>';
-        $html .= '<td>' . $user->getLastName() . '</td>';
-        $html .= '<td>' . $user->getEmail() . '</td>';
-        $html .= '<td>' . $user->getUsername() . '</td>';
+        $html = '<td><input type="checkbox" class="select-users" value="'.$user->getId().'" /></td>';
+        $html .= '<td>'.$user->getId().'</td>';
+        $html .= '<td>'.$user->getFirstName().'</td>';
+        $html .= '<td>'.$user->getLastName().'</td>';
+        $html .= '<td>'.$user->getEmail().'</td>';
+        $html .= '<td>'.$user->getUsername().'</td>';
 
         if ($user->isProfessional()) {
             if ($user->getCompany() != null) {
-                $html .= '<td><a href="/dashboard/companies' . $user->getCompany()->getId() . '/edit">' . $user->getCompany()->getName() . '</a></td>';
+                $html .= '<td><a href="/dashboard/companies'.$user->getCompany()
+                                                                  ->getId().'/edit">'.$user->getCompany()
+                                                                                           ->getName().'</a></td>';
             } else {
                 $html .= '<td>User does not belong to a company</td>';
             }
 
-            if ($user->getCompany() != null && $user->getCompany()->getOwner()->getId() == $user->getId()) {
+            if ($user->getCompany() != null
+                && $user->getCompany()
+                        ->getOwner()
+                        ->getId() == $user->getId()
+            ) {
                 $html .= '<td>Yes</td>';
             } else {
                 $html .= '<td>No</td>';
@@ -652,44 +646,59 @@ class ProfileController extends AbstractController
 
         if ($user->isEducator() || $user->isStudent()) {
             if ($user->getSchool() != null) {
-                $html .= '<td><a href="/dashboard/schools' . $user->getSchool()->getId() . '/edit">' . $user->getSchool()->getName() . '</a></td>';
+                $html .= '<td><a href="/dashboard/schools'.$user->getSchool()
+                                                                ->getId().'/edit">'.$user->getSchool()
+                                                                                         ->getName().'</a></td>';
             } else {
                 $html .= '<td></td>';
             }
 
-            if ($user->getSchool() != null && $user->getSchool()->getState() != null) {
-                $html .= '<td>' . $user->getSchool()->getState()->getName() . '</td>';
+            if ($user->getSchool() != null
+                && $user->getSchool()
+                        ->getState() != null
+            ) {
+                $html .= '<td>'.$user->getSchool()
+                                     ->getState()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
 
             if ($user->getSite() != null) {
-                $html .= '<td>' . $user->getSite()->getName() . '</td>';
+                $html .= '<td>'.$user->getSite()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
 
             if ($user->isStudent()) {
-                $login = '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user=' . urlencode($user->getUsername()) . '">Login</a></td>';
+                $login = '<td><a class="uk-button uk-button-small uk-button-default" href="/dashboard?_switch_user='.urlencode($user->getUsername()).'">Login</a></td>';
             }
         }
 
 
         if ($user->isRegionalCoordinator()) {
             if ($user->getRegion() != null) {
-                $html .= '<td>' . $user->getRegion()->getName() . '</td>';
+                $html .= '<td>'.$user->getRegion()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
 
-            if ($user->getRegion() != null && $user->getRegion()->getState() != null) {
-                $html .= '<td>' . $user->getRegion()->getState()->getName() . '</td>';
+            if ($user->getRegion() != null
+                && $user->getRegion()
+                        ->getState() != null
+            ) {
+                $html .= '<td>'.$user->getRegion()
+                                     ->getState()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
 
             if ($user->getSite() != null) {
-                $html .= '<td>' . $user->getSite()->getName() . '</td>';
+                $html .= '<td>'.$user->getSite()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
@@ -697,7 +706,8 @@ class ProfileController extends AbstractController
 
         if ($user->isSchoolAdministrator()) {
             if ($user->getSite() != null) {
-                $html .= '<td>' . $user->getSite()->getName() . '</td>';
+                $html .= '<td>'.$user->getSite()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
@@ -706,7 +716,7 @@ class ProfileController extends AbstractController
 
             $schools = [];
             foreach ($user->getSchools() as $school) {
-                $schools[] = '<a href="/dashboard/schools/' . $school->getId() . '/edit">' . $school->getName() . '</a>';
+                $schools[] = '<a href="/dashboard/schools/'.$school->getId().'/edit">'.$school->getName().'</a>';
             }
 
             $html .= join($schools, '|');
@@ -715,15 +725,16 @@ class ProfileController extends AbstractController
         }
 
         if ($user->isStateCoordinator()) {
-
             if ($user->getSite() != null) {
-                $html .= '<td>' . $user->getSite()->getName() . '</td>';
+                $html .= '<td>'.$user->getSite()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
 
             if ($user->getState() != null) {
-                $html .= '<td>' . $user->getState()->getName() . '</td>';
+                $html .= '<td>'.$user->getState()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
@@ -732,14 +743,20 @@ class ProfileController extends AbstractController
 
         if ($user->isSiteAdmin()) {
             if ($user->getSite() != null) {
-                $html .= '<td>' . $user->getSite()->getName() . '</td>';
+                $html .= '<td>'.$user->getSite()
+                                     ->getName().'</td>';
             } else {
                 $html .= '<td></td>';
             }
-
         }
 
-        if (!in_array('ROLE_PREVIOUS_ADMIN', $this->get('security.token_storage')->getToken()->getRoles())) {
+        if (!in_array(
+            'ROLE_PREVIOUS_ADMIN',
+            $this->get('security.token_storage')
+                 ->getToken()
+                 ->getRoles()
+        )
+        ) {
             if ($user->getActivated() === true) {
                 if ($loggedInUser->canLoginAsAnotherUser()) {
                     $html .= $login;
@@ -750,12 +767,12 @@ class ProfileController extends AbstractController
         }
 
 
-        $html .= '<td><a href="/dashboard/profiles/' . $user->getId() . '/edit">Edit</a></td>';
-        $html .= "<td>" . $button . "</td>";
+        $html .= '<td><a href="/dashboard/profiles/'.$user->getId().'/edit">Edit</a></td>';
+        $html .= "<td>".$button."</td>";
 
         if ($loggedInUser->isAdmin() || $loggedInUser->isSiteAdmin()) {
             if ($user->isSchoolAdministrator() || $user->isProfessional() || $user->isStudent() || $user->isEducator()) {
-                $html .= '<td><a target="_blank" href="{http://localhost:8000/dashboard/reports/email-log/users/' . $user->getId() . '/view">Email Logs</a></td>';
+                $html .= '<td><a target="_blank" href="{http://localhost:8000/dashboard/reports/email-log/users/'.$user->getId().'/view">Email Logs</a></td>';
                 if ($user->getProfileCompleted()) {
                     $html .= '<td>Yes</td>';
                 } else {
@@ -767,4 +784,5 @@ class ProfileController extends AbstractController
 
         return $html;
     }
+
 }

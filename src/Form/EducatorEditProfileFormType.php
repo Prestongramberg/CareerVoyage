@@ -16,6 +16,7 @@ use App\Repository\SecondaryIndustryRepository;
 use App\Repository\StudentUserRepository;
 use App\Service\NotificationPreferencesManager;
 use App\Util\FormHelper;
+use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -23,6 +24,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -95,7 +97,7 @@ class EducatorEditProfileFormType extends AbstractType
                 ],
             ])
             ->add('username')
-            ->add('email')
+            ->add('email', EmailType::class, [])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',
             ])
@@ -354,9 +356,6 @@ class EducatorEditProfileFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EducatorUser::class,
-            'validation_groups' => function (FormInterface $form) {
-                return ['EDUCATOR_USER'];
-            },
             'csrf_protection' => true
         ]);
 
