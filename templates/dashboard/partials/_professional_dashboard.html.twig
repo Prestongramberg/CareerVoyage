@@ -247,7 +247,6 @@
             <div class="uk-margin">
                 <ul class="uk-tab" id="user-nav" uk-switcher="connect: #tab-user-preferences" uk-tab>
                     <li class="uk-active"><a href="#user-lessons">My Topics</a></li>
-                    <li><a href="#user-feedback">My Feedback</a></li>
                     <li><a href="#user-events">
                             Provide Feedback
                             {% if completedEventsRegisteredForByUserMissingFeedback|length > 0 %}
@@ -294,12 +293,6 @@
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-
-                    <!-- provide feedback -->
-                    <div class="user_preferences_feedback">
-                        {# FEEDBACK WIDGET #}
-                        {{ feedback_widget(user)|raw }}
                     </div>
 
                     <!-- proivde feedback -->
