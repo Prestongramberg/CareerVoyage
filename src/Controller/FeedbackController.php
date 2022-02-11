@@ -446,8 +446,6 @@ class FeedbackController extends AbstractController
     }
 
     /**
-     * @IsGranted({"ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER"})
-     *
      * @Route("/view-all", name="feedback_view_all", options = { "expose" = true })
      * @param  Request  $request
      *
@@ -461,6 +459,7 @@ class FeedbackController extends AbstractController
         $loggedInUser = $this->getUser();
         // TODO Wire up query params to help filter the feedback/experience data
         $schoolId     = $request->query->get('schoolId');
+        $companyId     = $request->query->get('companyId');
         $experienceId = $request->query->get('experienceId');
 
         $experiences = [];
@@ -489,6 +488,16 @@ class FeedbackController extends AbstractController
                                                             ->innerJoin('e.school', 'school')
                                                             ->andWhere('school.id = :schoolId')
                                                             ->setParameter('schoolId', $schoolId)
+                                                            ->addOrderBy('e.startDateAndTime', 'ASC')
+                                                            ->getQuery()
+                                                            ->getResult();
+        }
+
+        if ($companyId) {
+            $experiences = $this->companyExperienceRepository->createQueryBuilder('e')
+                                                            ->innerJoin('e.company', 'company')
+                                                            ->andWhere('company.id = :companyId')
+                                                            ->setParameter('companyId', $companyId)
                                                             ->addOrderBy('e.startDateAndTime', 'ASC')
                                                             ->getQuery()
                                                             ->getResult();

@@ -73,6 +73,14 @@
                     </div>
                 </div>
 
+                <div>
+                    <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Manage Feedback</h3>
+                        <p>View and manage feedback for company events.</p>
+                        <a class="uk-button uk-button-default" target="_blank" href="{{ path('feedback_view_all') }}?companyId={{ user.company.id }}">Get Started</a>
+                    </div>
+                </div>
+
             {% elseif authorizationVoter.canManageExperiencesForCompany(user) %}
 
                 <div>
@@ -117,7 +125,6 @@
                            href="{{ path('experience_personal_calendar') }}">Get Started</a>
                     </div>
                 </div>
-
 
                 {% else %}
 

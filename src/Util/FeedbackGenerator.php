@@ -124,6 +124,11 @@ class FeedbackGenerator implements \Iterator
                 return true;
             }
 
+            // todo remove this as well? I don't think we need this at all.
+            if($this->userContext->isProfessional()) {
+                return true;
+            }
+
  /*           if($this->userContext->isSchoolAdministrator()) {
 
                 $schoolAdmin = $this->userContext;
@@ -150,12 +155,12 @@ class FeedbackGenerator implements \Iterator
                 }
             }
 
-            if($this->userContext->isProfessional() && $experience instanceof CompanyExperience ) {
+           /* if($this->userContext->isProfessional() && $experience instanceof CompanyExperience ) {
                 // Check if the user is assigned to view feedback for experience
                 if( $experience->getCanViewFeedback() == true && $experience->getEmployeeContact() != NULL && $experience->getCanViewFeedback() === true && $this->userContext->getId() == $experience->getEmployeeContact()->getId() ){
                     return true;
                 }
-            }
+            }*/
 
         /*    foreach($experience->getRegistrations() as $registration) {
 
@@ -200,11 +205,12 @@ class FeedbackGenerator implements \Iterator
             }
 
             if($this->userContext->isProfessional()) {
-                return (
+                return true;
+                /*return (
                     $experience instanceof StudentToMeetProfessionalExperience ||
                     $experience instanceof TeachLessonExperience ||
                     $experience instanceof CompanyExperience
-                );
+                );*/
             }
 
             return false;
@@ -262,6 +268,10 @@ class FeedbackGenerator implements \Iterator
                     return true;
                 }
 
+                if($this->userContext->isProfessional()) {
+                    return true;
+                }
+
                 if($this->userContext->isStudent()) {
 
                     return (
@@ -270,16 +280,6 @@ class FeedbackGenerator implements \Iterator
                         $feedback->getStudentToMeetProfessionalExperience()->getOriginalRequest() &&
                         $feedback->getStudentToMeetProfessionalExperience()->getOriginalRequest()->getStudent() &&
                         $feedback->getStudentToMeetProfessionalExperience()->getOriginalRequest()->getStudent()->getId() === $this->userContext->getId()
-                    );
-                }
-
-                if($this->userContext->isProfessional()) {
-
-                    return (
-                        $feedback instanceof StudentReviewMeetProfessionalExperienceFeedback ||
-                        $feedback instanceof StudentReviewTeachLessonExperienceFeedback ||
-                        $feedback instanceof EducatorReviewTeachLessonExperienceFeedback ||
-                        $feedback instanceof StudentReviewCompanyExperienceFeedback
                     );
                 }
 
@@ -556,11 +556,7 @@ class FeedbackGenerator implements \Iterator
 
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/table_header/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/table_header.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
 
@@ -581,11 +577,7 @@ class FeedbackGenerator implements \Iterator
 
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/table_body/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/table_body.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
             return $this->twig->render($template, ['feedbacks' => $this->getFeedback()]);
@@ -607,11 +599,7 @@ class FeedbackGenerator implements \Iterator
         //  is there a way to render based off of that instead of the experience?
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/data_breakdown/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/data_breakdown.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
             return $this->twig->render($template, ['feedbackGenerator' => $this]);
@@ -630,11 +618,7 @@ class FeedbackGenerator implements \Iterator
 
         $this->aggregate = true;
 
-        $template = sprintf(
-            "widget/feedback/data_breakdown/%s/aggregate.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName())
-        );
-        // $template = "widget/feedback/data_breakdown/aggregate.html.twig";
+        $template = "widget/feedback/aggregate.html.twig";
 
         $html = $this->twig->render($template, ['feedbackGenerator' => $this]);
 
