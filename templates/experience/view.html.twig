@@ -3,6 +3,11 @@
 {% block title %}View School Experience{% endblock %}
 {% block bodyClass %}page-school-experience-view{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/experience_view.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 
     {# SHARE EXPERIENCE OFF CANVAS #}
@@ -200,7 +205,7 @@
                                 </li>
                             {% endif %}
 
-                            <li><a href="#live-feedback-url-modal" uk-toggle>Live Feedback URL</a></li>
+                            <li><a href="#live-feedback-url-modal" uk-toggle>Copy Feedback URL</a></li>
 
                             {% if experience.isRecurring is same as(false) %}
                                 <li><a href="{{ path('experience_registrations', {id: experience.id}) }}">View
@@ -223,7 +228,7 @@
                 {% endif %}
 
                 <a class="uk-button uk-button-xl uk-button-primary uk-margin"
-                   href="{{ path('feedback_v2_new', {'experience_id': experience.id}) }}" target="_blank">Give
+                   href="{{ path('feedback_v2_new', {'uuid': experience.uuid}) }}" target="_blank">Give
                     Feedback</a>
 
                 <hr>
@@ -309,8 +314,8 @@
         {% endif %}
 
 
-        {# <hr class="uk-divider-icon uk-margin-large-top">
-        {% include 'experience/partials/_feedback.html.twig' %} #}
+         {#<hr class="uk-divider-icon uk-margin-large-top">
+        {% include 'experience/partials/_feedback.html.twig' %}#}
 
     </div>
 

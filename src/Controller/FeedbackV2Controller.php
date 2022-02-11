@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Experience;
 use App\Entity\Feedback;
 use App\Entity\User;
 use App\Form\Flow\FeedbackFlow;
@@ -31,24 +32,19 @@ class FeedbackV2Controller extends AbstractController
 
 
     /**
-     * @Route("/new", name="new", options = { "expose" = true })
+     * @Route("/{uuid}/new", name="new", options = { "expose" = true })
+     * @param  \App\Entity\Experience                   $experience
      * @param  Request                                  $request
      * @param  \App\Form\Flow\FeedbackFlow              $flow
      * @param  \Craue\FormFlowBundle\Util\FormFlowUtil  $formFlowUtil
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function newAction(Request $request, FeedbackFlow $flow, FormFlowUtil $formFlowUtil)
+    public function newAction(Experience $experience, Request $request, FeedbackFlow $flow, FormFlowUtil $formFlowUtil)
     {
         $loggedInuser = $this->getUser();
         // TODO!!!! Topic satisfaction does not have an experience id right? Do we even need to think about this now? Probably not.
-        $experienceId          = $request->query->get('experience_id');
         $experienceHasFeedback = false;
-
-
-        if (!$experienceId || !$experience = $this->experienceRepository->find($experienceId)) {
-            throw new NotFoundHttpException(sprintf("Experience with ID %s not found", $experienceId));
-        }
 
         $feedback = new Feedback();
         $feedback->setExperience($experience);
