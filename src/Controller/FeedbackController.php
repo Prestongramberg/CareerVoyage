@@ -38,6 +38,7 @@ use App\Form\ProfessionalReviewStudentToMeetProfessionalFeedbackFormType;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
+use Doctrine\Common\Collections\ArrayCollection;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -459,7 +460,7 @@ class FeedbackController extends AbstractController
         $loggedInUser = $this->getUser();
         // TODO Wire up query params to help filter the feedback/experience data
         $schoolId     = $request->query->get('schoolId');
-        $companyId     = $request->query->get('companyId');
+        $companyId    = $request->query->get('companyId');
         $experienceId = $request->query->get('experienceId');
 
         $experiences = [];
@@ -483,6 +484,22 @@ class FeedbackController extends AbstractController
                                                             ->getResult();
         }
 
+        // EDUCATORS
+        if ($loggedInUser instanceof EducatorUser && !$experienceId && !$schoolId) {
+            $experiences = $this->schoolExperienceRepository->createQueryBuilder('e')
+                                                            ->innerJoin('e.school', 'school')
+                                                            ->leftJoin('e.schoolContact', 'schoolContact')
+                                                            ->leftJoin('e.creator', 'creator')
+                                                            ->andWhere(
+                                                                'schoolContact.id = :schoolContactId or creator.id = :creatorId'
+                                                            )
+                                                            ->setParameter('schoolContactId', $loggedInUser->getId())
+                                                            ->setParameter('creatorId', $loggedInUser->getId())
+                                                            ->getQuery()
+                                                            ->getResult();
+        }
+
+
         if ($schoolId) {
             $experiences = $this->schoolExperienceRepository->createQueryBuilder('e')
                                                             ->innerJoin('e.school', 'school')
@@ -495,12 +512,12 @@ class FeedbackController extends AbstractController
 
         if ($companyId) {
             $experiences = $this->companyExperienceRepository->createQueryBuilder('e')
-                                                            ->innerJoin('e.company', 'company')
-                                                            ->andWhere('company.id = :companyId')
-                                                            ->setParameter('companyId', $companyId)
-                                                            ->addOrderBy('e.startDateAndTime', 'ASC')
-                                                            ->getQuery()
-                                                            ->getResult();
+                                                             ->innerJoin('e.company', 'company')
+                                                             ->andWhere('company.id = :companyId')
+                                                             ->setParameter('companyId', $companyId)
+                                                             ->addOrderBy('e.startDateAndTime', 'ASC')
+                                                             ->getQuery()
+                                                             ->getResult();
         }
 
 
