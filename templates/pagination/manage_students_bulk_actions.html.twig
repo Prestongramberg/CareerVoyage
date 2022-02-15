@@ -8,6 +8,7 @@
         <option value="{{ path('school_users_bulk_action', query|merge({'action': 'delete'})) }}">Delete</option>
         <option value="{{ path('school_users_bulk_action', query|merge({'action': 'reset_password'})) }}">Reset Password</option>
         <option value="{{ path('school_users_bulk_action', query|merge({'action': 'change_supervising_teacher'})) }}">Change Supervising Teacher</option>
+        <option value="{{ path('school_users_bulk_action', query|merge({'action': 'student_export'})) }}">Export</option>
     {% endif %}
 
 </select>

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpSwitchCaseWithoutDefaultBranchInspection */
 
 namespace App\Controller;
 
@@ -30,6 +30,7 @@ use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
 use App\Form\ExperienceType;
+use App\Form\ExportUsersFormType;
 use App\Form\Filter\SchoolFilterType;
 use App\Form\ManageEducatorsFilterType;
 use App\Form\ManageStudentsFilterType;
@@ -49,6 +50,7 @@ use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
 use Doctrine\Common\Collections\ArrayCollection;
+use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -224,7 +226,7 @@ class SchoolController extends AbstractController
                 $lat = $coordinates['lat'];
                 $school->setLongitude($lng);
                 $school->setLatitude($lat);
-                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, 50);
+                [$latN, $latS, $lonE, $lonW] = $this->geocoder->calculateSearchSquare($lat, $lng, 50);
                 $companies     = $this->companyRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
                 $professionals = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
             }
@@ -262,7 +264,7 @@ class SchoolController extends AbstractController
             if ($zipcode && $coordinates = $this->geocoder->geocode($zipcode)) {
                 $lng = $coordinates['lng'];
                 $lat = $coordinates['lat'];
-                list($latN, $latS, $lonE, $lonW) = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
+                [$latN, $latS, $lonE, $lonW] = $this->geocoder->calculateSearchSquare($lat, $lng, $radius);
                 $professionals   = $this->professionalUserRepository->findByRadius($latN, $latS, $lonE, $lonW, $lat, $lng);
                 $professionalIds = [];
                 foreach ($professionals as $professional) {
@@ -2275,6 +2277,108 @@ class SchoolController extends AbstractController
 
                         return new JsonResponse([
                             'redirectUrl' => $this->generateUrl($redirectRoute, array_merge_recursive(['id' => $school->getId()], $queryParams)),
+                        ], Response::HTTP_OK);
+                    }
+
+                    $context = [
+                        'form'         => $form->createView(),
+                        'loggedInUser' => $loggedInUser,
+                        'userCount'    => $request->query->get('userCount', 0),
+                    ];
+
+                    return new JsonResponse([
+                        'formMarkup' => $this->renderView($template, $context),
+                    ], Response::HTTP_BAD_REQUEST);
+
+                };
+
+
+                break;
+
+            case 'student_export':
+
+                $template   = 'school/modal/export.html.twig';
+                $data       = null;
+
+                $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
+
+                $form = $this->createForm(ExportUsersFormType::class, $data, [
+                    'method' => 'post',
+                    'action' => $action
+                ]);
+
+                $context = [
+                    'form'         => $form->createView(),
+                    'type'         => 'Student',
+                    'loggedInUser' => $loggedInUser,
+                    'userCount'    => $request->query->get('userCount', 0),
+                ];
+
+                $bulkActionHandler = function () use (
+                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                ) {
+
+                    $form->handleRequest($request);
+
+                    if ($form->isSubmitted() && $form->isValid()) {
+
+                        $userIds = $request->request->get('userIds', []);
+                        $users   = $this->studentUserRepository->findBy(['id' => $userIds], ['lastName' => 'ASC']);
+
+                        $data[] =
+                            [
+                                'FIRST NAME',
+                                'LAST NAME',
+                                'EMAIL',
+                                'USERNAME',
+                                'SUPERVISING TEACHERS',
+                                'TEMP PASSWORD',
+                                'GRADUATING YEAR',
+                                'SCHOOL'
+                            ];
+
+                        foreach ($users as $user) {
+
+                            $supervisingTeachers = [];
+                            foreach($user->getEducatorUsers() as $educatorUser) {
+                                $supervisingTeachers[] = $educatorUser->getFullName();
+                            }
+
+                            $data[] = [
+                                $user->getFirstName(),
+                                $user->getLastName(),
+                                $user->getEmail(),
+                                $user->getUsername(),
+                                implode(", ", $supervisingTeachers),
+                                $user->getTempPassword(),
+                                $user->getGraduatingYear(),
+                                $user->getSchool() ? $user->getSchool()->getName() : ''
+                            ];
+                        }
+
+                        $fileName      = Urlizer::urlize($school->getName()) . '-' . uniqid() . '.csv';
+                        $exportPath = $this->uploaderHelper->getUploadsPath() . '/' . UploaderHelper::STUDENT_EXPORT;
+                        $exportUrl = $exportPath . '/' . $fileName;
+
+                        if (!file_exists($exportPath)) {
+                            mkdir($exportPath, 0777, true);
+                        }
+
+                        $fp = fopen($exportUrl, "w");
+
+                        foreach ($data as $d)
+                        {
+                            fputcsv(
+                                $fp, // The file pointer
+                                $d, // The fields
+                                ',' // The delimiter
+                            );
+                        }
+
+                        fclose($fp);
+
+                        return new JsonResponse([
+                            'redirectUrl' => sprintf("%s/%s", $this->getFullQualifiedBaseUrl(), $this->uploaderHelper->getPublicPath(UploaderHelper::STUDENT_EXPORT . '/' .  $fileName))
                         ], Response::HTTP_OK);
                     }
 

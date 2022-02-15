@@ -27,6 +27,7 @@ class UploaderHelper
     const SCHOOL_PHOTO     = 'school_photo';
     const STUDENT_IMPORT   = 'student_import';
     const EDUCATOR_IMPORT  = 'educator_import';
+    const STUDENT_EXPORT   = 'student_export';
 
 
     private $uploadsPath;
