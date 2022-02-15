@@ -1,9 +1,9 @@
 <div uk-grid>
-    <div class="uk-width-1-1 uk-width-small@m">
+    <div class="uk-width-1-1 uk-width-medium@m">
         <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
             <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
             {% for experience in feedbackGenerator %}
-                <li><a href="#feedback-{{ experience.id }}">{{ experience.startDateAndTime|date("m/d/Y") }}</a></li>
+                <li><a href="#feedback-{{ experience.id }}">{{ experience.title }} - {{ experience.startDateAndTime|date("m/d/Y") }} ({{ experience.feedback|length }})</a></li>
             {% endfor %}
         </ul>
     </div>
