@@ -16,7 +16,7 @@ use App\Validator\Constraints as CustomAssert;
  * @ORM\Entity(repositoryClass="App\Repository\ExperienceRepository")
  * @ORM\HasLifecycleCallbacks()
  *
- * @CustomAssert\ExperienceDetails(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE"})
+ * @CustomAssert\ExperienceDetails(groups={"CREATE", "EDIT", "SCHOOL_EXPERIENCE", "EXPERIENCE"})
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"companyExperience" = "CompanyExperience", "schoolExperience" = "SchoolExperience", "teachLessonExperience" = "TeachLessonExperience", "studentToMeetProfessionalExperience" = "StudentToMeetProfessionalExperience"})
