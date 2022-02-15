@@ -1,0 +1,30 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Please Select Your Company (Optional)
+    </legend>
+
+    <div class="uk-grid">
+        <div class="uk-width-1-2@m">
+
+            <div class="uk-margin">
+                {{ form_widget(form.userCompany, {'attr': {'data-route': route, 'class': 'js-company uk-select' ~ ( form_errors(form.userCompany) ? ' uk-form-danger' : '' ) }}) }}
+                {{ form_errors(form.userCompany) }}
+            </div>
+
+            <small class="uk-text-muted">If you don't see your company, please select the <strong>Other</strong> option
+                from the dropdown above.</small>
+
+        </div>
+
+        <div class="js-company-other-container uk-width-1-2@m">
+            {% if form.userCompanyOther is defined %}
+                <div class="uk-margin">
+                    {{ form_widget(form.userCompanyOther, {'attr': {'class': 'uk-input' }}) }}
+                    {{ form_errors(form.userCompanyOther) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</fieldset>

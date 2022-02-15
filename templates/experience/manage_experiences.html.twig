@@ -48,7 +48,7 @@
 
                         <hr>
 
-                        {% if parentExperience is null and school and schools|length%}
+                        {% if parentExperience is null and school and schools|length %}
                             <select id="js-school-administrator-schools" class="uk-select"
                                     style="width: 300px; margin-right: 10px">
                                 {% if school is null %}
@@ -134,6 +134,7 @@
                         <th>Is Recurring Event</th>
                         <th>Total Number Of Events</th>
                         <th>Total Registrations</th>
+                        <th>Total Feedback</th>
                         <th colspan="2"></th>
                     </tr>
 
@@ -190,6 +191,10 @@
                                 {% else %}
                                     {{ experience.registrations|length }}
                                 {% endif %}
+                            </td>
+
+                            <td>
+                                <a href="{{ path('feedback_view_all', {experienceId: experience.id}) }}">{{ experience.feedback|length }}</a>
                             </td>
 
                             <td colspan="2">

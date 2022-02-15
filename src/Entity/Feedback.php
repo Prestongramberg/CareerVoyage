@@ -229,6 +229,40 @@ class Feedback
      */
     protected $eventType;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $fullName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    protected $email;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $awarenessCareerOpportunities = 0;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=School::class)
+     */
+    private $userSchool;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $userSchoolOther;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Company::class)
+     */
+    private $userCompany;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $userCompanyOther;
 
     public function getId(): ?int
     {
@@ -614,6 +648,90 @@ class Feedback
     public function setEventType(?string $eventType): self
     {
         $this->eventType = $eventType;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(?string $fullName): self
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getAwarenessCareerOpportunities(): ?int
+    {
+        return $this->awarenessCareerOpportunities;
+    }
+
+    public function setAwarenessCareerOpportunities(int $awarenessCareerOpportunities): self
+    {
+        $this->awarenessCareerOpportunities = $awarenessCareerOpportunities;
+
+        return $this;
+    }
+
+    public function getUserSchool(): ?School
+    {
+        return $this->userSchool;
+    }
+
+    public function setUserSchool(?School $userSchool): self
+    {
+        $this->userSchool = $userSchool;
+
+        return $this;
+    }
+
+    public function getUserSchoolOther(): ?string
+    {
+        return $this->userSchoolOther;
+    }
+
+    public function setUserSchoolOther(?string $userSchoolOther): self
+    {
+        $this->userSchoolOther = $userSchoolOther;
+
+        return $this;
+    }
+
+    public function getUserCompany(): ?Company
+    {
+        return $this->userCompany;
+    }
+
+    public function setUserCompany(?Company $userCompany): self
+    {
+        $this->userCompany = $userCompany;
+
+        return $this;
+    }
+
+    public function getUserCompanyOther(): ?string
+    {
+        return $this->userCompanyOther;
+    }
+
+    public function setUserCompanyOther(?string $userCompanyOther): self
+    {
+        $this->userCompanyOther = $userCompanyOther;
 
         return $this;
     }

@@ -1,0 +1,36 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Tell us a bit about yourself
+    </legend>
+
+    <div class="uk-grid">
+        <div class="uk-width-1-2@m">
+            <div class="uk-margin">
+                <label>Full Name<span class="uk-text-danger">*</span></label>
+                {{ form_widget(form.fullName, {'attr': {'class': 'uk-input' }}) }}
+                {{ form_errors(form.fullName) }}
+            </div>
+        </div>
+        <div class="uk-width-1-2@m">
+            <div class="uk-margin">
+                <label>Email (Optional)</label>
+                {{ form_widget(form.email, {'attr': {'class': 'uk-input' }}) }}
+                {{ form_errors(form.email) }}
+            </div>
+        </div>
+
+        <div class="uk-width-1-1@m uk-margin">
+            <label>Your Role<span class="uk-text-danger">*</span></label>
+            <div>
+                {% for item in form.feedbackProvider.children %}
+                    {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
+                    <label>{{ item.vars.label }}</label>
+                {% endfor %}
+                {{ form_errors(form.feedbackProvider) }}
+            </div>
+        </div>
+
+    </div>
+
+</fieldset>

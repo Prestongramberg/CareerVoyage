@@ -1,0 +1,29 @@
+{% extends 'baseUnauthenticated.html.twig' %}
+
+{% block title %}Give Feedback{% endblock %}
+{% block bodyClass %}page-feedback{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/feedback.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <div style="text-align: center"
+             class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto uk-width-1-2@m">
+
+            <h2>Thank You!</h2>
+
+            <p>We appreciate you taking the time to provide feedback for this experience.</p>
+
+            <a class="uk-button uk-button-xl uk-button-primary uk-margin"
+               href="{{ path('dashboard') }}">Return to Login</a>
+
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -59,7 +59,7 @@
                     <li class="uk-active"><a href="#user-preferences">My Calendar</a></li>
                     <li><a href="#user-favorites">My Favorites</a></li>
                     <li><a href="#user-events">My Experiences</a></li>
-                    <li><a href="#user-feedback">My Received Feedback</a></li>
+                    {#<li><a href="#user-feedback">My Received Feedback</a></li>#}
                     <li><a href="#user-reviews">Give Feedback</a></li>
                 </ul>
                 <div class="uk-switcher" id="tab-user-preferences">
@@ -163,10 +163,10 @@
                         </div>
                     </div>
 
-                    <div class="user_preferences_feedback">
-                        {# FEEDBACK WIDGET #}
+                   {# <div class="user_preferences_feedback">
+                        #}{# FEEDBACK WIDGET #}{#
                         {{ feedback_widget(user)|raw }}
-                    </div>
+                    </div>#}
 
                     <!-- proivde feedback -->
                     <div class="user_preferences_events">

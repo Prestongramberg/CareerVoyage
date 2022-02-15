@@ -115,13 +115,22 @@ class FeedbackGenerator implements \Iterator
             $possibleStudentRegistrations = [];
 
             // if the event hasn't happened yet then skip it
-            if($experience->getStartDateAndTime() > new \DateTime()) {
+            /*if($experience->getStartDateAndTime() > new \DateTime()) {
                 return false;
+            }*/
+
+            // todo remove this at some point. Possibly remove this whole function
+            if($this->userContext->isSchoolAdministrator()) {
+                return true;
             }
 
-            if($this->userContext->isSchoolAdministrator()) {
+            // todo remove this as well? I don't think we need this at all.
+            if($this->userContext->isProfessional()) {
+                return true;
+            }
 
-                /** @var SchoolAdministrator $schoolAdmin */
+ /*           if($this->userContext->isSchoolAdministrator()) {
+
                 $schoolAdmin = $this->userContext;
 
                 foreach($schoolAdmin->getSchools() as $school) {
@@ -130,7 +139,7 @@ class FeedbackGenerator implements \Iterator
                         $possibleStudentRegistrations[] = $studentUser->getId();
                     }
                 }
-            }
+            }*/
 
             if($this->userContext->isEducator()) {
 
@@ -146,14 +155,14 @@ class FeedbackGenerator implements \Iterator
                 }
             }
 
-            if($this->userContext->isProfessional() && $experience instanceof CompanyExperience ) {
+           /* if($this->userContext->isProfessional() && $experience instanceof CompanyExperience ) {
                 // Check if the user is assigned to view feedback for experience
                 if( $experience->getCanViewFeedback() == true && $experience->getEmployeeContact() != NULL && $experience->getCanViewFeedback() === true && $this->userContext->getId() == $experience->getEmployeeContact()->getId() ){
                     return true;
                 }
-            }
+            }*/
 
-            foreach($experience->getRegistrations() as $registration) {
+        /*    foreach($experience->getRegistrations() as $registration) {
 
                 if(!$registration->getUser()) {
                     continue;
@@ -167,7 +176,7 @@ class FeedbackGenerator implements \Iterator
                 if($registration->getUser()->getId() === $this->userContext->getId()) {
                     return true;
                 }
-            }
+            }*/
 
             return false;
         });
@@ -175,11 +184,12 @@ class FeedbackGenerator implements \Iterator
         $this->experiences = $experiences->filter(function(Experience $experience) {
 
             if($this->userContext->isSchoolAdministrator()) {
-                return (
+                return true;
+                /*return (
                     $experience instanceof StudentToMeetProfessionalExperience ||
                     $experience instanceof TeachLessonExperience ||
                     $experience instanceof SchoolExperience
-                );
+                );*/
             }
 
             if($this->userContext->isEducator()) {
@@ -195,11 +205,12 @@ class FeedbackGenerator implements \Iterator
             }
 
             if($this->userContext->isProfessional()) {
-                return (
+                return true;
+                /*return (
                     $experience instanceof StudentToMeetProfessionalExperience ||
                     $experience instanceof TeachLessonExperience ||
                     $experience instanceof CompanyExperience
-                );
+                );*/
             }
 
             return false;
@@ -226,17 +237,6 @@ class FeedbackGenerator implements \Iterator
         $possibleStudentRegistrations = [];
         foreach($experiences as $experience) {
 
-            if($this->userContext->isSchoolAdministrator()) {
-
-                /** @var SchoolAdministrator $schoolAdmin */
-                $schoolAdmin = $this->userContext;
-
-                foreach($schoolAdmin->getSchools() as $school) {
-                    foreach($school->getStudentUsers() as $studentUser) {
-                        $possibleStudentRegistrations[] = $studentUser->getId();
-                    }
-                }
-            }
 
             if($this->userContext->isEducator()) {
 
@@ -251,16 +251,25 @@ class FeedbackGenerator implements \Iterator
             $filteredFeedback = $experience->getFeedback()->filter(function(Feedback $feedback) use($possibleStudentRegistrations) {
 
                 // some of the legacy code still has direct feedback classes attached to events which we aren't using here
-                if(get_class($feedback) === Feedback::class) {
+                /*if(get_class($feedback) === Feedback::class) {
                     return false;
-                }
+                }*/
 
                 if($feedback->getDeleted()) {
                     return false;
                 }
 
-                if(!$feedback->getUser()) {
+                // TODO THIS NEEDS TO BE REMOVED AS SOME FEEDBACK WILL BE ANONYMOUS NOW.
+            /*    if(!$feedback->getUser()) {
                     return false;
+                }*/
+
+                if($this->userContext->isSchoolAdministrator()) {
+                    return true;
+                }
+
+                if($this->userContext->isProfessional()) {
+                    return true;
                 }
 
                 if($this->userContext->isStudent()) {
@@ -274,21 +283,7 @@ class FeedbackGenerator implements \Iterator
                     );
                 }
 
-                if($this->userContext->isProfessional()) {
-
-                    return (
-                        $feedback instanceof StudentReviewMeetProfessionalExperienceFeedback ||
-                        $feedback instanceof StudentReviewTeachLessonExperienceFeedback ||
-                        $feedback instanceof EducatorReviewTeachLessonExperienceFeedback ||
-                        $feedback instanceof StudentReviewCompanyExperienceFeedback
-                    );
-                }
-
                 if($feedback->getUser()->getId() === $this->userContext->getId()) {
-                    return true;
-                }
-
-                if(in_array($feedback->getUser()->getId(), $possibleStudentRegistrations, true)) {
                     return true;
                 }
 
@@ -561,11 +556,7 @@ class FeedbackGenerator implements \Iterator
 
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/table_header/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/table_header.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
 
@@ -586,11 +577,7 @@ class FeedbackGenerator implements \Iterator
 
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/table_body/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/table_body.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
             return $this->twig->render($template, ['feedbacks' => $this->getFeedback()]);
@@ -612,11 +599,7 @@ class FeedbackGenerator implements \Iterator
         //  is there a way to render based off of that instead of the experience?
         $experience = $this->current();
 
-        $template = sprintf(
-            "widget/feedback/data_breakdown/%s/%s.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName()),
-            $experience->getClassName()
-        );
+        $template = "widget/feedback/data_breakdown.html.twig";
 
         if($this->twig->getLoader()->exists($template)) {
             return $this->twig->render($template, ['feedbackGenerator' => $this]);
@@ -635,11 +618,7 @@ class FeedbackGenerator implements \Iterator
 
         $this->aggregate = true;
 
-        $template = sprintf(
-            "widget/feedback/data_breakdown/%s/aggregate.html.twig",
-            str_replace(' ', '_', $this->userContext->friendlyRoleName())
-        );
-        // $template = "widget/feedback/data_breakdown/aggregate.html.twig";
+        $template = "widget/feedback/aggregate.html.twig";
 
         $html = $this->twig->render($template, ['feedbackGenerator' => $this]);
 

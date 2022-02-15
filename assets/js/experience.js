@@ -3,7 +3,6 @@ import PrimaryIndustrySelect from "./Components/PrimaryIndustrySelect";
 import RegionSelect from "./Components/RegionSelect";
 import RadiusSelect from "./Components/RadiusSelect";
 import SchoolSelect from "./Components/SchoolSelect";
-
 require('select2/dist/js/select2.min');
 import Inputmask from "inputmask";
 import VideoComponent from "./Components/VideoComponent";

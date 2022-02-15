@@ -1,0 +1,51 @@
+{% extends 'baseUnauthenticated.html.twig' %}
+
+{% block title %}Give Feedback{% endblock %}
+{% block bodyClass %}page-feedback{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/feedback.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <div class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto uk-width-3-4@m">
+
+            <div class="uk-text-danger" style="float:right;">* indicates required</div>
+
+            <h2>GIVE FEEDBACK - <small>{{ experience.title }}</small></h2>
+
+            {# {% if experienceHasFeedback %}
+                <h3>Viewing your feedback for {{ experience.title }}</h3>
+            {% else %}
+                <h3>Giving feedback for {{ experience.title }}</h3>
+            {% endif %} #}
+
+            {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+            {{ form_errors(form) }}
+
+            {% include flow.steps[flow.getCurrentStepNumber() - 1].template %}
+
+            {{ form_rest(form) }}
+
+            {% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+                craue_formflow_button_class_reset: 'uk-button uk-button-primary uk-hidden',
+                craue_formflow_button_class_next: 'uk-button uk-button-primary uk-align-right',
+                craue_formflow_button_label_next: 'Continue',
+                craue_formflow_button_class_last: 'uk-button uk-button-primary',
+                craue_formflow_button_class_back: 'uk-button uk-button-primary',
+                craue_formflow_button_class_finish: 'uk-button uk-button-primary uk-align-right',
+                craue_formflow_button_label_finish: 'Submit',
+            } %}
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+{% endblock %}

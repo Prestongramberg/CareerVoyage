@@ -42,10 +42,12 @@ Encore
     .addEntry('lesson_results', './assets/js/lesson_results.js')
     .addEntry('welcome', './assets/js/welcome.js')
     .addEntry('experience', './assets/js/experience.js')
+    .addEntry('experience_view', './assets/js/experience_view.js')
     .addEntry('manage_students', './assets/js/manage_students.js')
     .addEntry('manage_educators', './assets/js/manage_educators.js')
     .addEntry('manage_experiences', './assets/js/experience/manage_experiences.js')
     .addEntry('manage_experience_registrations', './assets/js/experience/manage_registrations.js')
+    .addEntry('feedback', './assets/js/feedback.js')
 
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')

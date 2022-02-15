@@ -1,13 +1,18 @@
 <div id="live-feedback-url-modal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
-        <h3>Live Feedback URL</h3>
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h3 style="font-weight: bold">FEEDBACK URL</h3>
 
-        <p>{{ url('experience_feedback', {'id' : experience.id}) }}</p>
-        <input style="display: none" id="feedback-url" type="text"
-               value="{{ url('experience_feedback', {'id' : experience.id}) }}">
+        <ul>
+            <li class="uk-text-danger">You can share this <strong>URL</strong> with anyone you would like to collect feedback from for this event.</li>
+            <li class="uk-text-danger">People that are not members of Future Forward can still provide feedback through this <strong>URL</strong>.</li>
+            <li class="uk-text-danger">People that are not registered for this event can still provide feedback through this <strong>URL</strong>.</li>
+        </ul>
 
-        <button class="uk-button uk-button-danger" onclick="copyFeedbackUrl()" type="button">
-            Copy
+        <input style="width: 70%; float: left" class="uk-input" id="liveFeedbackUrl" value="{{ url('feedback_v2_new', {'uuid': experience.uuid}) }}">
+
+        <button uk-icon="icon: copy" style="border-top-right-radius: 5px; border-bottom-right-radius: 5px" class="uk-button uk-button-secondary js-copy-to-clipboard-btn" data-clipboard-target="#liveFeedbackUrl">
+            COPY
         </button>
 
     </div>

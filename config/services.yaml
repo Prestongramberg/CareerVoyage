@@ -98,3 +98,10 @@ services:
         tags:
           - { name: security.voter, priority: 245 } # priority is important to override the default
         public: false         # small performance boost
+
+    Craue\FormFlowBundle\Util\FormFlowUtil:
+        public: false
+
+    craue_formflow_util:
+        alias: Craue\FormFlowBundle\Util\FormFlowUtil
+        public: true
