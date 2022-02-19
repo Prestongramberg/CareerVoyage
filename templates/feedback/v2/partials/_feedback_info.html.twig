@@ -4,7 +4,7 @@
         Tell us a bit about the experience
     </legend>
 
-    <div class="uk-width-xlarge uk-margin">
+    <div class="uk-margin">
 
         <div>
             <label>Rate your overall experience<span class="uk-text-danger">*</span></label>
@@ -25,12 +25,21 @@
             {{ form_widget(form.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
 
             <label>Choose all that apply</label>
-            <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}"
-                 data-fields='[
+
+            {% if form.vars.value.feedbackProvider == 'Professional' %}
+                <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}"
+                     data-fields='[
+   { "name": "feedbackInfo[wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" }
+                ]'></div>
+                {% else %}
+                    <div class="react-form-choose-all-that-apply" data-disabled="{{ experienceHasFeedback }}"
+                         data-fields='[
    { "name": "feedbackInfo[providedCareerInsight]", "label": "Provided Career Insight", "value": "{{ feedback.providedCareerInsight ? feedback.providedCareerInsight : false }}", "activeImage": "{{ asset('build/images/insight-active.png') }}", "image": "{{ asset('build/images/insight-inactive.png') }}" },
    { "name": "feedbackInfo[wasEnjoyableAndEngaging]", "label": "Enjoyable and Engaging", "value": "{{ feedback.wasEnjoyableAndEngaging ? feedback.wasEnjoyableAndEngaging : false }}", "activeImage": "{{ asset('build/images/engaging-active.png') }}", "image": "{{ asset('build/images/engaging-inactive.png') }}" },
    { "name": "feedbackInfo[learnSomethingNew]", "label": "Learned Something New", "value": "{{ feedback.learnSomethingNew ? feedback.learnSomethingNew : false }}", "activeImage": "{{ asset('build/images/learn-active.png') }}", "image": "{{ asset('build/images/learn-inactive.png') }}" }
-]'></div>
+                    ]'></div>
+            {% endif %}
+
         </div>
 
         {% if form.interestWorkingForCompany is defined %}

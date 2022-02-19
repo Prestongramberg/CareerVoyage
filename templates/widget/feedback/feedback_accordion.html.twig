@@ -1,0 +1,58 @@
+<div uk-grid>
+    <div class="uk-width-1-1">
+        <ul uk-accordion>
+            <li class="uk-open">
+                <a class="uk-accordion-title" href="#">Feedback Summary</a>
+                <div style="padding-top: 30px; padding-bottom: 60px" class="uk-accordion-content">
+                    {{ feedbackGenerator.renderAggregateDataBreakdown|raw }}
+                </div>
+            </li>
+
+            {% if paginationFeedbackGenerator %}
+
+                {% for experience in paginationFeedbackGenerator %}
+
+                    <li>
+                        <a class="uk-accordion-title" href="#">Feedback for {{ experience.title }}
+                            - {{ experience.startDateAndTime|date("m/d/Y") }} ({{ experience.feedback|length }})</a>
+                        <div style="padding-top: 30px; padding-bottom: 60px" class="uk-accordion-content">
+                            <div class="uk-overflow-auto">
+                                <table class="uk-table uk-table-divider">
+                                    {{ feedbackGenerator.renderTableHeader|raw }}
+                                    {{ feedbackGenerator.renderTableBody|raw }}
+                                </table>
+                            </div>
+
+                            {{ feedbackGenerator.renderDataBreakdown|raw }}
+                        </div>
+                    </li>
+
+                {% endfor %}
+
+                {% else %}
+
+                    {% for experience in feedbackGenerator %}
+
+                        <li>
+                            <a class="uk-accordion-title" href="#">Feedback for {{ experience.title }}
+                                - {{ experience.startDateAndTime|date("m/d/Y") }} ({{ experience.feedback|length }})</a>
+                            <div class="uk-accordion-content">
+                                <div class="uk-overflow-auto">
+                                    <table class="uk-table uk-table-divider">
+                                        {{ feedbackGenerator.renderTableHeader|raw }}
+                                        {{ feedbackGenerator.renderTableBody|raw }}
+                                    </table>
+                                </div>
+
+                                {{ feedbackGenerator.renderDataBreakdown|raw }}
+                            </div>
+                        </li>
+
+                    {% endfor %}
+
+            {% endif %}
+
+
+        </ul>
+    </div>
+</div>

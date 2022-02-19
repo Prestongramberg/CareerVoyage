@@ -735,4 +735,45 @@ class Feedback
 
         return $this;
     }
+
+    public function initializeFromUser(User $user) {
+
+        $this->setFullName($user->getFullName());
+
+        if($user instanceof StudentUser) {
+            $this->setFeedbackProvider('Student');
+
+            if($user->getSchool()) {
+                $this->setUserSchool($user->getSchool());
+            }
+        }
+
+        if($user instanceof EducatorUser) {
+            $this->setFeedbackProvider('Educator');
+
+            if($user->getSchool()) {
+                $this->setUserSchool($user->getSchool());
+            }
+        }
+
+        if($user instanceof SchoolAdministrator) {
+            $this->setFeedbackProvider('Educator');
+
+            // school admins can belong to multiple. So just pick the first
+            if($user->getSchools()->count()) {
+                $this->setUserSchool($user->getSchools()->first());
+            }
+        }
+
+        if($user instanceof ProfessionalUser) {
+            $this->setFeedbackProvider('Professional');
+
+            if($user->getCompany()) {
+                $this->setUserCompany($user->getCompany());
+            }
+
+        }
+
+        return $this;
+    }
 }

@@ -2,8 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\EducatorUser;
 use App\Entity\Experience;
 use App\Entity\Feedback;
+use App\Entity\ProfessionalUser;
+use App\Entity\SchoolAdministrator;
+use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Form\Flow\FeedbackFlow;
 use App\Util\FileHelper;
@@ -42,12 +46,17 @@ class FeedbackV2Controller extends AbstractController
      */
     public function newAction(Experience $experience, Request $request, FeedbackFlow $flow, FormFlowUtil $formFlowUtil)
     {
-        $loggedInuser = $this->getUser();
+        /** @var \App\Entity\User $loggedInUser */
+        $loggedInUser = $this->getUser();
         // TODO!!!! Topic satisfaction does not have an experience id right? Do we even need to think about this now? Probably not.
         $experienceHasFeedback = false;
 
         $feedback = new Feedback();
         $feedback->setExperience($experience);
+
+        if($loggedInUser) {
+            $feedback->initializeFromUser($loggedInUser);
+        }
 
         $flow->bind($feedback);
 
@@ -70,8 +79,8 @@ class FeedbackV2Controller extends AbstractController
                     ]);
                 }
 
-                if($loggedInuser instanceof User) {
-                    $feedbackUser = $loggedInuser;
+                if($loggedInUser instanceof User) {
+                    $feedbackUser = $loggedInUser;
                 }
 
                 $feedback->setUser($feedbackUser);
@@ -127,19 +136,8 @@ class FeedbackV2Controller extends AbstractController
      */
     public function thanksAction(Request $request)
     {
-        $loggedInuser = $this->getUser();
-        // TODO!!!! Topic satisfaction does not have an experience id right? Do we even need to think about this now? Probably not.
-     /*   $experienceId          = $request->query->get('experience_id');
-        $experienceHasFeedback = false;
-
-        if (!$experienceId || !$experience = $this->experienceRepository->find($experienceId)) {
-            throw new NotFoundHttpException(sprintf("Experience with ID %s not found", $experienceId));
-        }*/
-
-        return $this->render("feedback/v2/thanks.html.twig", [
-            //'experience'            => $experience,
-            //'experienceHasFeedback' => $experienceHasFeedback,
-        ]);
+        $loggedInUser = $this->getUser();
+        return $this->render("feedback/v2/thanks.html.twig", []);
     }
 
 }

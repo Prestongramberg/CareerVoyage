@@ -14,6 +14,7 @@ use App\Entity\ProfessionalReviewSchoolExperienceFeedback;
 use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
+use App\Entity\SiteAdminUser;
 use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentReviewMeetProfessionalExperienceFeedback;
 use App\Entity\StudentReviewTeachLessonExperienceFeedback;
@@ -25,7 +26,10 @@ use App\Entity\TeachLessonExperience;
 use App\Form\EducatorReviewCompanyExperienceFeedbackFormType;
 use App\Form\EducatorReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\FeedbackType;
+use App\Form\Filter\ManageFeedbackFilterType;
 use App\Form\Flow\FeedbackFlow;
+use App\Form\ManageExperiencesFilterType;
+use App\Form\ManageUserFilterType;
 use App\Form\ProfessionalReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewCompanyExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewSchoolExperienceFeedbackFormType;
@@ -35,6 +39,7 @@ use App\Form\StudentReviewMeetProfessionalExperienceFeedbackFormType;
 use App\Form\StudentReviewTeachLessonExperienceFeedbackFormType;
 use App\Form\StudentReviewSchoolExperienceFeedbackFormType;
 use App\Form\ProfessionalReviewStudentToMeetProfessionalFeedbackFormType;
+use App\Util\AuthorizationVoter;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
@@ -45,6 +50,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -457,14 +463,55 @@ class FeedbackController extends AbstractController
     {
         // TODO We could use a form filter type here and put the query in here instead.
 
-        $loggedInUser = $this->getUser();
+        $loggedInUser = $user = $this->getUser();
         // TODO Wire up query params to help filter the feedback/experience data
         $schoolId     = $request->query->get('schoolId');
         $companyId    = $request->query->get('companyId');
         $experienceId = $request->query->get('experienceId');
+        $school             = null;
+        $company            = null;
+        $experience         = null;
+        $actionUrlParams    = [];
+        $authorizationVoter = new AuthorizationVoter();
+
+        if (!$schoolId && !$companyId) {
+            if ($user instanceof SchoolAdministrator) {
+                $school = $user->getSchools()
+                               ->first();
+
+                if ($school) {
+                    return $this->redirectToRoute('feedback_view_all', ['schoolId' => $school->getId()]);
+                }
+
+                throw new AccessDeniedException();
+            } elseif ($user instanceof EducatorUser) {
+                $school = $user->getSchool();
+
+                if ($school) {
+                    return $this->redirectToRoute('feedback_view_all', ['schoolId' => $school->getId()]);
+                }
+
+                throw new AccessDeniedException();
+            } elseif ($user instanceof ProfessionalUser) {
+                $company = $user->getOwnedCompany();
+
+                if ($company) {
+                    return $this->redirectToRoute('feedback_view_all', ['companyId' => $company->getId()]);
+                }
+            }
+
+            throw new AccessDeniedException();
+        }
 
         $experiences = [];
-        if ($experienceId && $experience = $this->experienceRepository->find($experienceId)) {
+        if ($experienceId) {
+            $experience = $this->experienceRepository->find($experienceId);
+
+            if (!$experience) {
+                throw new AccessDeniedException();
+            }
+
+            $actionUrlParams['experienceId'] = $experienceId;
             $experiences[] = $experience;
         }
 
@@ -475,18 +522,15 @@ class FeedbackController extends AbstractController
                 $schoolIds[] = $schoolObject->getId();
             }
 
-            $experiences = $this->schoolExperienceRepository->createQueryBuilder('e')
+            $filterBuilder = $this->schoolExperienceRepository->createQueryBuilder('e')
                                                             ->innerJoin('e.school', 'school')
                                                             ->andWhere('school.id IN (:schoolIds)')
-                                                            ->setParameter('schoolIds', $schoolIds)
-                                                            ->addOrderBy('e.startDateAndTime', 'ASC')
-                                                            ->getQuery()
-                                                            ->getResult();
+                                                            ->setParameter('schoolIds', $schoolIds);
         }
 
         // EDUCATORS
         if ($loggedInUser instanceof EducatorUser && !$experienceId && !$schoolId) {
-            $experiences = $this->schoolExperienceRepository->createQueryBuilder('e')
+            $filterBuilder = $this->schoolExperienceRepository->createQueryBuilder('e')
                                                             ->innerJoin('e.school', 'school')
                                                             ->leftJoin('e.schoolContact', 'schoolContact')
                                                             ->leftJoin('e.creator', 'creator')
@@ -494,36 +538,83 @@ class FeedbackController extends AbstractController
                                                                 'schoolContact.id = :schoolContactId or creator.id = :creatorId'
                                                             )
                                                             ->setParameter('schoolContactId', $loggedInUser->getId())
-                                                            ->setParameter('creatorId', $loggedInUser->getId())
-                                                            ->getQuery()
-                                                            ->getResult();
+                                                            ->setParameter('creatorId', $loggedInUser->getId());
         }
 
 
         if ($schoolId) {
-            $experiences = $this->schoolExperienceRepository->createQueryBuilder('e')
+            $actionUrlParams['schoolId'] = $schoolId;
+            $school = $this->schoolRepository->find($schoolId);
+
+            if (!$school || !$authorizationVoter->canCreateExperiencesForSchool($user, $school)) {
+                throw new AccessDeniedException();
+            }
+
+            $filterBuilder = $this->schoolExperienceRepository->createQueryBuilder('e')
                                                             ->innerJoin('e.school', 'school')
                                                             ->andWhere('school.id = :schoolId')
-                                                            ->setParameter('schoolId', $schoolId)
-                                                            ->addOrderBy('e.startDateAndTime', 'ASC')
-                                                            ->getQuery()
-                                                            ->getResult();
+                                                            ->setParameter('schoolId', $schoolId);
         }
 
         if ($companyId) {
-            $experiences = $this->companyExperienceRepository->createQueryBuilder('e')
+            $actionUrlParams['companyId'] = $companyId;
+            $company = $this->companyRepository->find($companyId);
+
+            if (!$company || !$authorizationVoter->canManageExperiencesForCompany($user, $company)) {
+                throw new AccessDeniedException();
+            }
+
+            $filterBuilder = $this->companyExperienceRepository->createQueryBuilder('e')
                                                              ->innerJoin('e.company', 'company')
                                                              ->andWhere('company.id = :companyId')
-                                                             ->setParameter('companyId', $companyId)
-                                                             ->addOrderBy('e.startDateAndTime', 'ASC')
-                                                             ->getQuery()
-                                                             ->getResult();
+                                                             ->setParameter('companyId', $companyId);
         }
 
+
+        /* ORDER BY UPCOMING EVENTS FIRST */
+        $filterBuilder->addSelect("(CASE WHEN e.startDateAndTime >= CURRENT_DATE() THEN 1 ELSE 0 END) AS HIDDEN ORDER_BY_1 ");
+        /* ORDER BY EVENTS CLOSEST TO THE CURRENT DATE NEXT */
+        $filterBuilder->addSelect("abs ( DATE_DIFF ( e.startDateAndTime, CURRENT_DATE() ) ) AS HIDDEN ORDER_BY_2 ");
+        /* ORDER BY EVENTS THAT HAVE A START DATE IN THE PAST BUT ARE STILL GOING ON (LOT OF PEOPLE ARE DOING THIS FOR REPEATING EVENTS) */
+        $filterBuilder->addSelect("(CASE WHEN e.startDateAndTime < CURRENT_DATE() AND e.endDateAndTime > CURRENT_DATE() THEN 1 ELSE 0 END) AS HIDDEN ORDER_BY_3");
+
+        $filterBuilder->addOrderBy('ORDER_BY_1', 'DESC');
+        $filterBuilder->addOrderBy('ORDER_BY_2', 'ASC');
+        $filterBuilder->addOrderBy('ORDER_BY_3', 'DESC');
+
+        $actionUrl = $this->generateUrl('feedback_view_all', $actionUrlParams);
+        $form = $this->createForm(ManageFeedbackFilterType::class, null, [
+            'action' => $actionUrl,
+            'method' => 'GET',
+            'filterableExperiences' => []
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // build the query from the given form object
+            $this->filterBuilder->addFilterConditions($form, $filterBuilder);
+        }
+
+        $filterQuery = $filterBuilder->getQuery();
+        $experiences = $filterQuery->getResult();
+
+        $pagination = $this->paginator->paginate(
+            $filterBuilder->getQuery(),
+            /* query NOT result */ $request->query->getInt('page', 1),
+            /*page number*/ $request->query->getInt('limit', 10)
+        );
 
         return $this->render("feedback/view_all.html.twig", [
             'user'        => $loggedInUser,
             'experiences' => $experiences,
+            'clearFormUrl' => $this->generateUrl('feedback_view_all', $actionUrlParams),
+            'showFilters' => $request->query->has('showFilters'),
+            'form' => $form->createView(),
+            'school' => $school,
+            'company' => $company,
+            'experience' => $experience,
+            'pagination' => $pagination
         ]);
     }
 

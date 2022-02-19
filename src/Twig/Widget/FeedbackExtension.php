@@ -11,6 +11,7 @@ use App\Repository\ExperienceRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\SchoolExperienceRepository;
 use App\Util\FeedbackGenerator;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 use Twig\Environment;
@@ -73,14 +74,31 @@ class FeedbackExtension extends AbstractExtension
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function feedbackWidgetV2(array $experiences, User $userContext)
+    public function feedbackWidgetV2(array $experiences, User $userContext, $accordion = false, PaginationInterface $pagination = null)
     {
         // todo pass in logged in user so you can do filtering off of it?
-        $feedbackGenerator = new FeedbackGenerator($experiences, $userContext, $this->twig);
+        if($pagination) {
+
+            $paginatedExperiences = [];
+            foreach($pagination->getItems() as $item) {
+                $paginatedExperiences[] = $item;
+            }
+
+            $paginationFeedbackGenerator = new FeedbackGenerator($paginatedExperiences, $userContext, $this->twig);
+            $feedbackGenerator = new FeedbackGenerator($experiences, $userContext, $this->twig);
+        } else {
+            $feedbackGenerator = new FeedbackGenerator($experiences, $userContext, $this->twig);
+            $paginationFeedbackGenerator = null;
+        }
 
         $template = 'widget/feedback/feedback.html.twig';
 
-        return $this->twig->render($template, ['feedbackGenerator' => $feedbackGenerator]);
+        if($accordion) {
+            $template = 'widget/feedback/feedback_accordion.html.twig';
+        }
+
+
+        return $this->twig->render($template, ['feedbackGenerator' => $feedbackGenerator, 'paginationFeedbackGenerator' => $paginationFeedbackGenerator]);
     }
 
 }

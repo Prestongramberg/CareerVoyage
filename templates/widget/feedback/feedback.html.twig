@@ -3,7 +3,8 @@
         <ul class="uk-tab-left" uk-tab="connect: #tab-account-inner; animation: uk-animation-fade">
             <li style="margin-top:10px;"><a href="#feedback-summary">Summary</a></li>
             {% for experience in feedbackGenerator %}
-                <li><a href="#feedback-{{ experience.id }}">{{ experience.title }} - {{ experience.startDateAndTime|date("m/d/Y") }} ({{ experience.feedback|length }})</a></li>
+                <li><a href="#feedback-{{ experience.id }}">{{ experience.title }}
+                        - {{ experience.startDateAndTime|date("m/d/Y") }} ({{ experience.feedback|length }})</a></li>
             {% endfor %}
         </ul>
     </div>
@@ -16,18 +17,18 @@
             </div>
 
             {% for experience in feedbackGenerator %}
-                    <div class="feedback-{{ experience.id }}">
-                        <strong>Feedback for {{ experience.title }}</strong>
+                <div class="feedback-{{ experience.id }}">
+                    <strong>Feedback for {{ experience.title }}</strong>
 
-                            <div class="uk-overflow-auto">
-                                <table class="uk-table uk-table-divider">
-                                    {{ feedbackGenerator.renderTableHeader|raw }}
-                                    {{ feedbackGenerator.renderTableBody|raw }}
-                                </table>
-                            </div>
-
-                        {{ feedbackGenerator.renderDataBreakdown|raw }}
+                    <div class="uk-overflow-auto">
+                        <table class="uk-table uk-table-divider">
+                            {{ feedbackGenerator.renderTableHeader|raw }}
+                            {{ feedbackGenerator.renderTableBody|raw }}
+                        </table>
                     </div>
+
+                    {{ feedbackGenerator.renderDataBreakdown|raw }}
+                </div>
             {% else %}
                 <p>No feedback has been submitted yet.</p>
             {% endfor %}

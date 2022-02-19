@@ -1,6 +1,8 @@
 .form-choose-all-that-apply {
 
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 
   &__field {
     padding: 15px;

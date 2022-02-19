@@ -3,9 +3,120 @@
 {% block title %}View Feedback{% endblock %}
 {% block bodyClass %}page-feedback-all{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/manage_feedback.js') }}"></script>
+{% endblock %}
+
 {% block body %}
     <div class="uk-container">
-        {# FEEDBACK WIDGET #}
-        {{ feedback_widget_v2(experiences, user)|raw }}
+
+        <div class="uk-grid" uk-grid>
+
+            <div class="uk-width-1-1">
+
+                <ul class="uk-breadcrumb">
+                    <li><a href="{{ path('dashboard') }}">Home</a></li>
+                    <li><span href="">Manage Feedback</span></li>
+                </ul>
+
+                <div class="uk-section-small uk-section-default header">
+                    <div class="uk-container uk-container-large">
+
+                        {% if experience %}
+                            <h2>MANAGE FEEDBACK - <small>{{ experience.title }}</small></h2>
+                        {% elseif school %}
+                            <h2>MANAGE FEEDBACK - <small>{{ school.name }}</small></h2>
+                        {% elseif company %}
+                            <h2>MANAGE FEEDBACK - <small>{{ company.name }}</small></h2>
+                        {% endif %}
+
+                        <hr>
+                    </div>
+                </div>
+
+
+                {{ form_start(form, {'attr': {'class': 'uk-grid-small', 'uk-grid': 'uk-grid'}}) }}
+                <div class="uk-width-2-3@s">
+                    {{ form_widget(form.title, {'attr': {'class': 'uk-input', 'placeholder': 'Event Title'}}) }}
+                </div>
+
+                <div class="uk-width-1-3@s">
+                    {{ form_widget(form.experience, {'attr': {'class': 'uk-select'}}) }}
+                </div>
+
+                <div class="uk-width-1-1@m">
+                    <div class="uk-grid">
+                        <div style="position: relative" class="uk-width-1-3@m">
+                            <p style="position: absolute; font-size: 8px; padding-left: 5px">Start Date</p>
+                            {{ form_widget(form.startDateAndTime.left_date, {'attr': {'style': 'font-size: 12px', 'class': 'uk-input', 'placeholder': 'MM/DD/YY'}}) }}
+                        </div>
+
+                        <span style="margin-top: 5px; padding-left: 10px">-</span>
+
+                        <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
+                            <p style="position: absolute; font-size: 8px; padding-left: 5px">Start Date</p>
+                            {{ form_widget(form.startDateAndTime.right_date, {'attr': {'style': 'font-size: 12px', 'class': 'uk-input', 'placeholder': 'MM/DD/YY'}}) }}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="uk-width-1-1@m">
+                    <div class="uk-grid">
+                        <div class="uk-width-1-3@m">
+                            {% for item in form.hasFeedback.children %}
+                                <div>
+                                    <label>{{ form_widget(item, {'attr': {'class': 'uk-radio'}}) }} {{ item.vars.label }}</label>
+                                </div>
+                            {% endfor %}
+                            {{ form_errors(form.hasFeedback) }}
+                        </div>
+                    </div>
+                </div>
+
+
+
+                {% if school %}
+                    <input type="hidden" name="schoolId" value="{{ school.id }}">
+                {% endif %}
+
+                {% if company %}
+                    <input type="hidden" name="companyId" value="{{ company.id }}">
+                {% endif %}
+
+                {% if experience %}
+                    <input type="hidden" name="experienceId" value="{{ experience.id }}">
+                {% endif %}
+
+                <div class="uk-width-1-4@s">
+                    <button class="uk-button uk-button-primary">Search</button>
+                    <a class="uk-button uk-button-default" href="{{ clearFormUrl }}">Clear</a>
+                </div>
+                {{ form_end(form) }}
+
+                <hr>
+
+                <div style="margin-top:50px" class="uk-width-2-3">
+                    {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
+                </div>
+
+                <div style="margin-top:50px; position: relative" class="uk-width-1-3">
+                    <div>Total Events: {{ pagination.getTotalItemCount }}</div>
+                </div>
+
+            </div>
+
+            <div class="uk-width-2-3">
+                {# FEEDBACK WIDGET #}
+                {{ feedback_widget_v2(experiences, user, true, pagination)|raw }}
+            </div>
+
+            <div class="uk-width-2-3">
+                {{ knp_pagination_render(pagination, 'pagination/custom_pagination.html.twig') }}
+            </div>
+
+        </div>
+
     </div>
 {% endblock %}
