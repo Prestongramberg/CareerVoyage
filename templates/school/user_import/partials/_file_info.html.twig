@@ -1,0 +1,26 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        File<span class="uk-text-danger">*</span>
+    </legend>
+
+    <div class="uk-grid">
+
+        <div class="uk-width-1-1@m uk-margin-top">
+            <div>
+                <label>CSV or Excel File<span class="uk-text-danger">*</span></label>
+            </div>
+            <div uk-form-custom="target: true">
+                {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
+                <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+            </div>
+            {{ form_errors(form.file) }}
+        </div>
+
+        <div class="uk-hidden">
+            {{ form_widget(form.users) }}
+        </div>
+
+    </div>
+
+</fieldset>

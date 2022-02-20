@@ -1,0 +1,63 @@
+{% extends 'baseAuthenticated.html.twig' %}
+
+{% block title %}User Import Tool{% endblock %}
+{% block bodyClass %}page-feedback{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('build/user_import.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="uk-container">
+
+        <ul class="uk-breadcrumb">
+            <li><a href="{{ path('dashboard') }}">Home</a></li>
+            <li><span href="">Import Users</span></li>
+        </ul>
+
+      {#  <div class="uk-margin-auto uk-width-3-4@m uk-section-small uk-section-default header">
+            <div class="uk-container uk-container-large">
+
+                {% if type == 'student' %}
+                    <h2>USER IMPORT - <small>Students</small></h2>
+                {% elseif type == 'educator' %}
+                    <h2>USER IMPORT - <small>Educators</small></h2>
+                {% else %}
+                    <h2>USER IMPORT</h2>
+                {% endif %}
+            </div>
+        </div>#}
+
+        <div class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto uk-width-3-4@m">
+
+            <div class="uk-text-danger" style="float:right;">* indicates required</div>
+
+            <h2>Import Users</h2>
+
+            {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
+
+            {{ form_errors(form) }}
+
+            {% include flow.steps[flow.getCurrentStepNumber() - 1].template %}
+
+            {{ form_rest(form) }}
+
+            {% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+                craue_formflow_button_class_reset: 'uk-button uk-button-primary uk-hidden',
+                craue_formflow_button_class_next: 'uk-button uk-button-primary uk-align-right',
+                craue_formflow_button_label_next: 'Continue',
+                craue_formflow_button_class_last: 'uk-button uk-button-primary',
+                craue_formflow_button_class_back: 'uk-button uk-button-primary',
+                craue_formflow_button_class_finish: 'uk-button uk-button-primary uk-align-right',
+                craue_formflow_button_label_finish: 'Submit',
+            } %}
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+{% endblock %}

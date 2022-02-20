@@ -244,6 +244,11 @@ class School
      */
     private $reportShares;
 
+    /**
+     * @ORM\OneToMany(targetEntity=UserImport::class, mappedBy="school")
+     */
+    private $userImports;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -258,6 +263,7 @@ class School
         $this->teachLessonExperiences = new ArrayCollection();
         $this->schoolResources = new ArrayCollection();
         $this->reportShares = new ArrayCollection();
+        $this->userImports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -937,6 +943,36 @@ class School
     {
         if ($this->reportShares->removeElement($reportShare)) {
             $reportShare->removeSchool($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserImport[]
+     */
+    public function getUserImports(): Collection
+    {
+        return $this->userImports;
+    }
+
+    public function addUserImport(UserImport $userImport): self
+    {
+        if (!$this->userImports->contains($userImport)) {
+            $this->userImports[] = $userImport;
+            $userImport->setSchool($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserImport(UserImport $userImport): self
+    {
+        if ($this->userImports->removeElement($userImport)) {
+            // set the owning side to null (unless already changed)
+            if ($userImport->getSchool() === $this) {
+                $userImport->setSchool(null);
+            }
         }
 
         return $this;

@@ -1,0 +1,69 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Tell us a bit about the import
+    </legend>
+
+    <div class="uk-grid">
+
+        <div class="uk-width-1-1@m uk-margin-top">
+                <div>
+                    <label>Autogenerate Usernames?<span class="uk-text-danger">*</span></label>
+                </div>
+                {% for item in form.autogenerateUsername.children %}
+                    <label>{{ form_widget(item, {'attr': {'class': 'uk-radio'}}) }} {{ item.vars.label }}</label>
+                    {#<div>
+                        <label>{{ form_widget(item, {'attr': {'class': 'uk-radio'}}) }} {{ item.vars.label }}</label>
+                    </div>#}
+                {% endfor %}
+                {{ form_errors(form.autogenerateUsername) }}
+        </div>
+
+        <div class="uk-width-1-1@m uk-margin">
+                <div>
+                    <label>Autogenerate Passwords?<span class="uk-text-danger">*</span></label>
+                </div>
+                {% for item in form.autogeneratePassword.children %}
+                    <label>{{ form_widget(item, {'attr': {'class': 'uk-radio'}}) }} {{ item.vars.label }}</label>
+                    {#<div>
+                        <label>{{ form_widget(item, {'attr': {'class': 'uk-radio'}}) }} {{ item.vars.label }}</label>
+                    </div>#}
+                {% endfor %}
+                {{ form_errors(form.autogeneratePassword) }}
+        </div>
+
+        <div class="uk-width-1-1@m">
+            <label>User Type<span class="uk-text-danger">*</span></label>
+            <div>
+                {% for item in form.type.children %}
+                    {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
+                    <label>{{ item.vars.label }}</label>
+                {% endfor %}
+                {{ form_errors(form.type) }}
+            </div>
+        </div>
+
+
+
+       {# <div class="uk-width-1-2@m">
+            <div class="uk-margin">
+                <label>Email (Optional)</label>
+                {{ form_widget(form.email, {'attr': {'class': 'uk-input' }}) }}
+                {{ form_errors(form.email) }}
+            </div>
+        </div>
+
+        <div class="uk-width-1-1@m uk-margin">
+            <label>Your Role<span class="uk-text-danger">*</span></label>
+            <div>
+                {% for item in form.feedbackProvider.children %}
+                    {{ form_widget(item, {'attr': {'class' : 'uk-radio'}}) }}
+                    <label>{{ item.vars.label }}</label>
+                {% endfor %}
+                {{ form_errors(form.feedbackProvider) }}
+            </div>
+        </div>#}
+
+    </div>
+
+</fieldset>

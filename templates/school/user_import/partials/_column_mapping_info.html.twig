@@ -1,0 +1,58 @@
+<fieldset class="uk-margin">
+
+    <legend class="">
+        Column Mapping<span class="uk-text-danger">*</span>
+    </legend>
+
+    <div class="uk-grid">
+
+        <div class="uk-width-1-1@m uk-margin">
+            <small class="uk-text-muted">So we can reliably import your data, please input the column names from your spreadsheet/csv file.</small>
+            <br>
+            <small class="uk-text-danger">Note: Validation is <strong>CASE SENSITIVE</strong>. Please enter the column names exactly as they appear in your file.</small>
+        </div>
+
+        {# <label>Autogenerate Usernames?<span class="uk-text-danger">*</span></label> #}
+
+        {# Map the column names from your spreadsheet/csv file to our database. Please type the column names exactly as they are in your file. #}
+
+        <div class="uk-width-1-1@m uk-margin">
+            <div class="uk-grid">
+                <div style="position: relative" class="uk-width-1-3@m">
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                    {{ form_widget(form.firstNameMapping, {'attr': {'class': 'uk-input' }}) }}
+                    {{ form_errors(form.firstNameMapping) }}
+                </div>
+
+                <span style="margin-top: 5px; padding-left: 10px">-></span>
+
+                <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
+                    <input value="First Name" class="uk-input" type="text" placeholder="Input" disabled>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="uk-width-1-1@m uk-margin">
+            <div class="uk-grid">
+                <div style="position: relative" class="uk-width-1-3@m">
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                    {{ form_widget(form.lastNameMapping, {'attr': {'class': 'uk-input' }}) }}
+                    {{ form_errors(form.lastNameMapping) }}
+                </div>
+
+                <span style="margin-top: 5px; padding-left: 10px">-></span>
+
+                <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
+                    <input value="Last Name" class="uk-input" type="text" placeholder="Input" disabled>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+</fieldset>

@@ -3,15 +3,9 @@
 namespace App\Form\Feedback;
 
 use App\Entity\CompanyExperience;
-use App\Entity\Experience;
 use App\Entity\Feedback;
-use App\Entity\School;
 use App\Entity\SchoolExperience;
-use App\Entity\Tag;
 use App\Repository\SchoolRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;

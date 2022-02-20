@@ -49,6 +49,7 @@ Encore
     .addEntry('manage_experience_registrations', './assets/js/experience/manage_registrations.js')
     .addEntry('feedback', './assets/js/feedback.js')
     .addEntry('manage_feedback', './assets/js/manage_feedback.js')
+    .addEntry('user_import', './assets/js/user_import.js')
 
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')

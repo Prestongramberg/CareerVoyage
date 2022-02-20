@@ -1,58 +1,53 @@
-<?php /** @noinspection PhpSwitchCaseWithoutDefaultBranchInspection */
+<?php
+/** @noinspection PhpSwitchCaseWithoutDefaultBranchInspection */
 
 namespace App\Controller;
 
 use App\Entity\AdminUser;
 use App\Entity\Chat;
-use App\Entity\ChatMessage;
 use App\Entity\Company;
 use App\Entity\EducatorUser;
-use App\Entity\ExperienceFile;
+use App\Entity\Feedback;
 use App\Entity\Image;
 use App\Entity\ProfessionalUser;
 use App\Entity\RegionalCoordinator;
 use App\Entity\Registration;
-use App\Entity\RequestAction;
 use App\Entity\School;
 use App\Entity\SchoolAdministrator;
 use App\Entity\SchoolExperience;
 use App\Entity\SchoolPhoto;
 use App\Entity\SchoolResource;
 use App\Entity\SchoolVideo;
-use App\Entity\StudentReviewCompanyExperienceFeedback;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\UserImport;
 use App\Form\AdHocFormType;
 use App\Form\AssignedStudentsFormType;
 use App\Form\ChatFilterType;
 use App\Form\ChatMessageFilterType;
-use App\Form\EditSchoolExperienceType;
 use App\Form\EditSchoolType;
 use App\Form\EducatorImportType;
-use App\Form\ExperienceType;
 use App\Form\ExportUsersFormType;
 use App\Form\Filter\SchoolFilterType;
+use App\Form\Flow\UserImportFlow;
 use App\Form\ManageEducatorsFilterType;
 use App\Form\ManageStudentsFilterType;
-use App\Form\NewSchoolExperienceType;
 use App\Form\NewSchoolType;
-use App\Form\Request\SendMessageFormType;
 use App\Form\ResetPasswordType;
 use App\Form\SchoolAdminFormType;
 use App\Form\SchoolCommunicationType;
 use App\Form\StudentImportType;
 use App\Form\SupervisingTeacherFormType;
 use App\Model\ResetPassword;
-use App\Service\RequestService;
 use App\Service\UploaderHelper;
 use App\Util\AuthorizationVoter;
 use App\Util\FileHelper;
 use App\Util\RandomStringGenerator;
 use App\Util\ServiceHelper;
+use Craue\FormFlowBundle\Util\FormFlowUtil;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Sluggable\Util\Urlizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -70,19 +65,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SchoolController extends AbstractController
 {
+
     use FileHelper;
     use ServiceHelper;
     use RandomStringGenerator;
 
     /**
      * @Route("/schools", name="school_index", methods={"GET"}, options = { "expose" = true })
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request)
     {
-
         $user = $this->getUser();
 
         return $this->render('school/index.html.twig', [
@@ -92,13 +87,12 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/results", name="school_results_page", methods={"GET"}, options = { "expose" = true })
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolsResultsAction(Request $request)
     {
-
         /** @var User $user */
         $user = $this->getUser();
 
@@ -108,7 +102,8 @@ class SchoolController extends AbstractController
 
         $form->handleRequest($request);
 
-        $filterBuilder = $this->schoolRepository->createQueryBuilder('s')->addOrderBy('s.name', 'ASC');
+        $filterBuilder = $this->schoolRepository->createQueryBuilder('s')
+                                                ->addOrderBy('s.name', 'ASC');
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->filterBuilder->addFilterConditions($form, $filterBuilder);
@@ -133,7 +128,7 @@ class SchoolController extends AbstractController
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
      * @Route("/schools/admin/new", name="school_admin_new")
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NonUniqueResultException
@@ -143,7 +138,6 @@ class SchoolController extends AbstractController
      */
     public function newAdminAction(Request $request)
     {
-
         /** @var RegionalCoordinator $user */
         $user        = $this->getUser();
         $schoolAdmin = new SchoolAdministrator();
@@ -196,14 +190,13 @@ class SchoolController extends AbstractController
     /**
      * @Security("is_granted('ROLE_REGIONAL_COORDINATOR_USER')")
      * @Route("/schools/new", name="school_new")
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
     public function newSchool(Request $request)
     {
-
         /** @var RegionalCoordinator $user */
         $user   = $this->getUser();
         $school = new School();
@@ -217,7 +210,10 @@ class SchoolController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var School $school */
             $school = $form->getData();
-            $school->setState($user->getRegion()->getState());
+            $school->setState(
+                $user->getRegion()
+                     ->getState()
+            );
             $school->setRegion($user->getRegion());
             $school->setSite($user->getSite());
 
@@ -306,14 +302,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/educators", name="school_educators")
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function educatorsAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         return new Response("educators");
@@ -321,14 +316,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/educators/{id}/remove", name="remove_educator", methods={"POST"})
-     * @param Request      $request
-     * @param EducatorUser $educatorUser
+     * @param  Request       $request
+     * @param  EducatorUser  $educatorUser
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function removeEducatorAction(Request $request, EducatorUser $educatorUser)
     {
-
         $this->denyAccessUnlessGranted('edit', $educatorUser->getSchool());
 
         $schoolAdminId = $request->request->get('schoolAdminId');
@@ -347,29 +341,25 @@ class SchoolController extends AbstractController
         $this->addFlash('success', 'Educator removed from school');
 
         if ($request->request->get('iframe')) {
-
             return new JsonResponse([
                 'success' => true,
                 'id'      => $educatorUser->getId(),
 
             ], Response::HTTP_OK);
-
         } else {
             return $this->redirectToRoute('dashboard');
         }
-
     }
 
     /**
      * @Route("/schools/{id}/students", name="school_students")
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function studentsAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         return new Response("students");
@@ -377,14 +367,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/delete", name="school_delete", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function deleteSchoolAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         /** @var User $user */
@@ -400,14 +389,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/students/{id}/remove", name="remove_student", methods={"POST"})
-     * @param Request     $request
-     * @param StudentUser $studentUser
+     * @param  Request      $request
+     * @param  StudentUser  $studentUser
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function removeStudentAction(Request $request, StudentUser $studentUser)
     {
-
         $this->denyAccessUnlessGranted('edit', $studentUser->getSchool());
 
         $schoolAdminId = $request->request->get('schoolAdminId');
@@ -418,13 +406,11 @@ class SchoolController extends AbstractController
         $this->entityManager->flush();
 
         if ($request->request->get('iframe')) {
-
             return new JsonResponse([
                 'success' => true,
                 'id'      => $studentUser->getId(),
 
             ], Response::HTTP_OK);
-
         } else {
             return $this->redirectToRoute('dashboard');
         }
@@ -433,14 +419,13 @@ class SchoolController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/schools/{id}/edit", name="school_edit", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         $user = $this->getUser();
@@ -475,8 +460,8 @@ class SchoolController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER"})
      * @Route("/schools/{id}/communication-type", name="school_communication_type", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -508,8 +493,8 @@ class SchoolController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/schools/{id}/chats", name="school_chat", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -517,7 +502,10 @@ class SchoolController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        if ($user->isEducator() && $user->getSchool()->getId() !== $school->getId()) {
+        if ($user->isEducator()
+            && $user->getSchool()
+                    ->getId() !== $school->getId()
+        ) {
             throw new AccessDeniedException();
         } else {
             if (!$user->isEducator()) {
@@ -559,17 +547,19 @@ class SchoolController extends AbstractController
     /**
      * @IsGranted({"ROLE_ADMIN_USER", "ROLE_SITE_ADMIN_USER", "ROLE_STATE_COORDINATOR_USER", "ROLE_REGIONAL_COORDINATOR_USER", "ROLE_SCHOOL_ADMINISTRATOR_USER", "ROLE_EDUCATOR_USER"})
      * @Route("/schools/{id}/chats/{chatId}/messages", name="school_chat_messages", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
-     * @param Chat    $chat
+     * @param  Request  $request
+     * @param  School   $school
+     * @param  Chat     $chat
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function chatMessages(Request $request, School $school, Chat $chat)
     {
-
         $user = $this->getUser();
-        if ($user->isEducator() && $user->getSchool()->getId() !== $school->getId()) {
+        if ($user->isEducator()
+            && $user->getSchool()
+                    ->getId() !== $school->getId()
+        ) {
             throw new AccessDeniedException();
         } else {
             if (!$user->isEducator()) {
@@ -614,14 +604,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/view", name="school_view", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function viewAction(Request $request, School $school)
     {
-
         $user = $this->getUser();
 
         $volunteeringCompanies     = $this->companyRepository->getBySchool($school);
@@ -638,15 +627,106 @@ class SchoolController extends AbstractController
 
     /**
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
+     * @Route("/schools/{id}/users/import", name="school_user_import")
+     * @param  Request                                  $request
+     * @param  School                                   $school
+     * @param  \App\Form\Flow\UserImportFlow            $flow
+     * @param  \Craue\FormFlowBundle\Util\FormFlowUtil  $formFlowUtil
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function userImportAction(Request $request, School $school, UserImportFlow $flow, FormFlowUtil $formFlowUtil)
+    {
+        /** @var \App\Entity\User $loggedInUser */
+        $loggedInUser = $this->getUser();
+
+        //$feedback = new Feedback();
+        //$feedback->setExperience($experience);
+
+        /* if($loggedInUser) {
+             $feedback->initializeFromUser($loggedInUser);
+         }*/
+
+        $userImport = new UserImport();
+
+        $flow->bind($userImport);
+
+        $form = $submittedForm = $flow->createForm();
+
+        if ($flow->isValid($submittedForm)) {
+            $flow->saveCurrentStepData($submittedForm);
+
+            if ($flow->nextStep()) {
+                // form for the next step
+                $form = $flow->createForm();
+            } else {
+                // todo do all the normalizing of the feedback that the feedback normalizer command does??
+
+                /*   $feedbackUser = null;
+
+                   if($email = $feedback->getEmail()) {
+                       $feedbackUser = $this->userRepository->findOneBy([
+                           'email' => $email
+                       ]);
+                   }
+
+                   if($loggedInUser instanceof User) {
+                       $feedbackUser = $loggedInUser;
+                   }
+
+                   $feedback->setUser($feedbackUser);
+
+                   $this->entityManager->persist($feedback);*/
+                $this->entityManager->flush();
+                $flow->reset();
+                //return $this->redirectToRoute('feedback_v2_thanks');
+            }
+        }
+
+        $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
+        $url    = $this->generateUrl($request->attributes->get('_route'), $params);
+
+        if ($flow->redirectAfterSubmit($submittedForm)) {
+            $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
+
+            return $this->redirect($this->generateUrl($request->attributes->get('_route'), $params));
+        }
+
+        /*      if ($request->request->has('changeableField')) {
+                  return new JsonResponse(
+                      [
+                          'success'    => false,
+                          'formMarkup' => $this->renderView("feedback/v2/new.html.twig", [
+                              'form'                  => $form->createView(),
+                              'flow'                  => $flow,
+                              'route'                 => $url,
+                              'feedback'              => $feedback,
+                              'experience'            => $experience,
+                              'experienceHasFeedback' => $experienceHasFeedback,
+                          ]),
+                      ], Response::HTTP_BAD_REQUEST
+                  );
+              }*/
+
+        return $this->render("school/user_import.html.twig", [
+            'form'  => $form->createView(),
+            'flow'  => $flow,
+            'route' => $url,
+            'user'  => $loggedInUser,
+            'type'  => $request->query->get('type')
+        ]);
+    }
+
+    /**
+     * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
      * @Route("/schools/{id}/students/import", name="school_student_import")
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function studentImportAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         /** @var SchoolAdministrator $user */
@@ -661,7 +741,8 @@ class SchoolController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $uploadedFile */
-            $file    = $form->get('file')->getData();
+            $file    = $form->get('file')
+                            ->getData();
             $columns = $this->phpSpreadsheetHelper->getColumnNames($file);
             // capitalize each word in each item in array so we can assure a proper comparision
             $columns         = array_map('strtolower', $columns);
@@ -706,14 +787,12 @@ class SchoolController extends AbstractController
                             $value = $cell->getValue();
                             if ($rowIndex === 1) {
                                 $columns[] = ucwords(strtolower($value));
-
                             } else {
                                 $values[] = $value;
                             }
                         }
 
                         if ($rowIndex > 1) {
-
                             // Normalizing empty cell possibilities https://github.com/box/spout/issues/332
                             if (count($columns) !== count($values)) {
                                 $values = $values + array_fill(count($values), count($columns) - count($values), '');
@@ -721,8 +800,7 @@ class SchoolController extends AbstractController
                             $student = array_combine($columns, $values);
 
                             if (!empty($student['First Name']) && !empty($student['Last Name'])) {
-
-                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", strtolower(trim($student['First Name']) . '.' . trim($student['Last Name'])), $this->generateRandomString(1)));
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", strtolower(trim($student['First Name']).'.'.trim($student['Last Name'])), $this->generateRandomString(1)));
 
                                 $studentObj = new StudentUser();
                                 $studentObj->setFirstName(trim($student['First Name']));
@@ -730,12 +808,10 @@ class SchoolController extends AbstractController
                                 $studentObj->setGraduatingYear(trim($student['Graduating Year']));
 
                                 if (!empty($student['Educator Number'])) {
-
                                     if ($previousEducator instanceof EducatorUser && $previousEducator->getId() === trim($student['Educator Number'])) {
                                         $studentObj->addEducatorUser($previousEducator);
                                         $studentObj->setEducatorNumber($previousEducator->getId());
                                     } else {
-
                                         $educator = $this->educatorUserRepository->findOneBy([
                                             'id'     => trim($student['Educator Number']),
                                             'school' => $school,
@@ -761,14 +837,12 @@ class SchoolController extends AbstractController
                                 $studentObjs[] = $studentObj;
                             }
                         }
-
                     }
                 }
 
                 // make sure any final records that came after the (($rowIndex % $batchSize) === 0) are flushed
                 $this->entityManager->flush();
                 $this->entityManager->commit();
-
             } catch (\Exception $exception) {
                 $this->entityManager->rollback();
                 $this->addFlash('error', sprintf('Error importing spreadsheet. (%s).', $exception->getMessage()));
@@ -777,12 +851,10 @@ class SchoolController extends AbstractController
             }
 
             if (!empty($studentObjs)) {
-
                 $data               = $this->serializer->serialize($studentObjs, 'json', ['groups' => ['STUDENT_USER']]);
                 $data               = json_decode($data, true);
-                $attachmentFilePath = sys_get_temp_dir() . '/students.csv';
+                $attachmentFilePath = sys_get_temp_dir().'/students.csv';
                 file_put_contents($attachmentFilePath, $this->serializer->encode($data, 'csv'));
-
                 /*foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
                     $this->importMailer->studentImportMailer($schoolAdministrator, $attachmentFilePath);
                 }*/
@@ -803,16 +875,14 @@ class SchoolController extends AbstractController
     /**
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
      * @Route("/schools/{id}/educators/import", name="school_educator_import")
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Exception
      */
     public function educatorImportAction(Request $request, School $school)
     {
-
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         /** @var SchoolAdministrator $user */
@@ -825,12 +895,12 @@ class SchoolController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $errors       = 'Duplicate Users (The following users were not imported as they already have an account on the platform as a NON educator): ';
             $error_emails = [];
 
             /** @var UploadedFile $uploadedFile */
-            $file    = $form->get('file')->getData();
+            $file    = $form->get('file')
+                            ->getData();
             $columns = [];
             try {
                 $columns = $this->phpSpreadsheetHelper->getColumns($file);
@@ -882,14 +952,12 @@ class SchoolController extends AbstractController
                             $value = $cell->getValue();
                             if ($rowIndex === 1) {
                                 $columns[] = ucwords(strtolower($value));
-
                             } else {
                                 $values[] = $value;
                             }
                         }
 
                         if ($rowIndex > 1) {
-
                             // Normalizing empty cell possibilities https://github.com/box/spout/issues/332
                             if (count($columns) !== count($values)) {
                                 $values = $values + array_fill(count($values), count($columns) - count($values), '');
@@ -903,7 +971,6 @@ class SchoolController extends AbstractController
                             ]);
 
                             if ($existingUser) {
-
                                 if (!$existingUser->isEducator()) {
                                     $error_emails[] = $existingUser->getEmail();
                                     continue;
@@ -918,8 +985,7 @@ class SchoolController extends AbstractController
                                 $this->entityManager->persist($existingUser);
                                 $existingEducatorObjs[] = $existingUser;
                             } else {
-
-                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", strtolower(trim($educator['First Name']) . '.' . trim($educator['Last Name'])), $this->generateRandomString(1)));
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", strtolower(trim($educator['First Name']).'.'.trim($educator['Last Name'])), $this->generateRandomString(1)));
 
                                 $educatorObj = new EducatorUser();
                                 $educatorObj->setFirstName(trim($educator['First Name']));
@@ -943,7 +1009,6 @@ class SchoolController extends AbstractController
                 // make sure any final records that came after the (($rowIndex % $batchSize) === 0) are flushed
                 $this->entityManager->flush();
                 $this->entityManager->commit();
-
             } catch (\Exception $exception) {
                 $this->entityManager->rollback();
                 $this->addFlash('error', sprintf('Error importing spreadsheet. (%s).', $exception->getMessage()));
@@ -971,19 +1036,17 @@ class SchoolController extends AbstractController
             $this->entityManager->flush();
 
             if (!empty($allEducators)) {
-
                 $data               = $this->serializer->serialize($allEducators, 'json', ['groups' => ['EDUCATOR_USER']]);
                 $data               = json_decode($data, true);
-                $attachmentFilePath = sys_get_temp_dir() . '/educators.csv';
+                $attachmentFilePath = sys_get_temp_dir().'/educators.csv';
                 file_put_contents($attachmentFilePath, $this->serializer->encode($data, 'csv'));
-
                 /* foreach ($school->getSchoolAdministrators() as $schoolAdministrator) {
                      $this->importMailer->educatorImportMailer($schoolAdministrator, $attachmentFilePath);
                  }*/
             }
 
             if (sizeof($error_emails) > 0) {
-                $this->addFlash('error', $errors . join($error_emails, ', ') . ' they were not importred.');
+                $this->addFlash('error', $errors.join($error_emails, ', ').' they were not importred.');
             }
             $this->addFlash('success', sprintf('Educators successfully imported.'));
 
@@ -999,14 +1062,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/photos/add", name="school_photos_add", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return JsonResponse
      */
     public function schoolAddPhotosAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         $user = $this->getUser();
@@ -1024,14 +1086,14 @@ class SchoolController extends AbstractController
             $image->setSchool($school);
             $this->entityManager->persist($image);
 
-            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::SCHOOL_PHOTO) . '/' . $newFilename;
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::SCHOOL_PHOTO).'/'.$newFilename;
             $this->imageCacheGenerator->cacheImageForAllFilters($path);
 
             $this->entityManager->flush();
 
             return new JsonResponse([
                 'success' => true,
-                'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::SCHOOL_PHOTO . '/' . $newFilename, 'squared_thumbnail_small'),
+                'url'     => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::SCHOOL_PHOTO.'/'.$newFilename, 'squared_thumbnail_small'),
                 'id'      => $image->getId(),
             ], Response::HTTP_OK);
         }
@@ -1043,14 +1105,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/resource/add", name="school_resource_add", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return JsonResponse
      */
     public function schoolAddResourceAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         /** @var UploadedFile $file */
@@ -1096,7 +1157,7 @@ class SchoolController extends AbstractController
 
         return new JsonResponse([
             'success'     => true,
-            'url'         => $file ? $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $newFilename : $schoolResource->getLinkToWebsite(),
+            'url'         => $file ? $this->getFullQualifiedBaseUrl().'/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$newFilename : $schoolResource->getLinkToWebsite(),
             'id'          => $schoolResource->getId(),
             'title'       => $title,
             'description' => $description,
@@ -1136,14 +1197,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/resource/{id}/remove", name="school_resource_remove", options = { "expose" = true })
-     * @param Request        $request
-     * @param SchoolResource $schoolResource
+     * @param  Request         $request
+     * @param  SchoolResource  $schoolResource
      *
      * @return JsonResponse
      */
     public function schoolRemoveResourceAction(Request $request, SchoolResource $schoolResource)
     {
-
         $this->denyAccessUnlessGranted('edit', $schoolResource->getSchool());
 
         $this->entityManager->remove($schoolResource);
@@ -1157,20 +1217,19 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/resource/{id}/get", name="school_resource_get", options = { "expose" = true })
-     * @param Request        $request
-     * @param schoolResource $schoolResource
+     * @param  Request         $request
+     * @param  schoolResource  $schoolResource
      *
      * @return JsonResponse
      */
     public function schoolGetResourceAction(Request $request, SchoolResource $schoolResource)
     {
-
         $this->denyAccessUnlessGranted('edit', $schoolResource->getSchool());
 
         if ($schoolResource->getFile() != null) {
             return new JsonResponse([
                 'success'     => true,
-                'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $schoolResource->getFileName(),
+                'url'         => $this->getFullQualifiedBaseUrl().'/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$schoolResource->getFileName(),
                 'id'          => $schoolResource->getId(),
                 'title'       => $schoolResource->getTitle(),
                 'description' => $schoolResource->getDescription(),
@@ -1190,14 +1249,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/resources/{id}/edit", name="school_resource_edit", options = { "expose" = true })
-     * @param Request        $request
-     * @param SchoolResource $file
+     * @param  Request         $request
+     * @param  SchoolResource  $file
      *
      * @return JsonResponse
      */
     public function schoolEditResourceAction(Request $request, SchoolResource $file)
     {
-
         $this->denyAccessUnlessGranted('edit', $file->getSchool());
 
         /** @var UploadedFile $file */
@@ -1239,7 +1297,7 @@ class SchoolController extends AbstractController
         if ($file->getFileName() != null) {
             return new JsonResponse([
                 'success'     => true,
-                'url'         => $this->getFullQualifiedBaseUrl() . '/uploads/' . UploaderHelper::SCHOOL_RESOURCE . '/' . $file->getFileName(),
+                'url'         => $this->getFullQualifiedBaseUrl().'/uploads/'.UploaderHelper::SCHOOL_RESOURCE.'/'.$file->getFileName(),
                 'id'          => $file->getId(),
                 'title'       => $file->getTitle(),
                 'description' => $file->getDescription(),
@@ -1291,14 +1349,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/photos/{id}/remove", name="school_photo_remove", options = { "expose" = true })
-     * @param Request     $request
-     * @param SchoolPhoto $schoolPhoto
+     * @param  Request      $request
+     * @param  SchoolPhoto  $schoolPhoto
      *
      * @return JsonResponse
      */
     public function schoolRemovePhotoAction(Request $request, SchoolPhoto $schoolPhoto)
     {
-
         $this->denyAccessUnlessGranted('edit', $schoolPhoto->getSchool());
 
         $this->entityManager->remove($schoolPhoto);
@@ -1312,14 +1369,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/videos/{id}/edit", name="school_video_edit", options = { "expose" = true })
-     * @param Request     $request
-     * @param SchoolVideo $video
+     * @param  Request      $request
+     * @param  SchoolVideo  $video
      *
      * @return JsonResponse
      */
     public function schoolEditVideoAction(Request $request, SchoolVideo $video)
     {
-
         $this->denyAccessUnlessGranted('edit', $video->getSchool());
 
         $name    = $request->request->get('name');
@@ -1348,14 +1404,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/video/add", name="school_video_add", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return JsonResponse
      */
     public function schoolAddVideoAction(Request $request, School $school)
     {
-
         $this->denyAccessUnlessGranted('edit', $school);
 
         $name    = $request->request->get('name');
@@ -1386,14 +1441,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/videos/{id}/remove", name="school_video_remove", options = { "expose" = true })
-     * @param Request     $request
-     * @param SchoolVideo $schoolVideo
+     * @param  Request      $request
+     * @param  SchoolVideo  $schoolVideo
      *
      * @return JsonResponse
      */
     public function schoolRemoveVideoAction(Request $request, SchoolVideo $schoolVideo)
     {
-
         $this->denyAccessUnlessGranted('edit', $schoolVideo->getSchool());
 
         $this->entityManager->remove($schoolVideo);
@@ -1407,8 +1461,8 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/experiences", name="get_school_experiences", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -1432,8 +1486,8 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/experiences/{id}/view", name="school_experience_view", options = { "expose" = true })
-     * @param Request          $request
-     * @param SchoolExperience $experience
+     * @param  Request           $request
+     * @param  SchoolExperience  $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -1444,8 +1498,8 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/experiences/{id}/data", name="school_experience_data", options = { "expose" = true })
-     * @param Request          $request
-     * @param SchoolExperience $experience
+     * @param  Request           $request
+     * @param  SchoolExperience  $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -1454,22 +1508,36 @@ class SchoolController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if ($experience->getSchoolContact() && $user->getId() === $experience->getSchoolContact()->getId()) {
-            return new JsonResponse(['user_id' => $experience->getSchoolContact()->getId(), 'allow_edit' => true]);
+        if ($experience->getSchoolContact()
+            && $user->getId() === $experience->getSchoolContact()
+                                             ->getId()
+        ) {
+            return new JsonResponse(
+                [
+                    'user_id'    => $experience->getSchoolContact()
+                                               ->getId(),
+                    'allow_edit' => true,
+                ]
+            );
         } else {
-            return new JsonResponse(['user_id' => $experience->getSchoolContact()->getId(), 'allow_edit' => false]);
+            return new JsonResponse(
+                [
+                    'user_id'    => $experience->getSchoolContact()
+                                               ->getId(),
+                    'allow_edit' => false,
+                ]
+            );
         }
     }
 
     /**
-     * @param     $tempUsername
-     * @param int $i
+     * @param       $tempUsername
+     * @param  int  $i
      *
      * @return mixed
      */
     private function determineUsername($tempUsername, $i = 1)
     {
-
         if ($this->userRepository->loadUserByUsername($tempUsername)) {
             return $this->determineUsername(sprintf("%s%s", $tempUsername, $this->generateRandomNumber($i)), ++$i);
         }
@@ -1492,7 +1560,6 @@ class SchoolController extends AbstractController
      */
     private function generateStudentTemporaryPassword($tempPassword)
     {
-
         return $this->passwordEncoder->encodePassword(new StudentUser(), $tempPassword);
     }
 
@@ -1503,20 +1570,18 @@ class SchoolController extends AbstractController
      */
     private function generateEducatorTemporaryPassword($tempPassword)
     {
-
         return $this->passwordEncoder->encodePassword(new EducatorUser(), $tempPassword);
     }
 
     /**
      * @Route("/schools/{id}/featured/add", name="school_featured_add", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return JsonResponse
      */
     public function schoolAddFeaturedAction(Request $request, School $school)
     {
-
         $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
@@ -1532,7 +1597,7 @@ class SchoolController extends AbstractController
             $school->setFeaturedImage($image);
             $this->entityManager->persist($image);
 
-            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::FEATURE_IMAGE) . '/' . $newFilename;
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::FEATURE_IMAGE).'/'.$newFilename;
             $this->imageCacheGenerator->cacheImageForAllFilters($path);
 
             $this->entityManager->persist($school);
@@ -1540,7 +1605,7 @@ class SchoolController extends AbstractController
 
             return new JsonResponse([
                 'success' => true,
-                'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::FEATURE_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                'url'     => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::FEATURE_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
                 'id'      => $image->getId(),
             ], Response::HTTP_OK);
         }
@@ -1552,14 +1617,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/thumbnail/add", name="school_thumbnail_add", options = { "expose" = true })
-     * @param Request $request
-     * @param School  $school
+     * @param  Request  $request
+     * @param  School   $school
      *
      * @return JsonResponse
      */
     public function schoolAddThumbnailAction(Request $request, School $school)
     {
-
         $user = $this->getUser();
 
         /** @var UploadedFile $uploadedFile */
@@ -1575,7 +1639,7 @@ class SchoolController extends AbstractController
             $school->setThumbnailImage($image);
             $this->entityManager->persist($image);
 
-            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE) . '/' . $newFilename;
+            $path = $this->uploaderHelper->getPublicPath(UploaderHelper::THUMBNAIL_IMAGE).'/'.$newFilename;
             $this->imageCacheGenerator->cacheImageForAllFilters($path);
 
             $this->entityManager->persist($school);
@@ -1583,7 +1647,7 @@ class SchoolController extends AbstractController
 
             return new JsonResponse([
                 'success' => true,
-                'url'     => $this->cacheManager->getBrowserPath('uploads/' . UploaderHelper::THUMBNAIL_IMAGE . '/' . $newFilename, 'squared_thumbnail_small'),
+                'url'     => $this->cacheManager->getBrowserPath('uploads/'.UploaderHelper::THUMBNAIL_IMAGE.'/'.$newFilename, 'squared_thumbnail_small'),
                 'id'      => $image->getId(),
             ], Response::HTTP_OK);
         }
@@ -1595,14 +1659,13 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/experiences/{id}/toggle-feedback-view", name="toggle_school_feedback_view", options = { "expose" = true })
-     * @param Request          $request
-     * @param SchoolExperience $experience
+     * @param  Request           $request
+     * @param  SchoolExperience  $experience
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function toggleCanViewFeedback(Request $request, SchoolExperience $experience)
     {
-
         $experience->setCanViewFeedback($request->request->get('val'));
         $this->entityManager->persist($experience);
         $this->entityManager->flush();
@@ -1612,8 +1675,8 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/educators/manage", name="educators_manage", methods={"GET"})
-     * @param School  $school
-     * @param Request $request
+     * @param  School   $school
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -1653,7 +1716,8 @@ class SchoolController extends AbstractController
         $filterBuilder->setParameter('deleted', false);
 
         if (!empty($schoolIds)) {
-            $filterBuilder->andWhere('u.school in (:schools)')->setParameter('schools', $schoolIds);
+            $filterBuilder->andWhere('u.school in (:schools)')
+                          ->setParameter('schools', $schoolIds);
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -1683,7 +1747,7 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/students/manage-entry", name="students_manage_entry", methods={"GET"})
-     * @param Request $request
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -1700,13 +1764,13 @@ class SchoolController extends AbstractController
 
         $school = null;
         if ($user instanceof SchoolAdministrator) {
-            $school = $user->getSchools()->first();
+            $school = $user->getSchools()
+                           ->first();
         } elseif ($user instanceof EducatorUser) {
             $school = $user->getSchool();
         }
 
-        if($school) {
-
+        if ($school) {
             if ($eventRegister = $request->query->get('event-register')) {
                 return $this->redirectToRoute('students_manage', ['id' => $school->getId(), 'event-register' => $eventRegister]);
             }
@@ -1720,7 +1784,7 @@ class SchoolController extends AbstractController
 
     /**
      * @Route("/schools/{id}/students/manage", name="students_manage", methods={"GET"})
-     * @param  School  $school
+     * @param  School   $school
      * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
@@ -1751,11 +1815,11 @@ class SchoolController extends AbstractController
         $schoolIds = [$school->getId()];
 
         $form = $this->createForm(ManageStudentsFilterType::class, null, [
-            'action'      => $this->generateUrl('students_manage', ['id' => $school->getId()]),
-            'method'      => 'GET',
-            'filter_type' => StudentUser::class,
-            'schoolIds'   => $schoolIds,
-            'eventRegister' => $eventRegister
+            'action'        => $this->generateUrl('students_manage', ['id' => $school->getId()]),
+            'method'        => 'GET',
+            'filter_type'   => StudentUser::class,
+            'schoolIds'     => $schoolIds,
+            'eventRegister' => $eventRegister,
         ]);
 
         $form->handleRequest($request);
@@ -1768,7 +1832,8 @@ class SchoolController extends AbstractController
         $filterBuilder->setParameter('archived', false);
 
         if (!empty($schoolIds)) {
-            $filterBuilder->andWhere('u.school in (:schools)')->setParameter('schools', $schoolIds);
+            $filterBuilder->andWhere('u.school in (:schools)')
+                          ->setParameter('schools', $schoolIds);
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -1787,32 +1852,31 @@ class SchoolController extends AbstractController
         $user = $this->getUser();
 
         $clearFormUrl = $this->generateUrl('students_manage', ['id' => $school->getId()]);
-        if($eventRegister) {
+        if ($eventRegister) {
             $clearFormUrl = $this->generateUrl('students_manage', ['id' => $school->getId(), 'event-register' => $eventRegister->getId()]);
         }
 
         return $this->render('school/manage_students.html.twig', [
-            'user'          => $user,
-            'pagination'    => $pagination,
-            'form'          => $form->createView(),
-            'schools'       => $schools,
-            'school'        => $school,
-            'eventRegister' => $eventRegister,
-            'clearFormUrl'  => $clearFormUrl,
-            'authorizationVoter' => $authorizationVoter
+            'user'               => $user,
+            'pagination'         => $pagination,
+            'form'               => $form->createView(),
+            'schools'            => $schools,
+            'school'             => $school,
+            'eventRegister'      => $eventRegister,
+            'clearFormUrl'       => $clearFormUrl,
+            'authorizationVoter' => $authorizationVoter,
         ]);
     }
 
     /**
      * @Route("/schools/{id}/users/bulk-action", name="school_users_bulk_action", methods={"GET", "POST"}, options = { "expose" = true })
-     * @param School  $school
-     * @param Request $request
+     * @param  School   $school
+     * @param  Request  $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function schoolUsersBulkAction(School $school, Request $request)
     {
-
         /** @var User $loggedInUser */
         $loggedInUser  = $this->getUser();
         $action        = $request->query->get('action');
@@ -1826,7 +1890,6 @@ class SchoolController extends AbstractController
         };
 
         switch ($action) {
-
             case 'delete':
 
                 $template = 'school/modal/bulk_action_delete_users.html.twig';
@@ -1846,13 +1909,17 @@ class SchoolController extends AbstractController
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $userIds = $request->request->get('userIds', []);
                         $users   = $this->userRepository->findBy(['id' => $userIds]);
 
@@ -1881,7 +1948,6 @@ class SchoolController extends AbstractController
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
                 break;
@@ -1906,23 +1972,27 @@ class SchoolController extends AbstractController
                     'loggedInUser'  => $loggedInUser,
                     'userCount'     => $request->query->get('userCount', 0),
                     'redirectRoute' => $redirectRoute,
-                    'eventRegister' => $eventRegister
+                    'eventRegister' => $eventRegister,
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute, $eventRegister
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute,
+                    $eventRegister
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $userIds = $request->request->get('userIds', []);
                         $users   = $this->userRepository->findBy(['id' => $userIds]);
 
                         foreach ($users as $user) {
-
-                            if($eventRegister->isRegistered($user)) {
+                            if ($eventRegister->isRegistered($user)) {
                                 continue;
                             }
 
@@ -1950,13 +2020,12 @@ class SchoolController extends AbstractController
                         'loggedInUser'  => $loggedInUser,
                         'userCount'     => $request->query->get('userCount', 0),
                         'redirectRoute' => $redirectRoute,
-                        'eventRegister' => $eventRegister
+                        'eventRegister' => $eventRegister,
                     ];
 
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
                 break;
@@ -1981,22 +2050,27 @@ class SchoolController extends AbstractController
                     'loggedInUser'  => $loggedInUser,
                     'userCount'     => $request->query->get('userCount', 0),
                     'redirectRoute' => $redirectRoute,
-                    'eventRegister' => $eventRegister
+                    'eventRegister' => $eventRegister,
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute, $eventRegister
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute,
+                    $eventRegister
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $userIds = $request->request->get('userIds', []);
                         $users   = $this->userRepository->findBy(['id' => $userIds]);
 
                         foreach ($users as $user) {
-                            if($registration = $eventRegister->getRegistrationForUser($user)) {
+                            if ($registration = $eventRegister->getRegistrationForUser($user)) {
                                 $this->entityManager->remove($registration);
                             }
                         }
@@ -2018,13 +2092,12 @@ class SchoolController extends AbstractController
                         'loggedInUser'  => $loggedInUser,
                         'userCount'     => $request->query->get('userCount', 0),
                         'redirectRoute' => $redirectRoute,
-                        'eventRegister' => $eventRegister
+                        'eventRegister' => $eventRegister,
                     ];
 
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
                 break;
@@ -2050,13 +2123,17 @@ class SchoolController extends AbstractController
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $userIds = $request->request->get('userIds', []);
                         $users   = $this->userRepository->findBy(['id' => $userIds]);
 
@@ -2093,7 +2170,6 @@ class SchoolController extends AbstractController
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
                 break;
@@ -2105,7 +2181,6 @@ class SchoolController extends AbstractController
                 $data      = null;
 
                 if ($studentId && $student = $this->studentUserRepository->find($studentId)) {
-
                     $originalSupervisoringTeachers = new ArrayCollection();
                     foreach ($student->getEducatorUsers() as $educatorUser) {
                         $originalSupervisoringTeachers->add($educatorUser);
@@ -2131,25 +2206,30 @@ class SchoolController extends AbstractController
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $studentIds = $request->request->get('userIds', []);
                         $students   = $this->studentUserRepository->findBy(['id' => $studentIds]);
-                        $strategy   = $form->get('strategy')->getData();
+                        $strategy   = $form->get('strategy')
+                                           ->getData();
 
                         foreach ($students as $student) {
-
                             $originalSupervisoringTeachers = new ArrayCollection();
                             foreach ($student->getEducatorUsers() as $educatorUser) {
                                 $originalSupervisoringTeachers->add($educatorUser);
                             }
 
-                            $supervisingTeachers = $form->get('supervisingTeachers')->getData();
+                            $supervisingTeachers = $form->get('supervisingTeachers')
+                                                        ->getData();
 
                             if ($strategy === 'replace') {
                                 foreach ($originalSupervisoringTeachers as $originalSupervisoringTeacher) {
@@ -2191,7 +2271,6 @@ class SchoolController extends AbstractController
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
                 break;
@@ -2203,7 +2282,6 @@ class SchoolController extends AbstractController
                 $data       = null;
 
                 if ($educatorId && $educator = $this->educatorUserRepository->find($educatorId)) {
-
                     $originalAssignedStudents = new ArrayCollection();
                     foreach ($educator->getStudentUsers() as $studentUser) {
                         $originalAssignedStudents->add($studentUser);
@@ -2229,25 +2307,30 @@ class SchoolController extends AbstractController
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $educatorIds = $request->request->get('userIds', []);
                         $educators   = $this->educatorUserRepository->findBy(['id' => $educatorIds]);
-                        $strategy    = $form->get('strategy')->getData();
+                        $strategy    = $form->get('strategy')
+                                            ->getData();
 
                         foreach ($educators as $educator) {
-
                             $originalAssignedStudents = new ArrayCollection();
                             foreach ($educator->getStudentUsers() as $studentUser) {
                                 $originalAssignedStudents->add($studentUser);
                             }
 
-                            $assignedStudents = $form->get('assignedStudents')->getData();
+                            $assignedStudents = $form->get('assignedStudents')
+                                                     ->getData();
 
                             if ($strategy === 'replace') {
                                 foreach ($originalAssignedStudents as $originalAssignedStudent) {
@@ -2289,7 +2372,6 @@ class SchoolController extends AbstractController
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
 
@@ -2297,14 +2379,14 @@ class SchoolController extends AbstractController
 
             case 'student_export':
 
-                $template   = 'school/modal/export.html.twig';
-                $data       = null;
+                $template = 'school/modal/export.html.twig';
+                $data     = null;
 
                 $action = $this->generateUrl('school_users_bulk_action', array_merge_recursive(['id' => $school->getId()], $request->query->all()));
 
                 $form = $this->createForm(ExportUsersFormType::class, $data, [
                     'method' => 'post',
-                    'action' => $action
+                    'action' => $action,
                 ]);
 
                 $context = [
@@ -2315,32 +2397,34 @@ class SchoolController extends AbstractController
                 ];
 
                 $bulkActionHandler = function () use (
-                    $form, $loggedInUser, $request, $template, $school, &$context, $redirectRoute
+                    $form,
+                    $loggedInUser,
+                    $request,
+                    $template,
+                    $school,
+                    &$context,
+                    $redirectRoute
                 ) {
-
                     $form->handleRequest($request);
 
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $userIds = $request->request->get('userIds', []);
                         $users   = $this->studentUserRepository->findBy(['id' => $userIds], ['lastName' => 'ASC']);
 
-                        $data[] =
-                            [
-                                'FIRST NAME',
-                                'LAST NAME',
-                                'EMAIL',
-                                'USERNAME',
-                                'SUPERVISING TEACHERS',
-                                'TEMP PASSWORD',
-                                'GRADUATING YEAR',
-                                'SCHOOL'
-                            ];
+                        $data[] = [
+                            'FIRST NAME',
+                            'LAST NAME',
+                            'EMAIL',
+                            'USERNAME',
+                            'SUPERVISING TEACHERS',
+                            'TEMP PASSWORD',
+                            'GRADUATING YEAR',
+                            'SCHOOL',
+                        ];
 
                         foreach ($users as $user) {
-
                             $supervisingTeachers = [];
-                            foreach($user->getEducatorUsers() as $educatorUser) {
+                            foreach ($user->getEducatorUsers() as $educatorUser) {
                                 $supervisingTeachers[] = $educatorUser->getFullName();
                             }
 
@@ -2352,13 +2436,14 @@ class SchoolController extends AbstractController
                                 implode(", ", $supervisingTeachers),
                                 $user->getTempPassword(),
                                 $user->getGraduatingYear(),
-                                $user->getSchool() ? $user->getSchool()->getName() : ''
+                                $user->getSchool() ? $user->getSchool()
+                                                          ->getName() : '',
                             ];
                         }
 
-                        $fileName      = Urlizer::urlize($school->getName()) . '-' . uniqid() . '.csv';
-                        $exportPath = $this->uploaderHelper->getUploadsPath() . '/' . UploaderHelper::STUDENT_EXPORT;
-                        $exportUrl = $exportPath . '/' . $fileName;
+                        $fileName   = Urlizer::urlize($school->getName()).'-'.uniqid().'.csv';
+                        $exportPath = $this->uploaderHelper->getUploadsPath().'/'.UploaderHelper::STUDENT_EXPORT;
+                        $exportUrl  = $exportPath.'/'.$fileName;
 
                         if (!file_exists($exportPath)) {
                             mkdir($exportPath, 0777, true);
@@ -2366,8 +2451,7 @@ class SchoolController extends AbstractController
 
                         $fp = fopen($exportUrl, "w");
 
-                        foreach ($data as $d)
-                        {
+                        foreach ($data as $d) {
                             fputcsv(
                                 $fp, // The file pointer
                                 $d, // The fields
@@ -2378,7 +2462,7 @@ class SchoolController extends AbstractController
                         fclose($fp);
 
                         return new JsonResponse([
-                            'redirectUrl' => sprintf("%s/%s", $this->getFullQualifiedBaseUrl(), $this->uploaderHelper->getPublicPath(UploaderHelper::STUDENT_EXPORT . '/' .  $fileName))
+                            'redirectUrl' => sprintf("%s/%s", $this->getFullQualifiedBaseUrl(), $this->uploaderHelper->getPublicPath(UploaderHelper::STUDENT_EXPORT.'/'.$fileName)),
                         ], Response::HTTP_OK);
                     }
 
@@ -2391,12 +2475,10 @@ class SchoolController extends AbstractController
                     return new JsonResponse([
                         'formMarkup' => $this->renderView($template, $context),
                     ], Response::HTTP_BAD_REQUEST);
-
                 };
 
 
                 break;
-
         }
 
 
