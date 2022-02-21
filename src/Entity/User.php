@@ -29,10 +29,10 @@ use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
  *
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser", "systemUser" = "SystemUser"})
+ * @ORM\DiscriminatorMap({"user" = "User", "professionalUser" = "ProfessionalUser", "educatorUser" = "EducatorUser", "studentUser" = "StudentUser", "adminUser" = "AdminUser", "stateCoordinator" = "StateCoordinator", "regionalCoordinator" = "RegionalCoordinator", "schoolAdministrator" = "SchoolAdministrator", "siteAdminUser" = "SiteAdminUser", "systemUser" = "SystemUser"})
  *
  */
-abstract class User implements UserInterface
+class User implements UserInterface
 {
     use TimestampableEntity;
 
@@ -343,7 +343,6 @@ abstract class User implements UserInterface
      * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="creator")
      */
     private $experiences;
-
 
     /**
      * @ORM\PrePersist

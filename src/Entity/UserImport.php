@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\UserImportRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Illuminate\Support\Arr;
 
 /**
  * @ORM\Entity(repositoryClass=UserImportRepository::class)
@@ -72,6 +75,15 @@ class UserImport
      */
     private $usernameMapping;
 
+    private $users = [];
+
+    private $userItems;
+
+    public function __construct()
+    {
+        $this->userItems = new ArrayCollection();
+    }
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -193,6 +205,52 @@ class UserImport
     public function setUsernameMapping(?string $usernameMapping): self
     {
         $this->usernameMapping = $usernameMapping;
+
+        return $this;
+    }
+
+    /**
+     * @return User[]
+     */
+    public function getUsers(): array
+    {
+        return $this->users;
+    }
+
+    public function setUsers($users) {
+        $this->users = $users;
+    }
+
+    public function addUser(User $user): self
+    {
+        $this->users[] = $user;
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        // todo?
+
+        return $this;
+    }
+
+
+    public function getUserItems(): ArrayCollection
+    {
+        return $this->userItems;
+    }
+
+    public function addUserItem(User $user): self
+    {
+        $this->userItems[] = $user;
+
+        return $this;
+    }
+
+    public function removeUserItem(User $user): self
+    {
+        // todo?
 
         return $this;
     }

@@ -649,6 +649,11 @@ class SchoolController extends AbstractController
 
         $userImport = new UserImport();
 
+      /*  $studentUser = new StudentUser();
+        $studentUser->setFirstName("Josh");
+        $studentUser->setLastName("Crawmer");
+        $userImport->addUserItem($studentUser);*/
+
         $flow->bind($userImport);
 
         $form = $submittedForm = $flow->createForm();

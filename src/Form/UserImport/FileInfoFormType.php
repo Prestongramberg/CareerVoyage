@@ -8,18 +8,22 @@ use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\UserImport;
 use App\Service\PhpSpreadsheetHelper;
+use App\Util\RandomStringGenerator;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 class FileInfoFormType extends AbstractType
 {
+    use RandomStringGenerator;
 
     /**
      * @var PhpSpreadsheetHelper;
@@ -27,11 +31,18 @@ class FileInfoFormType extends AbstractType
     private $phpSpreadsheetHelper;
 
     /**
-     * @param  \App\Service\PhpSpreadsheetHelper  $phpSpreadsheetHelper
+     * @var UserPasswordEncoderInterface
      */
-    public function __construct(PhpSpreadsheetHelper $phpSpreadsheetHelper)
+    private $passwordEncoder;
+
+    /**
+     * @param  \App\Service\PhpSpreadsheetHelper                                      $phpSpreadsheetHelper
+     * @param  \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface  $passwordEncoder
+     */
+    public function __construct(PhpSpreadsheetHelper $phpSpreadsheetHelper, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->phpSpreadsheetHelper = $phpSpreadsheetHelper;
+        $this->passwordEncoder      = $passwordEncoder;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -45,13 +56,12 @@ class FileInfoFormType extends AbstractType
             ],
         ]);
 
-        $builder->add('users', EntityType::class, [
-            'mapped'   => false,
+     /*   $builder->add('users', ChoiceType::class, [
             'choices'  => [],
-            'class'    => User::class,
             'expanded' => false,
-            'multiple' => true,
-        ]);
+            'multiple' => true
+        ]);*/
+
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
@@ -90,12 +100,11 @@ class FileInfoFormType extends AbstractType
              * Generating passwords inside a loop is extremely expensive and uses up too much cpu/ram. Create initial temp
              * shared password for all users being imported
              */
-            //$tempPassword    = sprintf('student.%s', $this->generateRandomString(5));
-            //$encodedPassword = $this->generateStudentTemporaryPassword($tempPassword);
+            $tempPassword    = sprintf('student.%s', $this->generateRandomString(5));
+            $encodedPassword = $this->passwordEncoder->encodePassword(new User(), $tempPassword);
 
             try {
-                $studentObjs      = [];
-                $previousEducator = null;
+                $choices = [];
 
                 /** @var \Box\Spout\Reader\SheetInterface $sheet */
                 foreach ($reader->getSheetIterator() as $sheet) {
@@ -124,15 +133,26 @@ class FileInfoFormType extends AbstractType
                             // todo look at type on form object to determine whether or not to create student objects / or educator objects
                             $studentObj = new StudentUser();
 
-                            if(array_key_exists($firstNameKey, $values)) {
+                            if($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
                                 $studentObj->setFirstName(trim($values[$firstNameKey]));
                             }
 
-                            if(array_key_exists($lastNameKey, $values)) {
+                            if($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
                                 $studentObj->setLastName(trim($values[$lastNameKey]));
                             }
 
-                            $data['users'][] = $studentObj;
+                            if($studentObj->getFirstName() && $studentObj->getLastName()) {
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", trim($studentObj->getFirstName()).'.'.trim($studentObj->getLastName()), $this->generateRandomString(5)));
+                            } elseif ($studentObj->getLastName()) {
+                                $username = preg_replace('/\s+/', '', sprintf("%s.%s", trim($studentObj->getLastName()), $this->generateRandomString(5)));
+                            } else {
+                                $username = preg_replace('/\s+/', '', sprintf("%s", $this->generateRandomString(10)));
+                            }
+
+                            $username = strtolower($username);
+                            $studentObj->setUsername($username);
+
+                            $choices[] = $studentObj;
 
 
                             /*$student = array_combine($columns, $values);
@@ -185,18 +205,15 @@ class FileInfoFormType extends AbstractType
 
             if($form->has('users')) {
                 $form->remove('users');
-
-                $form->add('users', EntityType::class, [
-                    'mapped'   => false,
-                    'choices'  => $data['users'],
-                    'class'    => User::class,
-                    'expanded' => false,
-                    'multiple' => true,
-                ]);
             }
 
+            $form->add('users', ChoiceType::class, [
+                'choices'  => $choices,
+                'expanded' => false,
+                'multiple' => true
+            ]);
 
-
+            $data['users'] = array_keys($choices);
 
             $event->setData($data);
         });

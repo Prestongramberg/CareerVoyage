@@ -5,8 +5,39 @@
     </legend>
 
     <div class="uk-grid">
+        {{ form_errors(form.userItems) }}
 
+        {% for userItem in form.userItems %}
 
+            <div class="uk-width-1-1">
+
+                <div class="uk-grid uk-margin-bottom">
+
+                    <div class="uk-width-1-4">
+                        <label>First Name<span class="uk-text-danger">*</span></label>
+                        {{ form_widget(userItem.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(userItem.firstName) }}
+                    </div>
+
+                    <div class="uk-width-1-4">
+                        <label>Last Name<span class="uk-text-danger">*</span></label>
+                        {{ form_widget(userItem.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(userItem.lastName) }}
+                    </div>
+
+                    <div class="uk-width-1-4">
+                        <label>Username<span class="uk-text-danger">*</span></label>
+                        {{ form_widget(userItem.username, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.username) ? ' uk-form-danger' : '' ) }}) }}
+                        {{ form_errors(userItem.username) }}
+                    </div>
+
+                    <div class="uk-width-1-4"></div>
+                    <div class="uk-width-1-4"></div>
+                </div>
+
+            </div>
+
+        {% endfor %}
     </div>
 
 </fieldset>
