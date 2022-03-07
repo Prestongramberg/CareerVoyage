@@ -27,6 +27,22 @@ class ColumnMappingInfoFormType extends AbstractType
                 new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_COLUMN_MAPPING_INFO']]),
             ],
         ]);
+
+        $builder->add('educatorEmailMapping', TextType::class, [
+            'required' => true,
+            'label'    => 'Educator Email',
+            'constraints' => [
+                new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_COLUMN_MAPPING_INFO']]),
+            ],
+        ]);
+
+        $builder->add('graduatingYearMapping', TextType::class, [
+            'required' => true,
+            'label'    => 'Graduating Year',
+            'constraints' => [
+                new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_COLUMN_MAPPING_INFO']]),
+            ],
+        ]);
     }
 
     public function getBlockPrefix()

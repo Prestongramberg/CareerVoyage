@@ -277,6 +277,9 @@
     "nikic/php-parser": {
         "version": "v4.2.2"
     },
+    "nubs/random-name-generator": {
+        "version": "v2.2.0"
+    },
     "ocramius/package-versions": {
         "version": "1.4.0"
     },

@@ -337,12 +337,12 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $tempPasswordEncrypted;
+    protected $tempPasswordEncrypted;
 
     /**
      * @ORM\OneToMany(targetEntity=Experience::class, mappedBy="creator")
      */
-    private $experiences;
+    protected $experiences;
 
     /**
      * @ORM\PrePersist

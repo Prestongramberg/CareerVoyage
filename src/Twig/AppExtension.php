@@ -507,6 +507,7 @@ class AppExtension extends AbstractExtension
     {
 
         $user = $this->security->getUser();
+        $site = null;
 
         if ($user && ($user instanceof SiteAdminUser ||
                 $user instanceof RegionalCoordinator ||
@@ -515,16 +516,32 @@ class AppExtension extends AbstractExtension
                 $user instanceof EducatorUser ||
                 $user instanceof StudentUser)) {
             $site = $user->getSite();
-        } else {
+        }
 
+        if(!$site) {
             $site = $this->siteRepository->findOneBy([
                 'fullyQualifiedBaseUrl' => $this->getFullyQualifiedBaseUrl(),
             ]);
-
-            if (!$site) {
-                $site = new Site();
-            }
         }
+
+        if(!$site) {
+            $site = $this->siteRepository->findOneBy([
+                'baseUrl' => 'my.futureforward.org',
+            ]);
+        }
+
+        if(!$site) {
+            $site = new Site();
+            $site->setBaseUrl('localhost:8000');
+            $site->setFullyQualifiedBaseUrl('http://localhost:8000');
+            $site->setName('Future Forward');
+            $site->setLogo('logo-future-forward.png');
+            $site->setLogoEmail('logo-future-forward-email.png');
+            $site->setSignature('&copy;2019 Future Forward. All Rights Reserved.<br />
+210 Wood Lake Drive SE | Rochester, MN 55904 | <a href="tel:1-507-281-6678" style="color: #636466; text-decoration: none;">(507) 281-6678</a> | <a href="http://www.futureforward.org/" style="color: #636466; text-decoration: none;">www.futureforward.org</a><br />');
+            $site->setParentSite(true);
+        }
+
 
         return $site;
     }

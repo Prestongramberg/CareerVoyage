@@ -30,7 +30,37 @@
             </div>
         </div>#}
 
-        <div class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto uk-width-3-4@m">
+        {% set uk_width = 'uk-width-3-4@m' %}
+
+        {% if flow.steps[flow.getCurrentStepNumber() - 1].name == 'user_info_step' %}
+            {% set uk_width = '' %}
+        {% endif %}
+
+
+        <div class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto {{ uk_width }}">
+
+            {% if flow.steps[flow.getCurrentStepNumber() - 1].name == 'user_info_step' %}
+                {% set errorMessage = '' %}
+                {% for flashMessage in app.session.flashbag.get('importError') %}
+                    {% set errorMessage = flashMessage %}
+                {% endfor %}
+                {% if errorMessage %}
+                    <div class="uk-container uk-margin-bottom">
+                        <div class="uk-alert-error uk-margin" uk-alert>
+                            <p>{{ errorMessage }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+                
+            {% endif %}
+
+
+
+            {% if form.vars.notice is defined and form.vars.notice is not null %}
+                <div class="uk-alert-danger" uk-alert>
+                    <p>{{ form.vars.notice }}</p>
+                </div>
+            {% endif %}
 
             <div class="uk-text-danger" style="float:right;">* indicates required</div>
 

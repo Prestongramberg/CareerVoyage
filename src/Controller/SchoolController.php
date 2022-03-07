@@ -640,19 +640,19 @@ class SchoolController extends AbstractController
         /** @var \App\Entity\User $loggedInUser */
         $loggedInUser = $this->getUser();
 
-        //$feedback = new Feedback();
-        //$feedback->setExperience($experience);
-
-        /* if($loggedInUser) {
-             $feedback->initializeFromUser($loggedInUser);
-         }*/
-
         $userImport = new UserImport();
+        $userImport->setSchool($school);
 
-      /*  $studentUser = new StudentUser();
-        $studentUser->setFirstName("Josh");
-        $studentUser->setLastName("Crawmer");
-        $userImport->addUserItem($studentUser);*/
+        $importType = $request->query->get('type');
+
+        if($importType === 'student') {
+            $userImport->setType('Student');
+        }
+
+        if($importType === 'educator') {
+            $userImport->setType('Educator');
+        }
+
 
         $flow->bind($userImport);
 
@@ -667,26 +667,31 @@ class SchoolController extends AbstractController
             } else {
                 // todo do all the normalizing of the feedback that the feedback normalizer command does??
 
-                /*   $feedbackUser = null;
+                /** @var UserImport $userImport */
+                $userImport = $form->getData();
 
-                   if($email = $feedback->getEmail()) {
-                       $feedbackUser = $this->userRepository->findOneBy([
-                           'email' => $email
-                       ]);
-                   }
+                /** @var \App\Entity\User $userItem */
+                foreach($userImport->getUserItems() as $userItem) {
+                    $this->entityManager->persist($userItem);
+                }
 
-                   if($loggedInUser instanceof User) {
-                       $feedbackUser = $loggedInUser;
-                   }
+                $this->entityManager->persist($userImport);
 
-                   $feedback->setUser($feedbackUser);
-
-                   $this->entityManager->persist($feedback);*/
                 $this->entityManager->flush();
                 $flow->reset();
-                //return $this->redirectToRoute('feedback_v2_thanks');
+
+                if($userImport->getType() === 'Student') {
+                    $this->addFlash('success', 'Students successfully imported.');
+                    return $this->redirectToRoute('students_manage', ['id' => $school->getId()]);
+                }
+
+                if($userImport->getType() === 'Educator') {
+                    $this->addFlash('success', 'Educators successfully imported.');
+                    return $this->redirectToRoute('students_manage', ['id' => $school->getId()]);
+                }
             }
         }
+
 
         $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
         $url    = $this->generateUrl($request->attributes->get('_route'), $params);
@@ -718,7 +723,7 @@ class SchoolController extends AbstractController
             'flow'  => $flow,
             'route' => $url,
             'user'  => $loggedInUser,
-            'type'  => $request->query->get('type')
+            'type'  => $request->query->get('type'),
         ]);
     }
 

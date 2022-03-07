@@ -249,6 +249,16 @@ class School
      */
     private $userImports;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $studentTempPasssword;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $educatorTempPassword;
+
     public function __construct()
     {
         $this->companies = new ArrayCollection();
@@ -974,6 +984,30 @@ class School
                 $userImport->setSchool(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStudentTempPasssword(): ?string
+    {
+        return $this->studentTempPasssword;
+    }
+
+    public function setStudentTempPasssword(?string $studentTempPasssword): self
+    {
+        $this->studentTempPasssword = $studentTempPasssword;
+
+        return $this;
+    }
+
+    public function getEducatorTempPassword(): ?string
+    {
+        return $this->educatorTempPassword;
+    }
+
+    public function setEducatorTempPassword(?string $educatorTempPassword): self
+    {
+        $this->educatorTempPassword = $educatorTempPassword;
 
         return $this;
     }

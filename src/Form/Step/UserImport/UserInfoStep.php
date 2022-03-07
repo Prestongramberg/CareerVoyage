@@ -33,7 +33,7 @@ class UserInfoStep extends Step implements DynamicStepInterface
                 return !($estimatedCurrentStepNumber === $step);
             },
             'form_options' => [
-                'validation_groups' => $request->request->has('changeableField') ? [] : ['USER_IMPORT_USER_INFO'],
+                'validation_groups' => $request->request->has('changeableField') ? [] : ['USER_IMPORT_USER_INFO']
             ],
         ];
 

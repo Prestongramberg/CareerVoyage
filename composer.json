@@ -22,6 +22,7 @@
         "lexik/form-filter-bundle": "dev-master",
         "liip/imagine-bundle": "^2.1",
         "limenius/liform-bundle": "^0.17.0",
+        "nubs/random-name-generator": "^2.2",
         "phpoffice/phpspreadsheet": "^1.10",
         "pusher/pusher-php-server": "^4.0",
         "ramsey/uuid": "^4.2",

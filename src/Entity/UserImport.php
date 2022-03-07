@@ -29,31 +29,10 @@ class UserImport
     private $type;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $autogenerateUsername = true;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $autogeneratePassword = true;
-
-    /**
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
-     * @ORM\ManyToOne(targetEntity=EducatorUser::class, inversedBy="userImports")
-     */
-    private $educator;
-
-    /**
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      * @ORM\ManyToOne(targetEntity=School::class, inversedBy="userImports")
      */
     private $school;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $fileName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -68,12 +47,12 @@ class UserImport
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $emailMapping;
+    private $graduatingYearMapping;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $usernameMapping;
+    private $educatorEmailMapping;
 
     private $users = [];
 
@@ -101,42 +80,6 @@ class UserImport
         return $this;
     }
 
-    public function getAutogenerateUsername(): ?bool
-    {
-        return $this->autogenerateUsername;
-    }
-
-    public function setAutogenerateUsername(?bool $autogenerateUsername): self
-    {
-        $this->autogenerateUsername = $autogenerateUsername;
-
-        return $this;
-    }
-
-    public function getAutogeneratePassword(): ?bool
-    {
-        return $this->autogeneratePassword;
-    }
-
-    public function setAutogeneratePassword(?bool $autogeneratePassword): self
-    {
-        $this->autogeneratePassword = $autogeneratePassword;
-
-        return $this;
-    }
-
-    public function getEducator(): ?EducatorUser
-    {
-        return $this->educator;
-    }
-
-    public function setEducator(?EducatorUser $educator): self
-    {
-        $this->educator = $educator;
-
-        return $this;
-    }
-
     public function getSchool(): ?School
     {
         return $this->school;
@@ -145,18 +88,6 @@ class UserImport
     public function setSchool(?School $school): self
     {
         $this->school = $school;
-
-        return $this;
-    }
-
-    public function getFileName(): ?string
-    {
-        return $this->fileName;
-    }
-
-    public function setFileName(?string $fileName): self
-    {
-        $this->fileName = $fileName;
 
         return $this;
     }
@@ -181,30 +112,6 @@ class UserImport
     public function setLastNameMapping(?string $lastNameMapping): self
     {
         $this->lastNameMapping = $lastNameMapping;
-
-        return $this;
-    }
-
-    public function getEmailMapping(): ?string
-    {
-        return $this->emailMapping;
-    }
-
-    public function setEmailMapping(?string $emailMapping): self
-    {
-        $this->emailMapping = $emailMapping;
-
-        return $this;
-    }
-
-    public function getUsernameMapping(): ?string
-    {
-        return $this->usernameMapping;
-    }
-
-    public function setUsernameMapping(?string $usernameMapping): self
-    {
-        $this->usernameMapping = $usernameMapping;
 
         return $this;
     }
@@ -248,9 +155,40 @@ class UserImport
         return $this;
     }
 
+    public function setUserItems($userItems): self
+    {
+        $this->userItems = $userItems;
+
+        return $this;
+    }
+
     public function removeUserItem(User $user): self
     {
         // todo?
+
+        return $this;
+    }
+
+    public function getGraduatingYearMapping(): ?string
+    {
+        return $this->graduatingYearMapping;
+    }
+
+    public function setGraduatingYearMapping(?string $graduatingYearMapping): self
+    {
+        $this->graduatingYearMapping = $graduatingYearMapping;
+
+        return $this;
+    }
+
+    public function getEducatorEmailMapping(): ?string
+    {
+        return $this->educatorEmailMapping;
+    }
+
+    public function setEducatorEmailMapping(?string $educatorEmailMapping): self
+    {
+        $this->educatorEmailMapping = $educatorEmailMapping;
 
         return $this;
     }

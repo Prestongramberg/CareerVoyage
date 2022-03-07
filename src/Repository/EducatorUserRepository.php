@@ -283,4 +283,26 @@ class EducatorUserRepository extends ServiceEntityRepository
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getAllEmailAddresses() {
+
+        $query = 'select u.id, u.email from user u inner join educator_user eu on u.id = eu.id';
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+
+        $emails = [];
+        foreach($results as $result) {
+            $emails[$result['id']] = $result['email'];
+        }
+
+        return $emails;
+    }
 }

@@ -290,4 +290,26 @@ WHERE 1 = 1 AND u.deleted != %s', 1);
         ]);
     }
 
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getAllUsernames() {
+
+        $query = 'select u.id, u.username from user u';
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+
+        $usernames = [];
+        foreach($results as $result) {
+            $usernames[$result['id']] = $result['username'];
+        }
+
+        return $usernames;
+    }
+
 }

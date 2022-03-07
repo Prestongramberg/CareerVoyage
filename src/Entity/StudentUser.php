@@ -11,6 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use App\Validator\Constraints as CustomAssert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StudentUserRepository")
@@ -96,6 +97,7 @@ class StudentUser extends User
     private $studentReviewTeachLessonExperienceFeedback;
 
     /**
+     * @Assert\NotBlank(message="Please enter a value.", groups={"USER_IMPORT_USER_INFO"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $graduatingYear;
@@ -124,6 +126,12 @@ class StudentUser extends User
      * @var string
      */
     private $educatorNumber;
+
+    /**
+     * @Assert\NotBlank(message="Please enter a value.", groups={"USER_IMPORT_USER_INFO"})
+     * @var string
+     */
+    private $educatorEmail;
 
     public function __construct()
     {
@@ -513,5 +521,51 @@ class StudentUser extends User
     public function setEducatorNumber($educatorNumber)
     {
         $this->educatorNumber = $educatorNumber;
+    }
+
+    public function getEducatorEmail(): ?string
+    {
+        return $this->educatorEmail;
+    }
+
+    public function setEducatorEmail(?string $educatorEmail): self
+    {
+        $this->educatorEmail = $educatorEmail;
+
+        return $this;
+    }
+
+    public function fromDataImportArray($data) {
+
+        foreach($data as $propertyName => $value) {
+
+            switch ($propertyName) {
+                case 'firstName':
+                    $this->setFirstName($value);
+                    break;
+                case 'lastName':
+                    $this->setLastName($value);
+                    break;
+                case 'educatorEmail':
+                    $this->setEducatorEmail($value);
+                    break;
+                case 'graduatingYear':
+                    $this->setGraduatingYear($value);
+                    break;
+                case 'tempPassword':
+                    $this->setTempPassword($value);
+                    break;
+                case 'username':
+                    $this->setUsername($value);
+                    break;
+                case 'tempPasswordEncrypted':
+                    $this->setTempPasswordEncrypted($value);
+                    break;
+            }
+
+        }
+
+
+
     }
 }

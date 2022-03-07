@@ -17,30 +17,6 @@ class BasicInfoFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('autogenerateUsername', ChoiceType::class, [
-            //'placeholder'  => 'Events with/without feedback',
-            'choices'  => [
-                'Yes' => true,
-                'No'  => false,
-            ],
-            'required' => true,
-            'label'    => 'Autogenerate Usernames?',
-            'multiple' => false,
-            'expanded' => true,
-        ]);
-
-        $builder->add('autogeneratePassword', ChoiceType::class, [
-            //'placeholder'  => 'Events with/without feedback',
-            'choices'  => [
-                'Yes' => true,
-                'No'  => false,
-            ],
-            'required' => true,
-            'label'    => 'Autogenerate Passwords?',
-            'multiple' => false,
-            'expanded' => true,
-        ]);
-
         $builder->add('type', ChoiceType::class, [
             'choices'     => [
                 'Educator' => 'Educator',

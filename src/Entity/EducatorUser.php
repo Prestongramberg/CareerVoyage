@@ -136,11 +136,6 @@ class EducatorUser extends User
      */
     private $primaryIndustries;
 
-    /**
-     * @ORM\OneToMany(targetEntity=UserImport::class, mappedBy="educator")
-     */
-    private $userImports;
-
     public function __construct()
     {
         parent::__construct();
@@ -151,7 +146,6 @@ class EducatorUser extends User
         $this->myCourses                                   = new ArrayCollection();
         $this->educatorVideos                              = new ArrayCollection();
         $this->primaryIndustries                           = new ArrayCollection();
-        $this->userImports = new ArrayCollection();
     }
 
     public function getSchool(): ?School
@@ -549,33 +543,4 @@ class EducatorUser extends User
         return ['educator-welcome'];
     }
 
-    /**
-     * @return Collection|UserImport[]
-     */
-    public function getUserImports(): Collection
-    {
-        return $this->userImports;
-    }
-
-    public function addUserImport(UserImport $userImport): self
-    {
-        if (!$this->userImports->contains($userImport)) {
-            $this->userImports[] = $userImport;
-            $userImport->setEducator($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserImport(UserImport $userImport): self
-    {
-        if ($this->userImports->removeElement($userImport)) {
-            // set the owning side to null (unless already changed)
-            if ($userImport->getEducator() === $this) {
-                $userImport->setEducator(null);
-            }
-        }
-
-        return $this;
-    }
 }
