@@ -1,4 +1,3 @@
-
 <fieldset class="uk-margin">
 
     <legend class="">
@@ -10,7 +9,7 @@
 
         {% for userItem in form.userItems %}
 
-            {#{{ dump(userItem.firstName.vars.block_prefixes.1) }}#}
+            {# {{ dump(userItem.firstName.vars.block_prefixes.1) }} #}
 
             {# it's safe to assume if first name gets hidden to hide the rest #}
             {% if userItem.firstName.vars.block_prefixes.1 == 'hidden' %}
@@ -18,51 +17,65 @@
                     {{ form_row(userItem) }}
                 </div>
 
-                {% else %}
+            {% else %}
 
-                    <div class="uk-width-1-1">
+                <div class="uk-width-1-1">
 
-                        <div class="uk-grid uk-margin-bottom">
+                    <div class="uk-grid uk-margin-bottom">
 
-                            <div class="uk-width-1-6">
-                                <label>First Name<span class="uk-text-danger">*</span></label>
-                                {{ form_widget(userItem.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.firstName) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(userItem.firstName) }}
-                            </div>
+                        <div class="uk-width-1-6">
+                            <label>First Name<span class="uk-text-danger">*</span></label>
+                            {{ form_widget(userItem.firstName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.firstName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(userItem.firstName) }}
+                        </div>
 
-                            <div class="uk-width-1-6">
-                                <label>Last Name<span class="uk-text-danger">*</span></label>
-                                {{ form_widget(userItem.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.lastName) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(userItem.lastName) }}
-                            </div>
+                        <div class="uk-width-1-6">
+                            <label>Last Name<span class="uk-text-danger">*</span></label>
+                            {{ form_widget(userItem.lastName, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.lastName) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(userItem.lastName) }}
+                        </div>
 
+                        {% if userItem.graduatingYear is defined %}
                             <div class="uk-width-1-6">
                                 <label>Graduating Year<span class="uk-text-danger">*</span></label>
                                 {{ form_widget(userItem.graduatingYear, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.graduatingYear) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(userItem.graduatingYear) }}
                             </div>
+                        {% endif %}
 
+                        {% if userItem.educatorEmail is defined %}
                             <div class="uk-width-1-6">
                                 <label>Educator Email<span class="uk-text-danger">*</span></label>
                                 {{ form_widget(userItem.educatorEmail, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.educatorEmail) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(userItem.educatorEmail) }}
                             </div>
+                        {% endif %}
 
+                        {% if userItem.username is defined %}
                             <div class="uk-width-1-6">
                                 <label>Username<span class="uk-text-danger">*</span></label>
                                 {{ form_widget(userItem.username, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.username) ? ' uk-form-danger' : '' ) }}) }}
                                 {{ form_errors(userItem.username) }}
                             </div>
+                        {% endif %}
 
+                        {% if userItem.email is defined %}
                             <div class="uk-width-1-6">
-                                <label>Temp Password<span class="uk-text-danger">*</span></label>
-                                {{ form_widget(userItem.tempPassword, {'attr': {'style': 'opacity: .5', 'class': 'uk-input' ~ ( form_errors(userItem.tempPassword) ? ' uk-form-danger' : '' ) }}) }}
-                                {{ form_errors(userItem.tempPassword) }}
+                                <label>Email<span class="uk-text-danger">*</span></label>
+                                {{ form_widget(userItem.email, {'attr': {'class': 'uk-input' ~ ( form_errors(userItem.email) ? ' uk-form-danger' : '' ) }}) }}
+                                {{ form_errors(userItem.email) }}
                             </div>
+                        {% endif %}
 
+                        <div class="uk-width-1-6">
+                            <label>Temp Password<span class="uk-text-danger">*</span></label>
+                            {{ form_widget(userItem.tempPassword, {'attr': {'style': 'opacity: .5', 'class': 'uk-input' ~ ( form_errors(userItem.tempPassword) ? ' uk-form-danger' : '' ) }}) }}
+                            {{ form_errors(userItem.tempPassword) }}
                         </div>
 
                     </div>
+
+                </div>
 
 
             {% endif %}

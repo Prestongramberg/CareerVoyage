@@ -12,31 +12,20 @@ use Symfony\Component\Validator\Constraint;
  */
 class EmailAlreadyExists extends Constraint
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var string
-     */
     public $message = 'Email already exists.';
 
-    /**
-     * EmailAlreadyExists constructor.
-     *
-     * @param array $options
-     * @param User  $user
-     */
-    public function __construct($options = null, User $user = null)
-    {
-        $this->user = $user;
+    private $emailCache = [];
 
+    public function __construct($emailCache, $options = null) {
+        $this->emailCache = $emailCache;
         parent::__construct($options);
     }
 
-    public function getUser()
+    /**
+     * @return array
+     */
+    public function getEmailCache(): array
     {
-        return $this->user;
+        return $this->emailCache;
     }
 }

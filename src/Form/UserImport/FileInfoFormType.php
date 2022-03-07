@@ -144,6 +144,7 @@ class FileInfoFormType extends AbstractType
             $lastNameMapping             = $userImport->getLastNameMapping();
             $educatorEmailMapping        = $userImport->getEducatorEmailMapping();
             $graduatingYearMapping       = $userImport->getGraduatingYearMapping();
+            $emailMapping                = $userImport->getEmailMapping();
             $hasErrors = false;
 
             /** @var UploadedFile|null $file */
@@ -162,6 +163,7 @@ class FileInfoFormType extends AbstractType
             $lastNameKey       = array_search($lastNameMapping, $columns, true);
             $educatorEmailKey  = array_search($educatorEmailMapping, $columns, true);
             $graduatingYearKey = array_search($graduatingYearMapping, $columns, true);
+            $emailKey = array_search($emailMapping, $columns, true);
 
             try {
                 $reader = $this->phpSpreadsheetHelper->getReader($file);
@@ -226,7 +228,6 @@ class FileInfoFormType extends AbstractType
                                 }
 
                                 if ($educatorEmailKey !== false && array_key_exists($educatorEmailKey, $values)) {
-                                    // todo do a lookup right here on the educator
                                     $educatorEmail = trim($values[$educatorEmailKey]);
                                     $userObj->setEducatorEmail($educatorEmail);
 
@@ -279,7 +280,48 @@ class FileInfoFormType extends AbstractType
                             }
 
                             if ($userImport->getType() === 'Educator') {
+
                                 $userObj = new EducatorUser();
+                                $userObj->setActivated(true);
+                                $userObj->setupAsEducator();
+                                $userObj->addRole(User::ROLE_DASHBOARD_USER);
+                                $userObj->setSchool($school);
+                                $userObj->setTempPasswordEncrypted($encodedEducatorTempPassword);
+                                $userObj->setTempPassword($educatorTempPassword);
+
+                                // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
+                                if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
+                                    $userObj->setSite($site);
+                                }
+
+                                if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
+                                    $userObj->setFirstName(trim($values[$firstNameKey]));
+                                } else {
+                                    $hasErrors = true;
+                                    $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+                                }
+
+                                if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
+                                    $userObj->setLastName(trim($values[$lastNameKey]));
+                                } else {
+                                    $hasErrors = true;
+                                    $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+                                }
+
+                                if ($emailKey !== false && array_key_exists($emailKey, $values)) {
+                                    $email = trim($values[$emailKey]);
+                                    $userObj->setEmail($email);
+                                } else {
+                                    $hasErrors = true;
+                                    $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+                                }
+
+                                if(!$hasErrors) {
+                                    $this->flash->clear();
+                                }
+
+                                $choices[] = $userObj;
+
                             }
                         }
                     }

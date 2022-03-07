@@ -17,7 +17,7 @@
             <li><span href="">Import Users</span></li>
         </ul>
 
-      {#  <div class="uk-margin-auto uk-width-3-4@m uk-section-small uk-section-default header">
+        {# <div class="uk-margin-auto uk-width-3-4@m uk-section-small uk-section-default header">
             <div class="uk-container uk-container-large">
 
                 {% if type == 'student' %}
@@ -28,7 +28,7 @@
                     <h2>USER IMPORT</h2>
                 {% endif %}
             </div>
-        </div>#}
+        </div> #}
 
         {% set uk_width = 'uk-width-3-4@m' %}
 
@@ -51,7 +51,40 @@
                         </div>
                     </div>
                 {% endif %}
-                
+
+            {% endif %}
+
+            {% if flow.steps[flow.getCurrentStepNumber() - 1].name == 'file_info_step' %}
+
+                {% if type == 'student' %}
+                    <p class="uk-margin-remove-top">
+                        <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">CSV
+                            Sample</a> <br>
+                        <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">EXCEL
+                            Sample</a>
+                    </p>
+                {% elseif type == 'educator' %}
+                    <p class="uk-margin-remove-top">
+                        <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">CSV
+                            Sample</a> <br>
+                        <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">EXCEL
+                            Sample</a>
+                    </p>
+                    {% else %}
+                        <p class="uk-margin-remove-top">
+                            <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">Student CSV
+                                Sample</a> <br>
+                            <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">Student EXCEL
+                                Sample</a>
+                        </p>
+                        <p class="uk-margin-remove-top">
+                            <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">Educator CSV
+                                Sample</a> <br>
+                            <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">Educator EXCEL
+                                Sample</a>
+                        </p>
+                {% endif %}
+
             {% endif %}
 
 

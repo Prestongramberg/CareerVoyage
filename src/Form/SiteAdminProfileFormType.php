@@ -15,7 +15,6 @@ use App\Entity\User;
 use App\Repository\SiteRepository;
 use App\Service\NotificationPreferencesManager;
 use App\Util\FormHelper;
-use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

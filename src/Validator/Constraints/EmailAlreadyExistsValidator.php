@@ -48,30 +48,17 @@ class EmailAlreadyExistsValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-
         if (!$value) {
             return;
         }
 
-        /** @var User $user */
-        $user = $this->userRepository->findOneBy(
-            [
-                'email' => $value,
-            ]
-        );
+        $emailCache = $constraint->getEmailCache();
 
-        if ($user) {
-
-            if ($constraint->getUser() instanceof User && $constraint->getUser()->getId() === $user->getId()) {
-                return;
-            }
-
+        if(in_array($value, $emailCache)) {
             $this->context->buildViolation($constraint->message)
                           ->atPath('email')
                           ->addViolation();
-
         }
 
     }
-
 }

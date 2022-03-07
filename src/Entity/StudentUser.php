@@ -566,6 +566,5 @@ class StudentUser extends User
         }
 
 
-
     }
 }

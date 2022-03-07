@@ -25,7 +25,7 @@
                         <h2>MANAGE EDUCATORS - <small>{{ school.name }}</small></h2>
 
                         <hr>
-                        <a href="{{ path('school_educator_import', { "id": school.id }) }}"
+                        <a href="{{ path('school_user_import', { "id": school.id, "type": "educator" }) }}"
                            class="uk-button uk-button-primary uk-button-medium uk-float-right">Import Educators</a>
 
                         <select id="js-school-administrator-schools" class="uk-select"

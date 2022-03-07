@@ -312,4 +312,26 @@ WHERE 1 = 1 AND u.deleted != %s', 1);
         return $usernames;
     }
 
+    /**
+     * @param $search
+     * @return mixed[]
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getAllEmailAddresses() {
+
+        $query = 'select u.id, u.email from user u';
+
+        $em = $this->getEntityManager();
+        $stmt = $em->getConnection()->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+
+        $emails = [];
+        foreach($results as $result) {
+            $emails[$result['id']] = $result['email'];
+        }
+
+        return $emails;
+    }
+
 }

@@ -9,7 +9,6 @@ use App\Entity\RolesWillingToFulfill;
 use App\Entity\School;
 use App\Entity\SecondaryIndustry;
 use App\Entity\User;
-use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

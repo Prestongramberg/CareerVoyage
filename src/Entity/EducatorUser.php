@@ -543,4 +543,32 @@ class EducatorUser extends User
         return ['educator-welcome'];
     }
 
+    public function fromDataImportArray($data) {
+
+        foreach($data as $propertyName => $value) {
+
+            switch ($propertyName) {
+                case 'firstName':
+                    $this->setFirstName($value);
+                    break;
+                case 'lastName':
+                    $this->setLastName($value);
+                    break;
+                case 'email':
+                    $this->setEmail($value);
+                    break;
+                case 'tempPassword':
+                    $this->setTempPassword($value);
+                    break;
+                case 'username':
+                    $this->setUsername($value);
+                    break;
+                case 'tempPasswordEncrypted':
+                    $this->setTempPasswordEncrypted($value);
+                    break;
+            }
+
+        }
+    }
+
 }

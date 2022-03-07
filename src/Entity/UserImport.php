@@ -54,6 +54,11 @@ class UserImport
      */
     private $educatorEmailMapping;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $emailMapping;
+
     private $users = [];
 
     private $userItems;
@@ -189,6 +194,18 @@ class UserImport
     public function setEducatorEmailMapping(?string $educatorEmailMapping): self
     {
         $this->educatorEmailMapping = $educatorEmailMapping;
+
+        return $this;
+    }
+
+    public function getEmailMapping(): ?string
+    {
+        return $this->emailMapping;
+    }
+
+    public function setEmailMapping(?string $emailMapping): self
+    {
+        $this->emailMapping = $emailMapping;
 
         return $this;
     }

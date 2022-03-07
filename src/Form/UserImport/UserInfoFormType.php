@@ -2,12 +2,14 @@
 
 namespace App\Form\UserImport;
 
+use App\Entity\EducatorUser;
 use App\Entity\StudentUser;
 use App\Entity\UserImport;
 use App\Repository\EducatorUserRepository;
 use App\Repository\StudentUserRepository;
 use App\Repository\UserRepository;
 use App\Validator\Constraints\EducatorExists;
+use App\Validator\Constraints\EmailAlreadyExists;
 use App\Validator\Constraints\UsernameAlreadyExists;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
@@ -47,6 +49,7 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
 
     private $educatorEmailCache = [];
     private $usernameCache = [];
+    private $emailCache = [];
     private $totalUsers = 0;
     private $totalUsersWithErrors = 0;
 
@@ -65,6 +68,7 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
 
         $this->educatorEmailCache = $this->educatorUserRepository->getAllEmailAddresses();
         $this->usernameCache = $this->userRepository->getAllUsernames();
+        $this->emailCache = $this->userRepository->getAllEmailAddresses();
     }
 
 
@@ -105,6 +109,9 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var UserImport $userImport */
+        $userImport = $builder->getData();
+
         $builder->setDataMapper($this);
 
         $builder->add('userItems', CollectionType::class, [
@@ -112,7 +119,9 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
             'entry_type'    => UserFormType::class,
             'entry_options' => [
                 'educatorEmailCache' => $this->educatorEmailCache,
-                'usernameCache' => $this->usernameCache
+                'usernameCache' => $this->usernameCache,
+                'emailCache' => $this->emailCache,
+                'userImport' => $userImport
             ],
         ]);
 
@@ -165,30 +174,69 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
 
 
                 if ($userImport->getType() === 'Educator') {
-                    // todo.........
+                    $educatorUser = new EducatorUser();
+                    $educatorUser->fromDataImportArray($userItem);
+
+                    $constraintViolationList = new ConstraintViolationList();
+
+                    $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($this->emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                    $errors2 = $this->validator->validate($educatorUser->getFirstName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                    $errors3 = $this->validator->validate($educatorUser->getLastName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                    $errors4 = $this->validator->validate($educatorUser->getEmail(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                    $errors5 = $this->validator->validate($educatorUser->getTempPassword(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+                    $constraintViolationList->addAll($errors1);
+                    $constraintViolationList->addAll($errors2);
+                    $constraintViolationList->addAll($errors3);
+                    $constraintViolationList->addAll($errors4);
+                    $constraintViolationList->addAll($errors5);
+
+                    if (count($constraintViolationList) === 0) {
+                        $userItemKeysToRemove[] = $userItemKey;
+                    } else {
+                        $totalUsersWithImportErrors++;
+                    }
                 }
 
                 $userItemKey++;
             }
 
             if($totalUsersWithImportErrors > 0) {
-                foreach($userItemKeysToRemove as $userItemKey) {
 
-                    $f = $userItemFormElements->get($userItemKey);
-                    $f->remove('firstName');
-                    $f->remove('lastName');
-                    $f->remove('graduatingYear');
-                    $f->remove('educatorEmail');
-                    $f->remove('username');
-                    $f->remove('tempPassword');
-                    $f->add('firstName', HiddenType::class);
-                    $f->add('lastName', HiddenType::class);
-                    $f->add('graduatingYear', HiddenType::class);
-                    $f->add('educatorEmail', HiddenType::class);
-                    $f->add('username', HiddenType::class);
-                    $f->add('tempPassword', HiddenType::class);
+                if ($userImport->getType() === 'Student') {
+                    foreach($userItemKeysToRemove as $userItemKey) {
 
+                        $f = $userItemFormElements->get($userItemKey);
+                        $f->remove('firstName');
+                        $f->remove('lastName');
+                        $f->remove('graduatingYear');
+                        $f->remove('educatorEmail');
+                        $f->remove('username');
+                        $f->remove('tempPassword');
+                        $f->add('firstName', HiddenType::class);
+                        $f->add('lastName', HiddenType::class);
+                        $f->add('graduatingYear', HiddenType::class);
+                        $f->add('educatorEmail', HiddenType::class);
+                        $f->add('username', HiddenType::class);
+                        $f->add('tempPassword', HiddenType::class);
+                    }
                 }
+
+                if ($userImport->getType() === 'Educator') {
+                    foreach($userItemKeysToRemove as $userItemKey) {
+
+                        $f = $userItemFormElements->get($userItemKey);
+                        $f->remove('firstName');
+                        $f->remove('lastName');
+                        $f->remove('email');
+                        $f->remove('tempPassword');
+                        $f->add('firstName', HiddenType::class);
+                        $f->add('lastName', HiddenType::class);
+                        $f->add('email', HiddenType::class);
+                        $f->add('tempPassword', HiddenType::class);
+                    }
+                }
+
             }
 
             $this->totalUsersWithErrors = $totalUsersWithImportErrors;

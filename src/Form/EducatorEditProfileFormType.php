@@ -16,7 +16,6 @@ use App\Repository\SecondaryIndustryRepository;
 use App\Repository\StudentUserRepository;
 use App\Service\NotificationPreferencesManager;
 use App\Util\FormHelper;
-use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

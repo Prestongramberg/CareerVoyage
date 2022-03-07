@@ -1,4 +1,4 @@
-﻿First Name,Last Name,Graduating Year,Educator Number
-user one first name,user one last name,2022,502
-user two first name,user two last name,2022,502
-user three first name,user three last name,2023,503
+﻿First Name,Last Name,Graduating Year,Educator Email
+student one first name,student one last name,2022,educator1@some-school.org
+student two first name,student two last name,2022,educator2@some-school.org
+student three first name,student three last name,2023,educator3@some-school.org

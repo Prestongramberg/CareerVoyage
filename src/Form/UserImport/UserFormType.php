@@ -3,7 +3,9 @@
 namespace App\Form\UserImport;
 
 use App\Entity\User;
+use App\Entity\UserImport;
 use App\Validator\Constraints\EducatorExists;
+use App\Validator\Constraints\EmailAlreadyExists;
 use App\Validator\Constraints\UsernameAlreadyExists;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -19,8 +21,12 @@ class UserFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        /** @var UserImport $userImport */
+        $userImport = $options['userImport'];
+
         $educatorEmailCache = $options['educatorEmailCache'];
         $usernameCache = $options['usernameCache'];
+        $emailCache = $options['emailCache'];
 
         $builder->add('firstName', TextType::class, [
             'constraints'    => [
@@ -33,25 +39,37 @@ class UserFormType extends AbstractType
             ],
         ]);
 
-        $builder->add('graduatingYear', TextType::class, [
-            'constraints'    => [
-                new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
-            ],
-        ]);
+        if($userImport->getType() === 'Student') {
+            $builder->add('graduatingYear', TextType::class, [
+                'constraints'    => [
+                    new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
+                ],
+            ]);
 
-        $builder->add('educatorEmail', TextType::class, [
-            'constraints'    => [
-                new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
-                new EducatorExists($educatorEmailCache, ['groups' => ['USER_IMPORT_USER_INFO']])
-            ],
-        ]);
+            $builder->add('educatorEmail', TextType::class, [
+                'constraints'    => [
+                    new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
+                    new EducatorExists($educatorEmailCache, ['groups' => ['USER_IMPORT_USER_INFO']])
+                ],
+            ]);
 
-        $builder->add('username', TextType::class, [
-            'constraints'    => [
-                new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
-                new UsernameAlreadyExists($usernameCache, ['groups' => ['USER_IMPORT_USER_INFO']]),
-            ],
-        ]);
+            $builder->add('username', TextType::class, [
+                'constraints'    => [
+                    new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
+                    new UsernameAlreadyExists($usernameCache, ['groups' => ['USER_IMPORT_USER_INFO']]),
+                ],
+            ]);
+        }
+
+        if($userImport->getType() === 'Educator') {
+            $builder->add('email', TextType::class, [
+                'constraints'    => [
+                    new NotNull(['message' => 'Please enter a value.', 'groups' => ['USER_IMPORT_USER_INFO']]),
+                    new EmailAlreadyExists($emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]),
+                ],
+            ]);
+        }
+
 
         $builder->add('tempPassword', TextType::class, [
             'constraints'    => [
@@ -71,7 +89,10 @@ class UserFormType extends AbstractType
             'data_class' => User::class,
             'educatorEmailCache' => [],
             'usernameCache' => [],
+            'emailCache' => [],
         ]);
+
+        $resolver->setRequired('userImport');
 
     }
 

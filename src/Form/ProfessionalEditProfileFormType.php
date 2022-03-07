@@ -14,7 +14,6 @@ use App\Repository\SchoolRepository;
 use App\Repository\SecondaryIndustryRepository;
 use App\Service\Geocoder;
 use App\Util\FormHelper;
-use App\Validator\Constraints\EmailAlreadyExists;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
