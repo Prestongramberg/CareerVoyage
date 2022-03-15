@@ -31,7 +31,7 @@ class FileInfoFormType extends AbstractType
 
     use RandomStringGenerator;
 
-    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column names from your spreadsheet/csv file do not match the Column Mapping configured in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping, and resubmit your file on step 3 - Or manually enter any missing data below.';
+    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column title names from your spreadsheet/csv file do not match the Column Mapping you entered in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping names, and resubmit your file on Step 3 - Or manually enter any missing data below.';
 
     /**
      * @var PhpSpreadsheetHelper;
@@ -266,9 +266,9 @@ class FileInfoFormType extends AbstractType
                                 }
 
                                 if ($userObj->getFirstName() && $userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getFirstName()).'_'.trim($userObj->getLastName()), $this->generateRandomNumber(5)));
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getFirstName()).'_'.trim($userObj->getLastName()), $this->generateRandomNumber(3)));
                                 } elseif ($userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getLastName()), $this->generateRandomNumber(5)));
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getLastName()), $this->generateRandomNumber(3)));
                                 } else {
                                     $username = preg_replace('/\s+/', '', sprintf("%s", $this->generateRandomString(10)));
                                 }

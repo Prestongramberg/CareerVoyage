@@ -1,15 +1,15 @@
 <fieldset class="uk-margin">
 
     <legend class="">
-        Column Mapping<span class="uk-text-danger">*</span>
+        Column Mapping (Step 2)<span class="uk-text-danger">*</span>
     </legend>
 
     <div class="uk-grid">
 
         <div class="uk-width-1-1@m uk-margin">
-            <small class="uk-text-muted">So we can reliably import your data, please input the column names from your spreadsheet/csv file.</small>
+            <small class="uk-text-muted">So we can reliably import your data, please input the column title names from your spreadsheet/csv file.</small>
             <br>
-            <small class="uk-text-danger">Note: Validation is <strong>CASE SENSITIVE</strong>. Please enter the column names exactly as they appear in your file.</small>
+            <small class="uk-text-danger">Note: Validation is <strong>CASE SENSITIVE</strong>. Please enter the column title names exactly as they appear in your file.</small>
         </div>
 
         {# <label>Autogenerate Usernames?<span class="uk-text-danger">*</span></label> #}
@@ -79,6 +79,7 @@
                         <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
                         {{ form_widget(form.educatorEmailMapping, {'attr': {'class': 'uk-input' }}) }}
                         {{ form_errors(form.educatorEmailMapping) }}
+                        <small class="uk-text-danger">Every student must be assigned a supervising educator already registered in Future Forward.</small>
                     </div>
 
                     <span style="margin-top: 5px; padding-left: 10px">-></span>
