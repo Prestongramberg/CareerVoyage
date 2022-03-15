@@ -1,6 +1,6 @@
 {% extends 'baseAuthenticated.html.twig' %}
 
-{% block title %}School Administrators{% endblock %}
+{% block title %}School Site Administrators{% endblock %}
 {% set previouslyLoggedInAs = app.session.get('previouslyLoggedInAs', null) %}
 
 {% block body %}
@@ -13,7 +13,7 @@
 
                 <ul class="uk-breadcrumb">
                     <li><a href="{{ path('manage_users') }}">Manage Users</a></li>
-                    <li><span>School Administrators</span></li>
+                    <li><span>School Site Administrators</span></li>
                 </ul>
 
                 {% include 'manageUsers/partials/_filters.html.twig' %}
@@ -21,7 +21,7 @@
 
                 {% if user.isRegionalCoordinator %}
                     <div>
-                        <a href="{{ path('school_admin_export') }}">Export School Administrators</a>
+                        <a href="{{ path('school_admin_export') }}">Export School Site Administrators</a>
                     </div>
                 {% endif %}
 

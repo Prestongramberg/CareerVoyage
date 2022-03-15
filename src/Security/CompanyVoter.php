@@ -52,7 +52,7 @@ class CompanyVoter extends Voter
 
     private function canEdit(Company $company, User $user)
     {
-        if($user->isAdmin() || $user->isRegionalCoordinator()) {
+        if($user->isAdmin() || $user->isRegionalCoordinator() || $user->isSiteAdmin()) {
             return true;
         }
 

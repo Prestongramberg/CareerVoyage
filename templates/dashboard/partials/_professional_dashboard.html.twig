@@ -81,6 +81,15 @@
                     </div>
                 </div>
 
+                <div>
+                    <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                        <h3 class="uk-card-title">Browse Experiences</h3>
+                        <p>Browse company or school hosted events.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_index') }}">Get Started</a>
+                    </div>
+                </div>
+
             {% elseif authorizationVoter.canManageExperiencesForCompany(user) %}
 
                 <div>
@@ -126,6 +135,15 @@
                     </div>
                 </div>
 
+                <div>
+                    <div class="uk-card uk-card-secondary uk-card-hover uk-card-body uk-light uk-text-center">
+                        <h3 class="uk-card-title">Browse Experiences</h3>
+                        <p>Browse company or school hosted events.</p>
+                        <a class="uk-button uk-button-default" target="_blank"
+                           href="{{ path('experience_index') }}">Get Started</a>
+                    </div>
+                </div>
+
                 {% else %}
 
                     <div>
@@ -159,6 +177,15 @@
                             <p>View and manage events that you are personally registered for.</p>
                             <a class="uk-button uk-button-default" target="_blank"
                                href="{{ path('experience_personal_calendar') }}">Get Started</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="uk-card uk-card-default uk-card-hover uk-card-body uk-text-center">
+                            <h3 class="uk-card-title">Browse Experiences</h3>
+                            <p>Browse company or school hosted events.</p>
+                            <a class="uk-button uk-button-default" target="_blank"
+                               href="{{ path('experience_index') }}">Get Started</a>
                         </div>
                     </div>
 
