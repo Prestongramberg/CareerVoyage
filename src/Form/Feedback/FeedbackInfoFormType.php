@@ -4,6 +4,7 @@ namespace App\Form\Feedback;
 
 use App\Entity\CompanyExperience;
 use App\Entity\SchoolExperience;
+use App\Entity\TeachLessonExperience;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -125,6 +126,12 @@ class FeedbackInfoFormType extends AbstractType
             }
         }
 
+        if ($feedback->getExperience() instanceof TeachLessonExperience) {
+            $builder->add('additionalFeedback', TextareaType::class, [
+                'label' => 'Any specific thoughts, feedback to improve this experience? (Optional)',
+            ]);
+        }
+
         $builder->add('rating', HiddenType::class, [
             'error_bubbling' => false,
             'constraints'    => [
@@ -132,20 +139,28 @@ class FeedbackInfoFormType extends AbstractType
             ],
         ]);
 
-        $builder->add('providedCareerInsight', HiddenType::class, [
-            'empty_data'     => false,
-            'error_bubbling' => false,
-        ]);
+        if ($feedback->getFeedbackProvider() === 'Professional') {
+            $builder->add('wasEnjoyableAndEngaging', HiddenType::class, [
+                'empty_data'     => false,
+                'error_bubbling' => false,
+            ]);
+        } else {
+            $builder->add('providedCareerInsight', HiddenType::class, [
+                'empty_data'     => false,
+                'error_bubbling' => false,
+            ]);
 
-        $builder->add('wasEnjoyableAndEngaging', HiddenType::class, [
-            'empty_data'     => false,
-            'error_bubbling' => false,
-        ]);
+            $builder->add('wasEnjoyableAndEngaging', HiddenType::class, [
+                'empty_data'     => false,
+                'error_bubbling' => false,
+            ]);
 
-        $builder->add('learnSomethingNew', HiddenType::class, [
-            "empty_data"     => false,
-            'error_bubbling' => false,
-        ]);
+            $builder->add('learnSomethingNew', HiddenType::class, [
+                "empty_data"     => false,
+                'error_bubbling' => false,
+            ]);
+        }
+
     }
 
     public function getBlockPrefix()

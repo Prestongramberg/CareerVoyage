@@ -267,7 +267,8 @@ class App extends React.Component {
             customEventPayload: event,
             title: event.title,
             start: event.startDateAndTime,
-            end: event.endDateAndTime
+            end: event.endDateAndTime,
+            uuid: event.uuid
         }
 
         switch (event.className) {
@@ -282,6 +283,12 @@ class App extends React.Component {
                     ...defaults,
                     color: "#FFC82C",
                     url: window.Routing.generate("experience_view", {'id': event.id})
+                }
+            case "TeachLessonExperience":
+                return {
+                    ...defaults,
+                    giveFeedbackUrl: window.Routing.generate("feedback_v2_new", {'uuid': event.uuid}),
+                    viewFeedbackUrl: window.Routing.generate("feedback_view_all", {'experienceId': event.id})
                 }
             default:
                 return defaults

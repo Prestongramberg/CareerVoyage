@@ -474,7 +474,7 @@ class FeedbackController extends AbstractController
         $actionUrlParams    = [];
         $authorizationVoter = new AuthorizationVoter();
 
-        if (!$schoolId && !$companyId) {
+        if (!$schoolId && !$companyId && !$experienceId) {
             if ($user instanceof SchoolAdministrator) {
                 $school = $user->getSchools()
                                ->first();
@@ -510,6 +510,10 @@ class FeedbackController extends AbstractController
             if (!$experience) {
                 throw new AccessDeniedException();
             }
+
+            $filterBuilder = $this->experienceRepository->createQueryBuilder('e')
+                                                              ->andWhere('e.id = :experienceId')
+                                                              ->setParameter('experienceId', $experienceId);
 
             $actionUrlParams['experienceId'] = $experienceId;
             $experiences[] = $experience;

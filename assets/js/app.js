@@ -110,20 +110,32 @@ window.Pintex = {
         console.log(eventPayload);
 
         var this_level = this;
+        eventHtml += `<button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>`;
 
-        eventHtml += `
-                <button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>
-                <h2>${eventPayload.title}</h2>
-                <p>
+
+        if(eventTitle) {
+            eventHtml += `<h2>${eventPayload.title}</h2>`;
+        }
+
+        if(eventAbout) {
+            eventHtml += `<p>
                     <strong>About the Experience</strong><br />
                     ${eventAbout.replace(/\<br\>/g,"").replace(/h3/g,"p").replace(/<p><\/p>/g,"").replace(/<\/?span[^>]*>/g,"")}
-                </p>
-            `;
+                </p>`;
+        }
 
         if ( event.url ) {
             eventHtml += `<a target="_blank" href="${event.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
         } else if (eventPayload.url) {
             eventHtml += `<a target="_blank" href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
+        }
+
+        if(event?._def.extendedProps?.giveFeedbackUrl) {
+            eventHtml += `<a target="_blank" href="${event._def.extendedProps.giveFeedbackUrl}" class="uk-button uk-button-primary uk-button-xl uk-margin-small uk-width-1-1">Give Feedback</a>`;
+        }
+
+        if(event?._def.extendedProps?.viewFeedbackUrl) {
+            eventHtml += `<a target="_blank" href="${event._def.extendedProps.viewFeedbackUrl}" class="uk-button uk-button-secondary uk-button-xl uk-margin-small uk-width-1-1">View Feedback</a>`;
         }
 
         this.openModal(eventHtml);

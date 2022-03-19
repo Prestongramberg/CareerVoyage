@@ -185,7 +185,7 @@ class ExperienceRepository extends ServiceEntityRepository
         $industry = null,
         $secondaryIndustry = null
     ) {
-        $query = sprintf('SELECT DISTINCT e.id, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, CONCAT(UCASE(LEFT(e.discr, 1)), SUBSTRING(e.discr, 2)) as className
+        $query = sprintf('SELECT DISTINCT e.id, e.uuid, r.id as regId, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, CONCAT(UCASE(LEFT(e.discr, 1)), SUBSTRING(e.discr, 2)) as className
              FROM experience e 
              INNER JOIN registration r on r.experience_id = e.id 
              LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
@@ -308,7 +308,7 @@ class ExperienceRepository extends ServiceEntityRepository
 
 
         /************************************ SCHOOL EXPERIENCES ************************************/
-        $query .= sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
+        $query .= sprintf('SELECT DISTINCT e.id, e.uuid, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
 DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, 
 "SchoolExperience" as className, sc.name as schoolName, null as companyName, rwtf.event_name as eventType, se.school_id as school_id, 
 /* ORDER BY UPCOMING EVENTS FIRST */
@@ -368,7 +368,7 @@ WHERE 1 = 1 AND e.cancelled != %s AND e.is_recurring != %s', 1, 1);
         $query .= ' UNION ALL ';
 
         /************************************ COMPANY EXPERIENCES ************************************/
-        $query .= sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
+        $query .= sprintf('SELECT DISTINCT e.id, e.uuid, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, 
 DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, 
 "CompanyExperience" as className, null as schoolName, c.name as companyName, rwtf.event_name as eventType, null as school_id, 
 /* ORDER BY UPCOMING EVENTS FIRST */

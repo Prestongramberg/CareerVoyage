@@ -48,30 +48,30 @@ class Feedback
     /**
      * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
-    protected $providedCareerInsight = false;
+    protected $providedCareerInsight;
 
     /**
      * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
-    protected $wasEnjoyableAndEngaging = false;
+    protected $wasEnjoyableAndEngaging;
 
     /**
      * @Groups({"FEEDBACK"})
      * @Assert\NotNull(message="This cannot be blank!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
-    protected $learnSomethingNew = false;
+    protected $learnSomethingNew;
 
     /**
      * @Groups({"FEEDBACK"})
      * @Assert\NotBlank(message="This cannot be blank!", groups={"CREATE", "EDIT"})
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    protected $likelihoodToRecommendToFriend = 7;
+    protected $likelihoodToRecommendToFriend;
 
     /**
      * @Groups({"FEEDBACK"})
@@ -108,7 +108,7 @@ class Feedback
      * @Groups({"FEEDBACK"})
      * @ORM\Column(type="integer", nullable=true)
      */
-    protected $interestWorkingForCompany = 0;
+    protected $interestWorkingForCompany;
 
     /**
      * @Groups({"FEEDBACK"})
@@ -240,9 +240,9 @@ class Feedback
     protected $email;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    protected $awarenessCareerOpportunities = 0;
+    protected $awarenessCareerOpportunities;
 
     /**
      * @ORM\ManyToOne(targetEntity=School::class)
