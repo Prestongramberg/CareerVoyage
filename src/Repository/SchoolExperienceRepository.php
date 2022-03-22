@@ -190,7 +190,7 @@ HERE;
         $endDate = null, $searchQuery = null, $eventType = null, $industry = null, $secondaryIndustry = null
     ) {
 
-        $query = sprintf('SELECT DISTINCT e.id, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, "SchoolExperience" as className, sc.name as schoolName, rwtf.event_name as eventType from school_experience se INNER JOIN experience e on e.id = se.id 
+        $query = sprintf('SELECT DISTINCT e.id, e.uuid, e.title, e.about, e.brief_description as briefDescription, e.start_date_and_time as startDateAndTime, e.end_date_and_time as endDateAndTime, DATE_FORMAT(e.start_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyStartDateAndTime, DATE_FORMAT(e.end_date_and_time, "%%m/%%d/%%Y %%h:%%i %%p") as friendlyEndDateAndTime, "SchoolExperience" as className, sc.name as schoolName, rwtf.event_name as eventType from school_experience se INNER JOIN experience e on e.id = se.id 
 LEFT JOIN experience_secondary_industry esi on esi.experience_id = e.id
 LEFT JOIN secondary_industry si on si.id = esi.secondary_industry_id
 LEFT JOIN industry i on i.id = si.primary_industry_id

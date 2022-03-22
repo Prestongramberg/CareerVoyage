@@ -26,6 +26,7 @@ const moment = require('moment-timezone');
 const ics = require('./vendor/ics.js');
 require('flatpickr/dist/flatpickr.min.css');
 require('@yaireo/tagify/dist/tagify.css');
+import ClipboardJS from 'clipboard/dist/clipboard.min';
 
 // Binds to Window
 window.globalEventDispatcher = new EventDispatcher();
@@ -49,11 +50,18 @@ window.Pintex = {
             
             UIkit.modal( $modal ).show();
 
+            UIkit.util.on($modal, 'shown', function (ev) {
+                new ClipboardJS('.js-copy-to-clipboard-btn');
+            });
+
             const elem = document.querySelector("#modal-change-date");
             const config = {
                 "attributes": true
             }
             const observer = new MutationObserver(function(mutations){
+
+                debugger;
+
                 mutations.forEach(function(mutation){
                     if(mutation.type === 'attributes') {
                         let name = elem.className;
@@ -110,20 +118,36 @@ window.Pintex = {
         console.log(eventPayload);
 
         var this_level = this;
+        eventHtml += `<button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>`;
 
-        eventHtml += `
-                <button class="close-modal-button uk-button uk-button-danger uk-button-small">x</button>
-                <h2>${eventPayload.title}</h2>
-                <p>
+
+        if(eventTitle) {
+            eventHtml += `<h2>${eventPayload.title}</h2>`;
+        }
+
+        if(eventAbout) {
+            eventHtml += `<p>
                     <strong>About the Experience</strong><br />
                     ${eventAbout.replace(/\<br\>/g,"").replace(/h3/g,"p").replace(/<p><\/p>/g,"").replace(/<\/?span[^>]*>/g,"")}
-                </p>
-            `;
+                </p>`;
+        }
 
         if ( event.url ) {
             eventHtml += `<a target="_blank" href="${event.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
         } else if (eventPayload.url) {
             eventHtml += `<a target="_blank" href="${eventPayload.url}" class="uk-button uk-button-primary uk-button-xl uk-margin-small-right uk-width-1-1">View More Details</a>`;
+        }
+
+        if(event?._def.extendedProps?.viewFeedbackUrl) {
+            eventHtml += `<a target="_blank" href="${event._def.extendedProps.viewFeedbackUrl}" class="uk-button uk-button-secondary uk-button-xl uk-margin-small uk-width-1-1">View Feedback</a>`;
+
+        }
+
+        if(event?._def.extendedProps?.giveFeedbackUrl) {
+            eventHtml += `<a target="_blank" href="${event._def.extendedProps.giveFeedbackUrl}" class="uk-button uk-button-primary uk-button-xl uk-margin-small uk-width-1-1">Give Feedback</a>`;
+            eventHtml += `<h3 style="font-weight: bold">FEEDBACK URL</h3>`;
+            eventHtml += `<input style="width: 70%; float: left" class="uk-input" id="liveFeedbackUrl" value="${event._def.extendedProps.giveFeedbackUrl}">`;
+            eventHtml += `<button uk-icon="icon: copy" style="border-top-right-radius: 5px; border-bottom-right-radius: 5px" class="uk-button uk-button-secondary js-copy-to-clipboard-btn" data-clipboard-target="#liveFeedbackUrl">COPY</button>`;
         }
 
         this.openModal(eventHtml);

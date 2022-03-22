@@ -20,9 +20,18 @@
         </div>
 
         <div class="uk-margin">
-            {{ form_widget(form.providedCareerInsight, {'attr': {'class': 'uk-hidden' }}) }}
-            {{ form_widget(form.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }}) }}
-            {{ form_widget(form.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
+
+            {% if form.providedCareerInsight is defined %}
+                {{ form_widget(form.providedCareerInsight, {'attr': {'class': 'uk-hidden' }}) }}
+            {% endif %}
+
+            {% if form.wasEnjoyableAndEngaging is defined %}
+                {{ form_widget(form.wasEnjoyableAndEngaging, {'attr': {'class': 'uk-hidden' }}) }}
+            {% endif %}
+
+            {% if form.learnSomethingNew is defined %}
+                {{ form_widget(form.learnSomethingNew, {'attr': {'class': 'uk-hidden' }}) }}
+            {% endif %}
 
             <label>Choose all that apply</label>
 

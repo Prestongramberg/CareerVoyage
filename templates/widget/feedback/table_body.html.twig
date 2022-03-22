@@ -9,10 +9,41 @@
         {% endif %}
 
         <td class="uk-text-nowrap">{{ feedback.rating }}</td>
-        <td class="uk-text-nowrap">{{ feedback.providedCareerInsight == 1 ? "YES" : "NO" }}</td>
-        <td class="uk-text-nowrap">{{ feedback.wasEnjoyableAndEngaging == 1 ? "YES" : "NO" }}</td>
-        <td class="uk-text-nowrap">{{ feedback.learnSomethingNew == 1 ? "YES" : "NO" }}</td>
-        <td class="uk-text-nowrap">{{ feedback.likelihoodToRecommendToFriend }}</td>
+        <td class="uk-text-nowrap">
+            {% if feedback.providedCareerInsight is same as(true) %}
+                YES
+            {% elseif feedback.providedCareerInsight is same as(false) %}
+                NO
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <td class="uk-text-nowrap">
+            {% if feedback.wasEnjoyableAndEngaging is same as(true) %}
+                YES
+            {% elseif feedback.wasEnjoyableAndEngaging is same as(false) %}
+                NO
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <td class="uk-text-nowrap">
+            {% if feedback.learnSomethingNew is same as(true) %}
+                YES
+            {% elseif feedback.learnSomethingNew is same as(false) %}
+                NO
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+        <td class="uk-text-nowrap">
+            {% if feedback.likelihoodToRecommendToFriend is null %}
+                N/A
+            {% else %}
+                {{ feedback.likelihoodToRecommendToFriend }}
+            {% endif %}
+        </td>
+
         <td>{{ feedback.additionalFeedback }}</td>
 
         {% if feedback.user is not null %}
