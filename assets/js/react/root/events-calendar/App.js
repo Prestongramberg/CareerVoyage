@@ -287,7 +287,7 @@ class App extends React.Component {
             case "TeachLessonExperience":
                 return {
                     ...defaults,
-                    giveFeedbackUrl: window.Routing.generate("feedback_v2_new", {'uuid': event.uuid}),
+                    giveFeedbackUrl: window.Routing.generate("feedback_v2_new", {'uuid': event.uuid}, true),
                     viewFeedbackUrl: window.Routing.generate("feedback_view_all", {'experienceId': event.id})
                 }
             default:
