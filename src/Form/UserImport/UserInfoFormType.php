@@ -12,6 +12,8 @@ use App\Validator\Constraints\EducatorExists;
 use App\Validator\Constraints\EmailAlreadyExists;
 use App\Validator\Constraints\UsernameAlreadyExists;
 use Doctrine\Common\Collections\ArrayCollection;
+use Knp\Component\Pager\PaginatorInterface;
+use phpDocumentor\Reflection\Types\Iterable_;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
@@ -24,6 +26,8 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -47,28 +51,58 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
      */
     private $userRepository;
 
+    /**
+     * @var PaginatorInterface
+     */
+    private $paginator;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     private $educatorEmailCache = [];
     private $usernameCache = [];
     private $emailCache = [];
     private $totalUsers = 0;
     private $totalUsersWithErrors = 0;
+    private $userItems = [];
 
     /**
-     * @param  \Symfony\Component\Validator\Validator\ValidatorInterface  $validator
-     * @param  \App\Repository\EducatorUserRepository                     $educatorUserRepository
-     * @param  \App\Repository\UserRepository                             $userRepository
+     * @param  \Symfony\Component\Validator\Validator\ValidatorInterface   $validator
+     * @param  \App\Repository\EducatorUserRepository                      $educatorUserRepository
+     * @param  \App\Repository\UserRepository                              $userRepository
+     * @param  \Knp\Component\Pager\PaginatorInterface                     $paginator
+     * @param  \Symfony\Component\HttpFoundation\RequestStack              $requestStack
+     * @param  \Symfony\Component\HttpFoundation\Session\SessionInterface  $session
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function __construct(ValidatorInterface $validator, EducatorUserRepository $educatorUserRepository, UserRepository $userRepository)
+    public function __construct(
+        ValidatorInterface $validator,
+        EducatorUserRepository $educatorUserRepository,
+        UserRepository $userRepository,
+        PaginatorInterface $paginator,
+        RequestStack $requestStack,
+        SessionInterface $session
+    )
     {
-        $this->validator              = $validator;
-        $this->educatorUserRepository = $educatorUserRepository;
-        $this->userRepository = $userRepository;
+        $this->validator                = $validator;
+        $this->educatorUserRepository   = $educatorUserRepository;
+        $this->userRepository           = $userRepository;
+        $this->paginator                = $paginator;
+        $this->requestStack             = $requestStack;
+        $this->session                  = $session;
 
         $this->educatorEmailCache = $this->educatorUserRepository->getAllEmailAddresses();
         $this->usernameCache = $this->userRepository->getAllUsernames();
         $this->emailCache = $this->userRepository->getAllEmailAddresses();
+        $this->userItems = $this->session->get('userItems', []);
     }
 
 
@@ -90,7 +124,22 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
         $forms = iterator_to_array($forms);
 
         if (isset($forms['userItems'])) {
-            $forms['userItems']->setData(new ArrayCollection($viewData->getUsers()));
+
+
+            $request = $this->requestStack->getCurrentRequest();
+            $page = $request->query->getInt('page', 1);
+
+            $userItems = new ArrayCollection($this->userItems);
+            $pagination = $this->paginator->paginate(
+                $userItems,
+                $page,
+                100
+            );
+
+            $userItems = $pagination->getItems();
+
+            //$userItems = $userItems->slice(0, 100);
+            $forms['userItems']->setData($userItems);
         }
     }
 
@@ -112,7 +161,7 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
         /** @var UserImport $userImport */
         $userImport = $builder->getData();
 
-        $builder->setDataMapper($this);
+   /*     $builder->setDataMapper($this);
 
         $builder->add('userItems', CollectionType::class, [
             // each entry in the array will be an "email" field
@@ -123,12 +172,16 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
                 'emailCache' => $this->emailCache,
                 'userImport' => $userImport
             ],
-        ]);
+        ]);*/
 
         /**
          * The idea here is pretty simple. Remove the user rows that pass validation on submit.
          */
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+
+            return;
+
+
             $form      = $event->getForm();
             $data      = $event->getData();
             $userItems = $data['userItems'] ?? [];
@@ -237,6 +290,34 @@ class UserInfoFormType extends AbstractType implements DataMapperInterface
                     }
                 }
 
+            } else {
+
+                // todo no errors have occurred.
+                // todo let's review the next selection of users right?
+
+                $request = $this->requestStack->getCurrentRequest();
+                $page = $request->query->getInt('page', 1);
+
+                // todo I don't know if this logic is correct??
+                $start = ($page - 1) * 100;
+                $userItems = array_splice($this->userItems, $start, 100);
+
+                $this->session->set('userItems', $userItems);
+
+         /*       $request = $this->requestStack->getCurrentRequest();
+                $page = $request->query->getInt('page', 1);
+                $page++;
+
+                $userItems = new ArrayCollection($this->userItems);
+                $pagination = $this->paginator->paginate(
+                    $userItems,
+                    $page,
+                    100
+                );
+
+                */
+
+                $form->addError(new FormError("more users need to be imported!"));
             }
 
             $this->totalUsersWithErrors = $totalUsersWithImportErrors;

@@ -54,41 +54,6 @@
 
             {% endif %}
 
-            {% if flow.steps[flow.getCurrentStepNumber() - 1].name == 'file_info_step' %}
-
-                {% if type == 'student' %}
-                    <p class="uk-margin-remove-top">
-                        <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">CSV
-                            Import Template</a> <br>
-                        <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">EXCEL
-                            Import Template</a>
-                    </p>
-                {% elseif type == 'educator' %}
-                    <p class="uk-margin-remove-top">
-                        <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">CSV
-                            Import Template</a> <br>
-                        <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">EXCEL
-                            Import Template</a>
-                    </p>
-                    {% else %}
-                        <p class="uk-margin-remove-top">
-                            <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">Student CSV
-                                Import Template</a> <br>
-                            <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">Student EXCEL
-                                Import Template</a>
-                        </p>
-                        <p class="uk-margin-remove-top">
-                            <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">Educator CSV
-                                Import Template</a> <br>
-                            <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">Educator EXCEL
-                                Import Template</a>
-                        </p>
-                {% endif %}
-
-            {% endif %}
-
-
-
             {% if form.vars.notice is defined and form.vars.notice is not null %}
                 <div class="uk-alert-danger" uk-alert>
                     <p>{{ form.vars.notice }}</p>
@@ -97,7 +62,11 @@
 
             <div class="uk-text-danger" style="float:right;">* indicates required</div>
 
-            <h2>Import Users</h2>
+            {% if type %}
+                <h2>Import {{ type|capitalize ~ 's'}}</h2>
+            {% else %}
+                <h2>Import Users</h2>
+            {% endif %}
 
             {{ form_start(form, {attr: {'novalidate' : 'novalidate'}}) }}
 

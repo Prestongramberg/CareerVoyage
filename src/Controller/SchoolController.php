@@ -39,6 +39,7 @@ use App\Form\SchoolCommunicationType;
 use App\Form\StudentImportType;
 use App\Form\SupervisingTeacherFormType;
 use App\Model\ResetPassword;
+use App\Repository\UserImportRepository;
 use App\Service\UploaderHelper;
 use App\Util\AuthorizationVoter;
 use App\Util\FileHelper;
@@ -47,9 +48,11 @@ use App\Util\ServiceHelper;
 use Craue\FormFlowBundle\Util\FormFlowUtil;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Sluggable\Util\Urlizer;
+use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -626,33 +629,58 @@ class SchoolController extends AbstractController
     }
 
     /**
+     *
      * @Security("is_granted('ROLE_SCHOOL_ADMINISTRATOR_USER')")
-     * @Route("/schools/{id}/users/import", name="school_user_import")
-     * @param  Request                                  $request
-     * @param  School                                   $school
-     * @param  \App\Form\Flow\UserImportFlow            $flow
-     * @param  \Craue\FormFlowBundle\Util\FormFlowUtil  $formFlowUtil
+     * @Route("/schools/{id}/users/import/{uuid}", name="school_user_import")
+     * @param  null  $uuid
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function userImportAction(Request $request, School $school, UserImportFlow $flow, FormFlowUtil $formFlowUtil)
-    {
+    public function userImportAction(
+        Request $request,
+        School $school,
+        UserImportFlow $flow,
+        FormFlowUtil $formFlowUtil,
+        SessionInterface $session,
+        UserImportRepository $userImportRepository,
+        $uuid = null
+    ) {
         /** @var \App\Entity\User $loggedInUser */
         $loggedInUser = $this->getUser();
 
-        $userImport = new UserImport();
-        $userImport->setSchool($school);
-
-        $importType = $request->query->get('type');
-
-        if($importType === 'student') {
-            $userImport->setType('Student');
+        if (!$uuid) {
+            $uuid = Uuid::uuid1();
         }
 
-        if($importType === 'educator') {
-            $userImport->setType('Educator');
+        $userImport = $userImportRepository->findOneBy([
+            'uuid' => $uuid,
+        ]);
+
+        if(!$userImport) {
+            $userImport = new UserImport();
+            $userImport->setUuid($uuid);
+            $userImport->setSchool($school);
+
+            $importType = $request->query->get('type');
+
+            if ($importType === 'student') {
+                $userImport->setType('Student');
+            }
+
+            if ($importType === 'educator') {
+                $userImport->setType('Educator');
+            }
+
+            $this->entityManager->persist($userImport);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('school_user_import', [
+                'id' => $school->getId(),
+                'uuid' => $uuid
+            ]);
         }
 
+        // todo?
+        $flow->setGenericFormOptions(['method' => 'POST']);
 
         $flow->bind($userImport);
 
@@ -671,7 +699,7 @@ class SchoolController extends AbstractController
                 $userImport = $form->getData();
 
                 /** @var \App\Entity\User $userItem */
-                foreach($userImport->getUserItems() as $userItem) {
+                foreach ($userImport->getUserItems() as $userItem) {
                     $this->entityManager->persist($userItem);
                 }
 
@@ -680,13 +708,15 @@ class SchoolController extends AbstractController
                 $this->entityManager->flush();
                 $flow->reset();
 
-                if($userImport->getType() === 'Student') {
+                if ($userImport->getType() === 'Student') {
                     $this->addFlash('success', 'Students successfully imported.');
+
                     return $this->redirectToRoute('students_manage', ['id' => $school->getId()]);
                 }
 
-                if($userImport->getType() === 'Educator') {
+                if ($userImport->getType() === 'Educator') {
                     $this->addFlash('success', 'Educators successfully imported.');
+
                     return $this->redirectToRoute('educators_manage', ['id' => $school->getId()]);
                 }
             }
@@ -699,6 +729,8 @@ class SchoolController extends AbstractController
         if ($flow->redirectAfterSubmit($submittedForm)) {
             $params = $formFlowUtil->addRouteParameters(array_merge($request->query->all(), $request->attributes->get('_route_params')), $flow);
 
+            $step = $flow->getStep($flow->getCurrentStepNumber());
+
             return $this->redirect($this->generateUrl($request->attributes->get('_route'), $params));
         }
 
@@ -707,7 +739,7 @@ class SchoolController extends AbstractController
             'flow'  => $flow,
             'route' => $url,
             'user'  => $loggedInUser,
-            'type'  => $request->query->get('type'),
+            'type'  => $request->query->get('type') ?: strtolower($userImport->getType()),
         ]);
     }
 
@@ -724,7 +756,6 @@ class SchoolController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $school);
 
         return $this->redirectToRoute('school_user_import', ['id' => $school->getId(), 'type' => 'student']);
-
     }
 
     /**
@@ -1195,21 +1226,17 @@ class SchoolController extends AbstractController
             && $user->getId() === $experience->getSchoolContact()
                                              ->getId()
         ) {
-            return new JsonResponse(
-                [
+            return new JsonResponse([
                     'user_id'    => $experience->getSchoolContact()
                                                ->getId(),
                     'allow_edit' => true,
-                ]
-            );
+                ]);
         } else {
-            return new JsonResponse(
-                [
+            return new JsonResponse([
                     'user_id'    => $experience->getSchoolContact()
                                                ->getId(),
                     'allow_edit' => false,
-                ]
-            );
+                ]);
         }
     }
 

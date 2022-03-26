@@ -1,7 +1,37 @@
 <fieldset class="uk-margin">
 
+
+    {% if type == 'student' %}
+        <p class="uk-margin-remove-top">
+            <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">CSV
+                Import Template</a> <br>
+            <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">EXCEL
+                Import Template</a>
+        </p>
+    {% elseif type == 'educator' %}
+        <p class="uk-margin-remove-top">
+            <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">CSV
+                Import Template</a> <br>
+            <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">EXCEL
+                Import Template</a>
+        </p>
+    {% else %}
+        <p class="uk-margin-remove-top">
+            <a class="uk-link" href="{{ asset('build/static/student_example_csv.csv') }}" download="">Student CSV
+                Import Template</a> <br>
+            <a class="uk-link" href="{{ asset('build/static/student_example.xlsx') }}" download="">Student EXCEL
+                Import Template</a>
+        </p>
+        <p class="uk-margin-remove-top">
+            <a class="uk-link" href="{{ asset('build/static/educator_example_csv.csv') }}" download="">Educator CSV
+                Import Template</a> <br>
+            <a class="uk-link" href="{{ asset('build/static/educator_example.xlsx') }}" download="">Educator EXCEL
+                Import Template</a>
+        </p>
+    {% endif %}
+
     <legend class="">
-        File (Step 3)<span class="uk-text-danger">*</span>
+        File (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
     </legend>
 
     <div class="uk-grid">
@@ -13,13 +43,18 @@
             <div uk-form-custom="target: true">
                 {{ form_widget(form.file, {'attr': {'class': 'uk-button uk-button-primary uk-button-small' ~ ( form_errors(form.file) ? ' uk-form-danger' : '' ) }}) }}
                 <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+                <br>
+                <small class="uk-text-danger">Supported file types: csv, xlsx</small>
             </div>
+
             {{ form_errors(form.file) }}
         </div>
 
-       {# <div class="uk-hidden">
-            {{ form_widget(form.users) }}
-        </div>#}
+        <div class="uk-hidden">
+            {% if form.userImportUsers is defined %}
+                {{ form_widget(form.userImportUsers) }}
+            {% endif %}
+        </div>
 
     </div>
 

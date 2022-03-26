@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Arr;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Entity(repositoryClass=UserImportRepository::class)
@@ -63,9 +64,27 @@ class UserImport
 
     private $userItems;
 
+    private $skipColumnMappingStep = false;
+
+    /**
+     * @var UploadedFile
+     */
+    private $file;
+
+    /**
+     * @ORM\OneToMany(targetEntity=UserImportUser::class, mappedBy="userImport", cascade={"persist"})
+     */
+    private $userImportUsers;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $uuid;
+
     public function __construct()
     {
         $this->userItems = new ArrayCollection();
+        $this->userImportUsers = new ArrayCollection();
     }
     
     public function getId(): ?int
@@ -133,21 +152,6 @@ class UserImport
         $this->users = $users;
     }
 
-    public function addUser(User $user): self
-    {
-        $this->users[] = $user;
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        // todo?
-
-        return $this;
-    }
-
-
     public function getUserItems(): ArrayCollection
     {
         return $this->userItems;
@@ -206,6 +210,78 @@ class UserImport
     public function setEmailMapping(?string $emailMapping): self
     {
         $this->emailMapping = $emailMapping;
+
+        return $this;
+    }
+
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    public function setFile($file): void
+    {
+        $this->file = $file;
+    }
+
+    public function getSkipColumnMappingStep(): bool
+    {
+        return $this->skipColumnMappingStep;
+    }
+
+    public function setSkipColumnMappingStep(bool $skipColumnMappingStep): void
+    {
+        $this->skipColumnMappingStep = $skipColumnMappingStep;
+    }
+
+
+/*    public function setUserImportUsers($userImportUsers) {
+        $this->userImportUsers = $userImportUsers;
+    }
+
+    public function getUserImportUsers(): array
+    {
+        return $this->userImportUsers;
+    }*/
+
+    /**
+     * @return Collection|UserImportUser[]
+     */
+    public function getUserImportUsers(): Collection
+    {
+        return $this->userImportUsers;
+    }
+
+    public function addUserImportUser(UserImportUser $userImportUser): self
+    {
+        if (!$this->userImportUsers->contains($userImportUser)) {
+            $this->userImportUsers[] = $userImportUser;
+            $userImportUser->setUserImport($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserImportUser(UserImportUser $userImportUser): self
+    {
+        if ($this->userImportUsers->removeElement($userImportUser)) {
+            // set the owning side to null (unless already changed)
+            if ($userImportUser->getUserImport() === $this) {
+                $userImportUser->setUserImport(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUuid(): ?string
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(?string $uuid): self
+    {
+        $this->uuid = $uuid;
 
         return $this;
     }

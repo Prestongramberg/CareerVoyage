@@ -22,7 +22,11 @@ class UserInfoStep extends Step implements DynamicStepInterface
                 /** @var UserImport $userImport */
                 $userImport = $flow->getFormData();
 
-                $flowTransition = $request->request->get('flow_feedback_transition', null);
+                $flowTransition = $request->request->get('flow_userImport_transition', null);
+
+                if($userImport->getSkipColumnMappingStep() && $estimatedCurrentStepNumber === 2 && $flowTransition !== 'back') {
+                    return false;
+                }
 
               /*  if($estimatedCurrentStepNumber === 2 && $feedback->getFeedbackProvider() === 'Professional') {
                     return false;

@@ -28,3 +28,4 @@ require('./favorite-lesson');
 require('./pie-chart');
 require('./teach-lesson');
 require('./events-schedule');
+require('./user-import');

@@ -8,20 +8,25 @@ use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
 use App\Entity\UserImport;
+use App\Entity\UserImportUser;
 use App\Repository\EducatorUserRepository;
 use App\Service\PhpSpreadsheetHelper;
 use App\Util\RandomStringGenerator;
+use App\Validator\Constraints\UserImportFile;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -31,7 +36,7 @@ class FileInfoFormType extends AbstractType
 
     use RandomStringGenerator;
 
-    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column title names from your spreadsheet/csv file do not match the Column Mapping you entered in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping names, and resubmit your file on Step 3 - Or manually enter any missing data below.';
+    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column title names from your uploaded spreadsheet/csv file do not match the Column Mapping you entered in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping names - Or manually enter any missing data below.';
 
     /**
      * @var PhpSpreadsheetHelper;
@@ -64,6 +69,11 @@ class FileInfoFormType extends AbstractType
     private $flash;
 
     /**
+     * @var SessionInterface
+     */
+    private $session;
+
+    /**
      * Cached educator user map for increased performance
      *
      * @var array
@@ -89,13 +99,15 @@ class FileInfoFormType extends AbstractType
         EducatorUserRepository $educatorUserRepository,
         EntityManagerInterface $entityManager,
         TokenStorageInterface $tokenStorage,
-        FlashBagInterface $flash
+        FlashBagInterface $flash,
+        SessionInterface $session
     ) {
         $this->phpSpreadsheetHelper   = $phpSpreadsheetHelper;
         $this->passwordEncoder        = $passwordEncoder;
         $this->educatorUserRepository = $educatorUserRepository;
         $this->entityManager          = $entityManager;
         $this->flash                  = $flash;
+        $this->session                = $session;
 
         $this->loggedInUser = $tokenStorage->getToken()
                                            ->getUser();
@@ -105,14 +117,19 @@ class FileInfoFormType extends AbstractType
     {
         $builder->add('file', FileType::class, [
             'label'       => '(CSV or Excel file)',
-            'mapped'      => false,
             'required'    => true,
             'constraints' => [
                 new NotNull(['message' => 'Please select a valid file.', 'groups' => ['USER_IMPORT_FILE_INFO']]),
+                new UserImportFile(['groups' => ['USER_IMPORT_FILE_INFO']]),
             ],
         ]);
 
+        $builder->add('skipColumnMappingStep', HiddenType::class, [
+            'empty_data' => false,
+        ]);
+
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+
             $form = $event->getForm();
             $data = $event->getData();
             /** @var UserImport $userImport */
@@ -140,11 +157,8 @@ class FileInfoFormType extends AbstractType
 
             $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
             $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
-            $firstNameMapping            = $userImport->getFirstNameMapping();
-            $lastNameMapping             = $userImport->getLastNameMapping();
-            $educatorEmailMapping        = $userImport->getEducatorEmailMapping();
-            $graduatingYearMapping       = $userImport->getGraduatingYearMapping();
-            $emailMapping                = $userImport->getEmailMapping();
+
+
             $hasErrors = false;
 
             /** @var UploadedFile|null $file */
@@ -154,16 +168,51 @@ class FileInfoFormType extends AbstractType
                 return;
             }
 
-            if (!isset($data['users'])) {
-                $data['users'] = [];
+            try {
+                $columns = $this->phpSpreadsheetHelper->getColumns($file);
+            } catch (\Exception $exception) {
+                return;
             }
 
-            $columns           = $this->phpSpreadsheetHelper->getColumns($file);
-            $firstNameKey      = array_search($firstNameMapping, $columns, true);
-            $lastNameKey       = array_search($lastNameMapping, $columns, true);
-            $educatorEmailKey  = array_search($educatorEmailMapping, $columns, true);
-            $graduatingYearKey = array_search($graduatingYearMapping, $columns, true);
-            $emailKey = array_search($emailMapping, $columns, true);
+            if ($userImport->getType() === 'Student') {
+                $firstNameKey      = $this->firstNameKeyLookup($columns);
+                $lastNameKey       = $this->lastNameKeyLookup($columns);
+                $educatorEmailKey  = $this->educatorEmailKeyLookup($columns);
+                $graduatingYearKey = $this->graduatingYearlKeyLookup($columns);
+
+                $skip = ($firstNameKey === false
+                    || $lastNameKey === false
+                    || $educatorEmailKey === false
+                    || $graduatingYearKey === false);
+
+                if ($skip) {
+                    $data['skipColumnMappingStep'] = false;
+                    $event->setData($data);
+
+                    return;
+                }
+            }
+
+            if ($userImport->getType() === 'Educator') {
+                $firstNameKey = $this->firstNameKeyLookup($columns);
+                $lastNameKey  = $this->lastNameKeyLookup($columns);
+                $emailKey     = $this->emailKeyLookup($columns);
+
+                $skip = ($firstNameKey === false
+                    || $lastNameKey === false
+                    || $emailKey === false);
+
+                if ($skip) {
+                    $data['skipColumnMappingStep'] = false;
+                    $event->setData($data);
+
+                    return;
+                }
+            }
+
+            /*if (!isset($data['userImportUsers'])) {
+                $data['userImportUsers'] = [];
+            }*/
 
             try {
                 $reader = $this->phpSpreadsheetHelper->getReader($file);
@@ -180,6 +229,7 @@ class FileInfoFormType extends AbstractType
                     $columns = [];
                     foreach ($sheet->getRowIterator() as $rowIndex => $row) {
                         $values = [];
+                        $choice = [];
 
                         $cells = $row->getCells();
                         foreach ($cells as $cell) {
@@ -200,128 +250,83 @@ class FileInfoFormType extends AbstractType
                             $school = $userImport->getSchool();
 
                             if ($userImport->getType() === 'Student') {
-                                $userObj = new StudentUser();
-                                $userObj->setActivated(true);
-                                $userObj->setupAsStudent();
-                                $userObj->addRole(User::ROLE_DASHBOARD_USER);
-                                $userObj->setSchool($school);
-                                $userObj->setTempPasswordEncrypted($encodedStudentTempPassword);
-                                $userObj->setTempPassword($studentTempPassword);
-
-                                // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-                                if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                                    $userObj->setSite($site);
-                                }
+                                $choice['tempPassword'] = $studentTempPassword;
 
                                 if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                                    $userObj->setFirstName(trim($values[$firstNameKey]));
+                                    $choice['firstName'] = trim($values[$firstNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                                    $userObj->setLastName(trim($values[$lastNameKey]));
+                                    $choice['lastName'] = trim($values[$lastNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($educatorEmailKey !== false && array_key_exists($educatorEmailKey, $values)) {
-                                    $educatorEmail = trim($values[$educatorEmailKey]);
-                                    $userObj->setEducatorEmail($educatorEmail);
-
-                                    if (array_key_exists($educatorEmail, $this->educatorCache)) {
-                                        $educatorUser = $this->educatorCache[$educatorEmail];
-
-                                        if ($educatorUser) {
-                                            $userObj->addEducatorUser($educatorUser);
-                                        }
-                                    } else {
-                                        $educatorUser = $this->educatorUserRepository->findOneBy([
-                                            'email' => $educatorEmail,
-                                        ]);
-
-                                        $this->educatorCache[$educatorEmail] = null;
-
-                                        if ($educatorUser) {
-                                            $this->educatorCache[$educatorEmail] = $educatorUser;
-                                            $userObj->addEducatorUser($educatorUser);
-                                        }
-                                    }
+                                    $choice['educatorEmail'] = trim($values[$educatorEmailKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($graduatingYearKey !== false && array_key_exists($graduatingYearKey, $values)) {
-                                    $userObj->setGraduatingYear(trim($values[$graduatingYearKey]));
+                                    $choice['graduatingYear'] = trim($values[$graduatingYearKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
-                                if(!$hasErrors) {
+                                if (!$hasErrors) {
                                     $this->flash->clear();
                                 }
 
-                                if ($userObj->getFirstName() && $userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getFirstName()).'_'.trim($userObj->getLastName()), $this->generateRandomNumber(3)));
-                                } elseif ($userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getLastName()), $this->generateRandomNumber(3)));
+                                if (!empty($choice['firstName']) && !empty($choice['lastName'])) {
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", $choice['firstName'] .'_'. $choice['lastName'], $this->generateRandomNumber(3)));
+                                } elseif (!empty($choice['lastName'])) {
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", $choice['lastName'], $this->generateRandomNumber(3)));
                                 } else {
                                     $username = preg_replace('/\s+/', '', sprintf("%s", $this->generateRandomString(10)));
                                 }
 
-                                $username = strtolower($username);
-                                $userObj->setUsername($username);
+                                $choice['username'] = strtolower($username);
 
-                                $choices[] = $userObj;
+                                $choices[] = $choice;
                             }
 
                             if ($userImport->getType() === 'Educator') {
 
-                                $userObj = new EducatorUser();
-                                $userObj->setActivated(true);
-                                $userObj->setupAsEducator();
-                                $userObj->addRole(User::ROLE_DASHBOARD_USER);
-                                $userObj->setSchool($school);
-                                $userObj->setTempPasswordEncrypted($encodedEducatorTempPassword);
-                                $userObj->setTempPassword($educatorTempPassword);
-
-                                // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-                                if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                                    $userObj->setSite($site);
-                                }
+                                $choice['tempPassword'] = $educatorTempPassword;
 
                                 if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                                    $userObj->setFirstName(trim($values[$firstNameKey]));
+                                    $choice['firstName'] = trim($values[$firstNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                                    $userObj->setLastName(trim($values[$lastNameKey]));
+                                    $choice['lastName'] = trim($values[$lastNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($emailKey !== false && array_key_exists($emailKey, $values)) {
-                                    $email = trim($values[$emailKey]);
-                                    $userObj->setEmail($email);
+                                    $choice['email'] = trim($values[$emailKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
-                                if(!$hasErrors) {
+                                if (!$hasErrors) {
                                     $this->flash->clear();
                                 }
 
-                                $choices[] = $userObj;
-
+                                $choices[] = $choice;
                             }
                         }
                     }
@@ -330,21 +335,158 @@ class FileInfoFormType extends AbstractType
                 // do nothing
             }
 
-            if ($form->has('users')) {
-                $form->remove('users');
+            if ($form->has('userImportUsers')) {
+                $form->remove('userImportUsers');
             }
 
-            $form->add('users', ChoiceType::class, [
-                'choices'  => $choices,
-                'expanded' => false,
-                'multiple' => true,
+            $form->add('userImportUsers', CollectionType::class, [
+                'entry_type'    => UserFormType::class,
+                'entry_options' => [
+                    'userImport' => $userImport,
+                ],
+                'allow_add' => true,
             ]);
 
-            $data['users'] = array_keys($choices);
+            $data['userImportUsers'] = $choices;
+            $data['skipColumnMappingStep'] = true;
 
             $event->setData($data);
         });
     }
+
+    private function firstNameKeyLookup(array $columns)
+    {
+        $possibleColumnNames = [
+            'First Name',
+            'first name',
+            'First_Name',
+            'first_name',
+            'First name',
+            'first Name',
+            'firstName',
+            'FirstName',
+            'firstname',
+            'first',
+        ];
+
+        foreach ($possibleColumnNames as $possibleColumnName) {
+            $key = array_search($possibleColumnName, $columns, true);
+
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
+    private function lastNameKeyLookup(array $columns)
+    {
+        $possibleColumnNames = [
+            'Last Name',
+            'last name',
+            'Last_Name',
+            'last_name',
+            'Last name',
+            'last Name',
+            'lastName',
+            'LastName',
+            'lastname',
+            'last',
+        ];
+
+        foreach ($possibleColumnNames as $possibleColumnName) {
+            $key = array_search($possibleColumnName, $columns, true);
+
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
+    private function educatorEmailKeyLookup(array $columns)
+    {
+        $possibleColumnNames = [
+            'Educator Email',
+            'Educator',
+            'Supervisor Email',
+            'Supervisor',
+            'Email',
+            'EducatorEmail',
+            'educator',
+            'email',
+            'educator email',
+            'Educator email',
+            'EducatorEmail',
+            'educatoremail',
+            'Supervisor email',
+            'supervisoremail',
+        ];
+
+        foreach ($possibleColumnNames as $possibleColumnName) {
+            $key = array_search($possibleColumnName, $columns, true);
+
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
+    private function graduatingYearlKeyLookup(array $columns)
+    {
+        $possibleColumnNames = [
+            'Graduating Year',
+            'Graduation Year',
+            'Graduation',
+            'Graduating',
+            'Graduating year',
+            'Graduation year',
+            'graduation year',
+            'graduation year',
+            'graduating',
+            'graduation',
+            'grad year',
+            'Grad Year',
+            'Grad year',
+        ];
+
+        foreach ($possibleColumnNames as $possibleColumnName) {
+            $key = array_search($possibleColumnName, $columns, true);
+
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
+    private function emailKeyLookup(array $columns)
+    {
+        $possibleColumnNames = [
+            'Email',
+            'email',
+            'Email Address',
+            'Email address',
+            'emailaddress',
+            'email address',
+        ];
+
+        foreach ($possibleColumnNames as $possibleColumnName) {
+            $key = array_search($possibleColumnName, $columns, true);
+
+            if ($key !== false) {
+                return $key;
+            }
+        }
+
+        return false;
+    }
+
 
     public function getBlockPrefix()
     {

@@ -21,18 +21,17 @@ class FileInfoStep extends Step implements DynamicStepInterface
                 /** @var UserImport $userImport */
                 $userImport = $flow->getFormData();
 
-                $flowTransition = $request->request->get('flow_feedback_transition', null);
+                $flowTransition = $request->request->get('flow_userImport_transition', null);
 
-              /*  if($estimatedCurrentStepNumber === 2 && $feedback->getFeedbackProvider() === 'Professional') {
+                if($userImport->getSkipColumnMappingStep() && $estimatedCurrentStepNumber === 2 && $flowTransition === 'back') {
                     return false;
-                }*/
-
-                /*return !($estimatedCurrentStepNumber === $step && $feedback->getFeedbackProvider() === 'Professional');*/
+                }
 
                 return !($estimatedCurrentStepNumber === $step);
             },
             'form_options' => [
                 'validation_groups' => $request->request->has('changeableField') ? [] : ['USER_IMPORT_FILE_INFO'],
+                'allow_extra_fields' => true
             ],
         ];
 

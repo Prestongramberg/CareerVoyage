@@ -3,6 +3,7 @@
 namespace App\Form\Flow;
 
 use App\Entity\Feedback;
+use App\Entity\SignUp;
 use App\Entity\UserImport;
 use App\Form\Step\UserImport\BasicInfoStep;
 use App\Form\Step\UserImport\ColumnMappingInfoStep;
@@ -90,8 +91,6 @@ class UserImportFlow extends FormFlow implements EventSubscriberInterface
     public function onGetSteps(GetStepsEvent $event)
     {
         $flow = $event->getFlow();
-        /** @var \Symfony\Component\HttpFoundation\Request $request */
-        $request          = $flow->getRequest();
 
         if ($flow->getName() !== $this->getName()) {
             return;
@@ -99,16 +98,19 @@ class UserImportFlow extends FormFlow implements EventSubscriberInterface
 
         /** @var UserImport $userImport */
         $userImport = $flow->getFormData();
+        $type = $userImport->getType();
 
         $event->stopPropagation();
 
         $steps = [];
 
-        $steps[] = BasicInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
-
-        $steps[] = ColumnMappingInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+        if (!in_array($type, ['Student', 'Educator'])) {
+            $steps[] = BasicInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+        }
 
         $steps[] = FileInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
+
+        $steps[] = ColumnMappingInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
 
         $steps[] = UserInfoStep::create($this->requestStack->getCurrentRequest(), count($steps) + 1);
 
@@ -134,6 +136,36 @@ class UserImportFlow extends FormFlow implements EventSubscriberInterface
      */
     public function onPostValidate(PostValidateEvent $event)
     {
+        $flow = $event->getFlow();
+        $step = $flow->getStep($flow->getCurrentStepNumber());
+
+        // We have multiple form flows so we need to make sure the event from another form flow does not get called
+        if ($flow->getName() !== $this->getName()) {
+            return;
+        }
+
+        /** @var UserImport $userImport */
+        $userImport = $event->getFlow()
+                            ->getFormData();
+
+        if($step->getName() === 'file_info_step') {
+
+            foreach($userImport->getUserImportUsers() as $userImportUser) {
+
+                if($userImportUser->getId()) {
+                    $this->entityManager->remove($userImportUser);
+                    $userImport->removeUserImportUser($userImportUser);
+                }
+
+                $userImportUser->setUserImport($userImport);
+            }
+
+            $this->entityManager->persist($userImport);
+            $this->entityManager->flush();
+        }
+
+
+        $name = "josh";
     }
 
     public function getFirstStepNumber()

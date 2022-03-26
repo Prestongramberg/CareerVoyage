@@ -22,13 +22,11 @@ class ColumnMappingInfoStep extends Step implements DynamicStepInterface
                 /** @var UserImport $userImport */
                 $userImport = $flow->getFormData();
 
-                $flowTransition = $request->request->get('flow_feedback_transition', null);
+                if($userImport->getSkipColumnMappingStep()) {
+                    return true;
+                }
 
-              /*  if($estimatedCurrentStepNumber === 2 && $feedback->getFeedbackProvider() === 'Professional') {
-                    return false;
-                }*/
-
-                /*return !($estimatedCurrentStepNumber === $step && $feedback->getFeedbackProvider() === 'Professional');*/
+                $flowTransition = $request->request->get('flow_userImport_transition', null);
 
                 return !($estimatedCurrentStepNumber === $step);
             },

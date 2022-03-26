@@ -1,7 +1,7 @@
 <fieldset class="uk-margin">
 
     <legend class="">
-        Column Mapping (Step 2)<span class="uk-text-danger">*</span>
+        Column Mapping (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
     </legend>
 
     <div class="uk-grid">
@@ -112,6 +112,12 @@
                 </div>
             </div>
         {% endif %}
+
+        <div class="uk-hidden">
+            {% if form.users is defined %}
+                {{ form_widget(form.users) }}
+            {% endif %}
+        </div>
 
 
     </div>

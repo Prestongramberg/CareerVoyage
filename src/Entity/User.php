@@ -57,7 +57,7 @@ class User implements UserInterface
     ];
 
     /**
-     * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "USER_IMPORT"})
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -65,7 +65,7 @@ class User implements UserInterface
     protected $id;
 
     /**
-     * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "REQUEST", "CHAT", "MESSAGE", "EDUCATOR_USER_DATA", "USER_IMPORT"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email",
      *     groups={"STUDENT_USER", "STATE_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_ACCOUNT", "EDUCATOR_PROFILE_ACCOUNT"}
@@ -76,7 +76,7 @@ class User implements UserInterface
     protected $email;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "USER_IMPORT"})
      * @Assert\NotBlank(message="Don't forget a username for your user", groups={"EDUCATOR_USER", "STUDENT_USER", "EDUCATOR_PROFILE_ACCOUNT"})
      *
      * @CustomAssert\UsernameInvalid(groups={"EDUCATOR_USER", "STUDENT_USER", "EDUCATOR_PROFILE_ACCOUNT"})
@@ -109,7 +109,7 @@ class User implements UserInterface
     protected $invitationCode;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "USER_IMPORT"})
      * @Assert\NotBlank(message="Don't forget a first name", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL", "EDUCATOR_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -117,7 +117,7 @@ class User implements UserInterface
     protected $firstName;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA",  "EXPERIENCE_DATA", "ALL_USER_DATA", "REQUEST", "STUDENT_USER", "EDUCATOR_USER", "CHAT", "MESSAGE", "EXPERIENCE_DATA", "EDUCATOR_USER_DATA", "USER_IMPORT"})
      * @Assert\NotBlank(message="Don't forget a last name", groups={"CREATE", "EDIT", "INCOMPLETE_USER", "EDUCATOR_USER", "STUDENT_USER", "STATE_COORDINATOR_EDIT", "REGIONAL_COORDINATOR_EDIT", "PROFESSIONAL_PROFILE_PERSONAL", "EDUCATOR_PROFILE_PERSONAL"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -135,7 +135,7 @@ class User implements UserInterface
     protected $passwordResetTokenTimestamp;
 
     /**
-     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA"})
+     * @Groups({"PROFESSIONAL_USER_DATA", "ALL_USER_DATA", "USER_IMPORT"})
      * @ORM\Column(type="json")
      */
     protected $roles = [];
@@ -193,7 +193,7 @@ class User implements UserInterface
     protected $photo;
 
     /**
-     * @Groups({"ALL_USER_DATA"})
+     * @Groups({"ALL_USER_DATA", "USER_IMPORT"})
      * @ORM\Column(type="boolean")
      */
     protected $activated = false;
@@ -244,7 +244,7 @@ class User implements UserInterface
     protected $userRegisterForSchoolExperienceRequests;
 
     /**
-     * @Groups({"STUDENT_USER", "EDUCATOR_USER"})
+     * @Groups({"STUDENT_USER", "EDUCATOR_USER", "USER_IMPORT"})
      *
      * @ORM\Column(type="string", nullable=true)
      */

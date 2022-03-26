@@ -18,11 +18,11 @@ class BasicInfoStep extends Step implements DynamicStepInterface
             'form_type' => BasicInfoFormType::class,
             'skip' => function ($estimatedCurrentStepNumber, FormFlowInterface $flow) use($step, $request) {
 
-                $flowTransition = $request->request->get('flow_feedback_transition', null);
+               /* $flowTransition = $request->request->get('flow_userImport_transition', null);
 
                 if ($estimatedCurrentStepNumber === 2 && $flowTransition === 'back') {
                     return false;
-                }
+                }*/
 
                 return !($estimatedCurrentStepNumber === $step);
             },

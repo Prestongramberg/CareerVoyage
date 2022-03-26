@@ -97,6 +97,7 @@ class StudentUser extends User
     private $studentReviewTeachLessonExperienceFeedback;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @Assert\NotBlank(message="Please enter a value.", groups={"USER_IMPORT_USER_INFO"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -128,6 +129,7 @@ class StudentUser extends User
     private $educatorNumber;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @Assert\NotBlank(message="Please enter a value.", groups={"USER_IMPORT_USER_INFO"})
      * @var string
      */
