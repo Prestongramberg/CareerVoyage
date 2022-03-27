@@ -7,16 +7,25 @@ use App\Entity\ProfessionalUser;
 use App\Entity\SchoolAdministrator;
 use App\Entity\StudentUser;
 use App\Entity\User;
+use App\Entity\UserImport;
+use App\Entity\UserImportUser;
 use App\Form\SearchFilterType;
+use App\Repository\UserImportRepository;
 use App\Util\FileHelper;
 use App\Util\ServiceHelper;
+use App\Validator\Constraints\EducatorExists;
+use App\Validator\Constraints\EmailAlreadyExists;
+use App\Validator\Constraints\UsernameAlreadyExists;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Request as RequestEntity;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Class UserImportController
@@ -26,18 +35,25 @@ use App\Entity\Request as RequestEntity;
  */
 class UserImportController extends AbstractController
 {
+
     use FileHelper;
     use ServiceHelper;
 
     /**
-     * @Route("/users", name="user_import_get_users", methods={"GET", "POST"}, options = { "expose" = true })
+     * @Route("/{uuid}", name="user_import_get", methods={"GET", "POST"}, options = { "expose" = true })
      * @param  Request                                                     $request
+     * @param  \App\Entity\UserImport                                      $userImport
      * @param  \Symfony\Component\HttpFoundation\Session\SessionInterface  $session
+     * @param  \App\Repository\UserImportRepository                        $userImportRepository
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function usersAction(Request $request, SessionInterface $session)
-    {
+    public function getUserImportAction(
+        Request $request,
+        UserImport $userImport,
+        SessionInterface $session,
+        UserImportRepository $userImportRepository
+    ) {
         // todo you could add more initial data to this endpoint such as educator cache and more....
         // todo add loader to the final import page when you are pulling this info
         // todo pass up the UserImport ID here as well.
@@ -46,166 +62,243 @@ class UserImportController extends AbstractController
         // todo will need to clear out all the importUsers everytime you do the file upload as you are essentially starting over.
 
 
-        $userItems = $session->get('userItems', []);
-        $items = $this->serializer->serialize($userItems, 'json', ['groups' => ['USER_IMPORT']]);
+        $userImportData = $this->serializer->serialize($userImport, 'json', ['groups' => ['USER_IMPORT']]);
 
         $data = [
-            'userItems'         => json_decode($items, true)
+            'userImport' => json_decode($userImportData, true),
         ];
 
         return new JsonResponse($data);
     }
 
     /**
-     * @Route("/save-user", name="user_import_save_user", methods={"GET", "POST"}, options = { "expose" = true })
+     * @Route("/users/{id}/save", name="user_import_save_user", methods={"GET", "POST"}, options = { "expose" = true })
      * @param  Request                                                     $request
+     * @param  \App\Entity\UserImportUser                                  $userImportUser
      * @param  \Symfony\Component\HttpFoundation\Session\SessionInterface  $session
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function saveUserAction(Request $request, SessionInterface $session)
+    public function saveUserAction(Request $request, UserImportUser $userImportUser, SessionInterface $session)
     {
         // todo wire up and make sure you set all the roles, etc and persist and everything here and validation
 
+        $educatorEmailCache = $this->educatorUserRepository->getAllEmailAddresses();
+        $usernameCache      = $this->userRepository->getAllUsernames();
+        $emailCache         = $this->userRepository->getAllEmailAddresses();
+        $userData           = $request->request->get('user', []);
+        $userImport         = $userImportUser->getUserImport();
+        $errors             = [];
+
+        if (!$userImport) {
+            throw new \Exception("User import object not defined on user to import.");
+        }
+
+        $school = $userImport->getSchool();
+
+        if (!$school) {
+            throw new \Exception("User import object not defined on user to import.");
+        }
+
+        if (!$studentTempPassword = $school->getStudentTempPasssword()) {
+            $generator    = new \Nubs\RandomNameGenerator\Alliteration();
+            $tempPassword = $generator->getName();
+            $tempPassword = str_replace(" ", "", strtolower($tempPassword));
+            $school->setStudentTempPasssword($tempPassword);
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+        }
+
+        if (!$educatorTempPassword = $school->getEducatorTempPassword()) {
+            $generator    = new \Nubs\RandomNameGenerator\Alliteration();
+            $tempPassword = $generator->getName();
+            $tempPassword = str_replace(" ", "", strtolower($tempPassword));
+            $school->setEducatorTempPassword($tempPassword);
+            $this->entityManager->persist($school);
+            $this->entityManager->flush();
+        }
+
+        $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
+        $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
+        $constraintViolationList = new ConstraintViolationList();
+
+        if ($userImport && $userImport->getType() === 'Student') {
+            $studentUser = new StudentUser();
+            $studentUser->setActivated(true);
+            $studentUser->setupAsStudent();
+            $studentUser->addRole(User::ROLE_DASHBOARD_USER);
+            $studentUser->setSchool($school);
+            $studentUser->setTempPasswordEncrypted($encodedStudentTempPassword);
+            $studentUser->fromDataImportArray($userData);
 
 
-/*        if ($userImport->getType() === 'Student') {
-            $userObj = new StudentUser();
-            $userObj->setActivated(true);
-            $userObj->setupAsStudent();
-            $userObj->addRole(User::ROLE_DASHBOARD_USER);
-            $userObj->setSchool($school);
-            $userObj->setTempPasswordEncrypted($encodedStudentTempPassword);
-            $userObj->setTempPassword($studentTempPassword);
+            // todo!!! Remove hardcoding for testing!
+            //$errors1 = $this->validator->validate('josh+admin@pintex.com', new EducatorExists($educatorEmailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 
-            // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-            if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                $userObj->setSite($site);
+            $errors1 = $this->validator->validate($studentUser->getEducatorEmail(), new EducatorExists($educatorEmailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors1) > 0) {
+                $errorsString            = $errors1->get(0)->getMessage();
+                $errors['educatorEmail'] = $errorsString;
             }
 
-            if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                $userObj->setFirstName(trim($values[$firstNameKey]));
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+            $errors2 = $this->validator->validate($studentUser->getUsername(), new UsernameAlreadyExists($usernameCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors2) > 0) {
+                $errorsString       = $errors2->get(0)->getMessage();
+                $errors['username'] = $errorsString;
             }
 
-            if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                $userObj->setLastName(trim($values[$lastNameKey]));
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+            $errors3 = $this->validator->validate($studentUser->getFirstName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors3) > 0) {
+                $errorsString        = $errors3->get(0)->getMessage();
+                $errors['firstName'] = $errorsString;
             }
 
-            if ($educatorEmailKey !== false && array_key_exists($educatorEmailKey, $values)) {
-                $educatorEmail = trim($values[$educatorEmailKey]);
-                $userObj->setEducatorEmail($educatorEmail);
+            $errors4 = $this->validator->validate($studentUser->getLastName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 
-                if (array_key_exists($educatorEmail, $this->educatorCache)) {
-                    $educatorUser = $this->educatorCache[$educatorEmail];
+            if (count($errors4) > 0) {
+                $errorsString       = $errors4->get(0)->getMessage();
+                $errors['lastName'] = $errorsString;
+            }
 
-                    if ($educatorUser) {
-                        $userObj->addEducatorUser($educatorUser);
-                    }
-                } else {
-                    $educatorUser = $this->educatorUserRepository->findOneBy([
-                        'email' => $educatorEmail,
-                    ]);
+            $errors5 = $this->validator->validate($studentUser->getUsername(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 
-                    $this->educatorCache[$educatorEmail] = null;
+            if (count($errors5) > 0) {
+                $errorsString       = $errors5->get(0)->getMessage();
+                $errors['username'] = $errorsString;
+            }
 
-                    if ($educatorUser) {
-                        $this->educatorCache[$educatorEmail] = $educatorUser;
-                        $userObj->addEducatorUser($educatorUser);
-                    }
+            $errors6 = $this->validator->validate($studentUser->getEducatorEmail(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors6) > 0) {
+                $errorsString            = $errors6->get(0)->getMessage();
+                $errors['educatorEmail'] = $errorsString;
+            }
+
+            $errors7 = $this->validator->validate($studentUser->getGraduatingYear(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors7) > 0) {
+                $errorsString             = $errors7->get(0)->getMessage();
+                $errors['graduatingYear'] = $errorsString;
+            }
+
+            $errors8 = $this->validator->validate($studentUser->getTempPassword(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors8) > 0) {
+                $errorsString           = $errors8->get(0)->getMessage();
+                $errors['tempPassword'] = $errorsString;
+            }
+
+            $constraintViolationList->addAll($errors1);
+            $constraintViolationList->addAll($errors2);
+            $constraintViolationList->addAll($errors3);
+            $constraintViolationList->addAll($errors4);
+            $constraintViolationList->addAll($errors5);
+            $constraintViolationList->addAll($errors6);
+            $constraintViolationList->addAll($errors7);
+            $constraintViolationList->addAll($errors8);
+
+            if (count($constraintViolationList) === 0) {
+
+                $educatorUser = $this->educatorUserRepository->findOneBy([
+                    'email' => $studentUser->getEducatorEmail(),
+                ]);
+
+                if ($educatorUser) {
+                    $studentUser->addEducatorUser($educatorUser);
                 }
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
+
+                $userImportUser->setIsImported(true);
+                $this->entityManager->persist($studentUser);
             }
-
-            if ($graduatingYearKey !== false && array_key_exists($graduatingYearKey, $values)) {
-                $userObj->setGraduatingYear(trim($values[$graduatingYearKey]));
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
-            }
-
-            if (!$hasErrors) {
-                $this->flash->clear();
-            }
-
-            if ($userObj->getFirstName() && $userObj->getLastName()) {
-                $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getFirstName()).'_'.trim($userObj->getLastName()), $this->generateRandomNumber(3)));
-            } elseif ($userObj->getLastName()) {
-                $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getLastName()), $this->generateRandomNumber(3)));
-            } else {
-                $username = preg_replace('/\s+/', '', sprintf("%s", $this->generateRandomString(10)));
-            }
-
-            $username = strtolower($username);
-            $userObj->setUsername($username);
-
-            $choices[] = $userObj;
-        }
-
-        if ($userImport->getType() === 'Educator') {
-            $userObj = new EducatorUser();
-            $userObj->setActivated(true);
-            $userObj->setupAsEducator();
-            $userObj->addRole(User::ROLE_DASHBOARD_USER);
-            $userObj->setSchool($school);
-            $userObj->setTempPasswordEncrypted($encodedEducatorTempPassword);
-            $userObj->setTempPassword($educatorTempPassword);
-
-            // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-            if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                $userObj->setSite($site);
-            }
-
-            if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                $userObj->setFirstName(trim($values[$firstNameKey]));
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
-            }
-
-            if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                $userObj->setLastName(trim($values[$lastNameKey]));
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
-            }
-
-            if ($emailKey !== false && array_key_exists($emailKey, $values)) {
-                $email = trim($values[$emailKey]);
-                $userObj->setEmail($email);
-            } else {
-                $hasErrors = true;
-                $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
-            }
-
-            if (!$hasErrors) {
-                $this->flash->clear();
-            }
-
-            $choices[] = $userObj;
         }
 
 
-        */
+        if ($userImport && $userImport->getType() === 'Educator') {
+            $educatorUser = new EducatorUser();
+            $educatorUser->setActivated(true);
+            $educatorUser->setupAsEducator();
+            $educatorUser->addRole(User::ROLE_DASHBOARD_USER);
+            $educatorUser->setSchool($school);
+            $educatorUser->setTempPasswordEncrypted($encodedEducatorTempPassword);
+            $educatorUser->fromDataImportArray($userData);
+
+            $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors1) > 0) {
+                $errorsString    = $errors1->get(0)->getMessage();
+                $errors['email'] = $errorsString;
+            }
+
+            $errors2 = $this->validator->validate($educatorUser->getFirstName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors2) > 0) {
+                $errorsString        = $errors2->get(0)->getMessage();
+                $errors['firstName'] = $errorsString;
+            }
+
+            $errors3 = $this->validator->validate($educatorUser->getLastName(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors3) > 0) {
+                $errorsString       = $errors3->get(0)->getMessage();
+                $errors['lastName'] = $errorsString;
+            }
+
+            $errors4 = $this->validator->validate($educatorUser->getEmail(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors4) > 0) {
+                $errorsString    = $errors4->get(0)->getMessage();
+                $errors['email'] = $errorsString;
+            }
+
+            $errors5 = $this->validator->validate($educatorUser->getTempPassword(), new NotBlank(['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+
+            if (count($errors5) > 0) {
+                $errorsString           = $errors5->get(0)->getMessage();
+                $errors['tempPassword'] = $errorsString;
+            }
+
+            $constraintViolationList->addAll($errors1);
+            $constraintViolationList->addAll($errors2);
+            $constraintViolationList->addAll($errors3);
+            $constraintViolationList->addAll($errors4);
+            $constraintViolationList->addAll($errors5);
+
+            if (count($constraintViolationList) === 0) {
+                $userImportUser->setIsImported(true);
+                $this->entityManager->persist($educatorUser);
+            }
+        }
 
 
+        // 1. First save the new data to the user import user object
+
+        $userImportUser->fromArray($userData);
+        $userImportUser->setErrors($errors);
+        $userImportUserData = $this->serializer->serialize($userImportUser, 'json', ['groups' => ['USER_IMPORT']]);
 
 
+        if (count($errors)) {
+            return new JsonResponse(
+                [
+                    'errors' => $errors,
+                    'userImportUser' => json_decode($userImportUserData, true)
+                ], Response::HTTP_BAD_REQUEST
+            );
+        }
 
-        $userItems = $session->get('userItems', []);
-        $items = $this->serializer->serialize($userItems, 'json', ['groups' => ['USER_IMPORT']]);
+        $this->entityManager->persist($userImportUser);
+        $this->entityManager->flush();
 
-        $data = [
-            'userItems'         => json_decode($items, true)
-        ];
-
-        return new JsonResponse($data);
+        return new JsonResponse(
+            [
+                'errors' => $errors,
+                'userImportUser' => json_decode($userImportUserData, true)
+            ], Response::HTTP_OK
+        );
     }
+
 }

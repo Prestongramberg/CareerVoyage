@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserImportUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserImportUserRepository::class)
@@ -11,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class UserImportUser
 {
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -24,44 +26,57 @@ class UserImportUser
     private $userImport;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $email;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $firstName;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $lastName;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $username;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $tempPassword;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $isImported;
+    private $isImported = false;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educatorEmail;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $graduatingYear;
+
+    /**
+     * @Groups({"USER_IMPORT"})
+     */
+    private $errors = [];
 
     public function getId(): ?int
     {
@@ -142,6 +157,10 @@ class UserImportUser
 
     public function getIsImported(): ?bool
     {
+        if(!$this->isImported) {
+            return false;
+        }
+
         return $this->isImported;
     }
 
@@ -175,4 +194,52 @@ class UserImportUser
 
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param  array  $errors
+     */
+    public function setErrors(array $errors): void
+    {
+        $this->errors = $errors;
+    }
+
+    public function fromArray($data) {
+
+        foreach($data as $propertyName => $value) {
+
+            switch ($propertyName) {
+                case 'firstName':
+                    $this->setFirstName($value);
+                    break;
+                case 'lastName':
+                    $this->setLastName($value);
+                    break;
+                case 'educatorEmail':
+                    $this->setEducatorEmail($value);
+                    break;
+                case 'graduatingYear':
+                    $this->setGraduatingYear($value);
+                    break;
+                case 'tempPassword':
+                    $this->setTempPassword($value);
+                    break;
+                case 'username':
+                    $this->setUsername($value);
+                    break;
+                case 'email':
+                    $this->setEmail($value);
+                    break;
+            }
+
+        }
+    }
+
 }

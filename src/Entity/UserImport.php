@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserImportRepository::class)
@@ -18,6 +19,7 @@ class UserImport
     public const TYPE_EDUCATOR = 'TYPE_EDUCATOR';
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -25,6 +27,7 @@ class UserImport
     private $id;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255)
      */
     private $type;
@@ -72,11 +75,13 @@ class UserImport
     private $file;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\OneToMany(targetEntity=UserImportUser::class, mappedBy="userImport", cascade={"persist"})
      */
     private $userImportUsers;
 
     /**
+     * @Groups({"USER_IMPORT"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $uuid;

@@ -739,6 +739,7 @@ class SchoolController extends AbstractController
             'flow'  => $flow,
             'route' => $url,
             'user'  => $loggedInUser,
+            'userImport' => $userImport,
             'type'  => $request->query->get('type') ?: strtolower($userImport->getType()),
         ]);
     }
