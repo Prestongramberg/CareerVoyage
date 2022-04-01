@@ -13,6 +13,7 @@ use App\Util\RandomStringGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -154,12 +155,6 @@ class ColumnMappingInfoFormType extends AbstractType
             /** @var UserImport $userImport */
             $userImport = $form->getData();
 
-            if($userImport->getSkipColumnMappingStep()) {
-                return;
-            }
-
-            /** @var UploadedFile $file */
-            $file = $userImport->getFile();
             /** @var \App\Entity\School $school */
             $school = $userImport->getSchool();
 
@@ -170,6 +165,7 @@ class ColumnMappingInfoFormType extends AbstractType
                 $school->setStudentTempPasssword($tempPassword);
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
+                $studentTempPassword = $tempPassword;
             }
 
             if (!$educatorTempPassword = $school->getEducatorTempPassword()) {
@@ -179,10 +175,16 @@ class ColumnMappingInfoFormType extends AbstractType
                 $school->setEducatorTempPassword($tempPassword);
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
+                $educatorTempPassword = $tempPassword;
             }
 
-            $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
-            $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
+            if($userImport->getSkipColumnMappingStep()) {
+                return;
+            }
+
+            /** @var UploadedFile $file */
+            $file = $userImport->getFile();
+
             $firstNameMapping            = $data['firstNameMapping'] ?? null;
             $lastNameMapping             = $data['lastNameMapping'] ?? null;
             $educatorEmailMapping        = $data['educatorEmailMapping'] ?? null;
@@ -190,15 +192,8 @@ class ColumnMappingInfoFormType extends AbstractType
             $emailMapping                = $data['emailMapping'] ?? null;
             $hasErrors = false;
 
-            /** @var UploadedFile|null $file */
-            //$file = $data['file'] ?? null;
-
             if (!$file) {
                 return;
-            }
-
-            if (!isset($data['users'])) {
-                $data['users'] = [];
             }
 
             $columns           = $this->phpSpreadsheetHelper->getColumns($file);
@@ -240,131 +235,85 @@ class ColumnMappingInfoFormType extends AbstractType
                                 $values = $values + array_fill(count($values), count($columns) - count($values), '');
                             }
 
-                            $school = $userImport->getSchool();
-
                             if ($userImport->getType() === 'Student') {
-                                $userObj = new StudentUser();
-                                $userObj->setActivated(true);
-                                $userObj->setupAsStudent();
-                                $userObj->addRole(User::ROLE_DASHBOARD_USER);
-                                $userObj->setSchool($school);
-                                $userObj->setTempPasswordEncrypted($encodedStudentTempPassword);
-                                $userObj->setTempPassword($studentTempPassword);
 
-                                // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-                                if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                                    $userObj->setSite($site);
-                                }
+                                $choice['tempPassword'] = $studentTempPassword;
 
                                 if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                                    $userObj->setFirstName(trim($values[$firstNameKey]));
+                                    $choice['firstName'] = trim($values[$firstNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                                    $userObj->setLastName(trim($values[$lastNameKey]));
+                                    $choice['lastName'] = trim($values[$lastNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($educatorEmailKey !== false && array_key_exists($educatorEmailKey, $values)) {
-                                    $educatorEmail = trim($values[$educatorEmailKey]);
-                                    $userObj->setEducatorEmail($educatorEmail);
-
-                                    if (array_key_exists($educatorEmail, $this->educatorCache)) {
-                                        $educatorUser = $this->educatorCache[$educatorEmail];
-
-                                        if ($educatorUser) {
-                                            $userObj->addEducatorUser($educatorUser);
-                                        }
-                                    } else {
-                                        $educatorUser = $this->educatorUserRepository->findOneBy([
-                                            'email' => $educatorEmail,
-                                        ]);
-
-                                        $this->educatorCache[$educatorEmail] = null;
-
-                                        if ($educatorUser) {
-                                            $this->educatorCache[$educatorEmail] = $educatorUser;
-                                            $userObj->addEducatorUser($educatorUser);
-                                        }
-                                    }
+                                    $choice['educatorEmail'] = trim($values[$educatorEmailKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($graduatingYearKey !== false && array_key_exists($graduatingYearKey, $values)) {
-                                    $userObj->setGraduatingYear(trim($values[$graduatingYearKey]));
+                                    $choice['graduatingYear'] = trim($values[$graduatingYearKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
-                                if(!$hasErrors) {
+                                if (!$hasErrors) {
                                     $this->flash->clear();
                                 }
 
-                                if ($userObj->getFirstName() && $userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getFirstName()).'_'.trim($userObj->getLastName()), $this->generateRandomNumber(3)));
-                                } elseif ($userObj->getLastName()) {
-                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", trim($userObj->getLastName()), $this->generateRandomNumber(3)));
+                                if (!empty($choice['firstName']) && !empty($choice['lastName'])) {
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", $choice['firstName'] .'_'. $choice['lastName'], $this->generateRandomNumber(3)));
+                                } elseif (!empty($choice['lastName'])) {
+                                    $username = preg_replace('/\s+/', '', sprintf("%s_%s", $choice['lastName'], $this->generateRandomNumber(3)));
                                 } else {
                                     $username = preg_replace('/\s+/', '', sprintf("%s", $this->generateRandomString(10)));
                                 }
 
-                                $username = strtolower($username);
-                                $userObj->setUsername($username);
+                                $choice['username'] = strtolower($username);
 
-                                $choices[] = $userObj;
+                                $choices[] = $choice;
                             }
 
                             if ($userImport->getType() === 'Educator') {
 
-                                $userObj = new EducatorUser();
-                                $userObj->setActivated(true);
-                                $userObj->setupAsEducator();
-                                $userObj->addRole(User::ROLE_DASHBOARD_USER);
-                                $userObj->setSchool($school);
-                                $userObj->setTempPasswordEncrypted($encodedEducatorTempPassword);
-                                $userObj->setTempPassword($educatorTempPassword);
-
-                                // todo ?????????? Not even sure why we are using the site concept anymore. But just so things don't break....
-                                if ($this->loggedInUser instanceof SchoolAdministrator && $site = $this->loggedInUser->getSite()) {
-                                    $userObj->setSite($site);
-                                }
+                                $choice['tempPassword'] = $educatorTempPassword;
 
                                 if ($firstNameKey !== false && array_key_exists($firstNameKey, $values)) {
-                                    $userObj->setFirstName(trim($values[$firstNameKey]));
+                                    $choice['firstName'] = trim($values[$firstNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($lastNameKey !== false && array_key_exists($lastNameKey, $values)) {
-                                    $userObj->setLastName(trim($values[$lastNameKey]));
+                                    $choice['lastName'] = trim($values[$lastNameKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
                                 if ($emailKey !== false && array_key_exists($emailKey, $values)) {
-                                    $email = trim($values[$emailKey]);
-                                    $userObj->setEmail($email);
+                                    $choice['email'] = trim($values[$emailKey]);
                                 } else {
                                     $hasErrors = true;
                                     $this->flash->add('importError', self::ERROR_COLUMN_MAPPING_MESSAGE);
                                 }
 
-                                if(!$hasErrors) {
+                                if (!$hasErrors) {
                                     $this->flash->clear();
                                 }
 
-                                $choices[] = $userObj;
-
+                                $choices[] = $choice;
                             }
                         }
                     }
@@ -373,17 +322,19 @@ class ColumnMappingInfoFormType extends AbstractType
                 // do nothing
             }
 
-            if ($form->has('users')) {
-                $form->remove('users');
+            if ($form->has('userImportUsers')) {
+                $form->remove('userImportUsers');
             }
 
-            $form->add('users', ChoiceType::class, [
-                'choices'  => $choices,
-                'expanded' => false,
-                'multiple' => true,
+            $form->add('userImportUsers', CollectionType::class, [
+                'entry_type'    => UserFormType::class,
+                'entry_options' => [
+                    'userImport' => $userImport,
+                ],
+                'allow_add' => true,
             ]);
 
-            $data['users'] = array_keys($choices);
+            $data['userImportUsers'] = $choices;
 
             $event->setData($data);
         });

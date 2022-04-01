@@ -144,6 +144,7 @@ class FileInfoFormType extends AbstractType
                 $school->setStudentTempPasssword($tempPassword);
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
+                $studentTempPassword = $tempPassword;
             }
 
             if (!$educatorTempPassword = $school->getEducatorTempPassword()) {
@@ -153,10 +154,8 @@ class FileInfoFormType extends AbstractType
                 $school->setEducatorTempPassword($tempPassword);
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
+                $educatorTempPassword = $tempPassword;
             }
-
-            $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
-            $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
 
 
             $hasErrors = false;
@@ -210,10 +209,6 @@ class FileInfoFormType extends AbstractType
                 }
             }
 
-            /*if (!isset($data['userImportUsers'])) {
-                $data['userImportUsers'] = [];
-            }*/
-
             try {
                 $reader = $this->phpSpreadsheetHelper->getReader($file);
             } catch (\Exception $exception) {
@@ -246,8 +241,6 @@ class FileInfoFormType extends AbstractType
                             if (count($columns) !== count($values)) {
                                 $values = $values + array_fill(count($values), count($columns) - count($values), '');
                             }
-
-                            $school = $userImport->getSchool();
 
                             if ($userImport->getType() === 'Student') {
                                 $choice['tempPassword'] = $studentTempPassword;

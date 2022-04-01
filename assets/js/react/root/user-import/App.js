@@ -113,7 +113,12 @@ export default function App(props) {
 
         let usersToImport = userImportUsers.filter(userImportUser => !userImportUser.isImported);
 
-        for (let user of usersToImport) {
+
+        debugger;
+        const chunkSize = 5;
+        for (let i = 0; i < usersToImport.length; i += chunkSize) {
+            const chunk = usersToImport.slice(i, i + chunkSize);
+            const promises = [];
 
             debugger;
 
@@ -124,44 +129,63 @@ export default function App(props) {
                 break;
             }
 
-            let url = window.Routing.generate("user_import_save_user", {
-                id: user.id
-            });
+            for (let user of chunk) {
 
-            let data = {
-                user: user
-            }
+                debugger;
 
-            try {
-                let response = await api.post(url, data);
+                let url = window.Routing.generate("user_import_save_user", {
+                    id: user.id
+                });
 
-                if (response.statusCode < 300) {
-                    let newItem = response.responseBody.userImportUser;
-                    let userImportUserId = response.responseBody.userImportUser.id;
-                    setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                        return item.id !== userImportUserId ? item : { ...newItem }
-                    }))
-
-                } else {
-                    let userImportUserId = response.responseBody.userImportUser.id;
-                    let newItem = response.responseBody.userImportUser;
-                    let errors = response.responseBody.errors;
-
-                    setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                        return item.id !== userImportUserId ? item : { ...newItem }
-                    }))
+                let data = {
+                    user: user
                 }
 
-            } catch (e) {
-                // do nothing?
-            } finally {
-                // cleanup?
+                promises.push(doSomethingAsync(url, data));
+
             }
 
-            debugger;
+            await Promise.all(promises)
+                .then((results) => {
+
+                    for (let response of results) {
+
+                        if (response.statusCode < 300) {
+                            let newItem = response.responseBody.userImportUser;
+                            let userImportUserId = response.responseBody.userImportUser.id;
+                            setUserImportUsers(prevItems => prevItems.map((item, index) => {
+                                return item.id !== userImportUserId ? item : { ...newItem }
+                            }))
+
+                        } else {
+                            let userImportUserId = response.responseBody.userImportUser.id;
+                            let newItem = response.responseBody.userImportUser;
+                            let errors = response.responseBody.errors;
+
+                            setUserImportUsers(prevItems => prevItems.map((item, index) => {
+                                return item.id !== userImportUserId ? item : { ...newItem }
+                            }))
+                        }
+                    }
+
+                    console.log("All done", results);
+                })
+                .catch((e) => {
+                    debugger;
+                    // Handle errors here
+                });
+
         }
 
+        setIsImportStarted(false);
+        setStopImport(false);
+
     }, [userImportUsers, isImportStarted]);
+
+
+    function doSomethingAsync(url, data) {
+        return api.post(url, data);
+    }
 
 
     const renderStudentForm = (userImportUser, index) => {

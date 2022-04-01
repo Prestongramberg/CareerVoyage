@@ -149,14 +149,14 @@ class UserImportFlow extends FormFlow implements EventSubscriberInterface
                             ->getFormData();
 
         if($step->getName() === 'file_info_step') {
-
             foreach($userImport->getUserImportUsers() as $userImportUser) {
 
                 if($userImportUser->getId()) {
                     $this->entityManager->remove($userImportUser);
-                    $userImport->removeUserImportUser($userImportUser);
                 }
+            }
 
+            foreach($userImport->getUserImportUsers() as $userImportUser) {
                 $userImportUser->setUserImport($userImport);
             }
 
@@ -164,8 +164,21 @@ class UserImportFlow extends FormFlow implements EventSubscriberInterface
             $this->entityManager->flush();
         }
 
+        if($step->getName() === 'column_mapping_info_step') {
+            foreach($userImport->getUserImportUsers() as $userImportUser) {
 
-        $name = "josh";
+                if($userImportUser->getId()) {
+                    $this->entityManager->remove($userImportUser);
+                }
+            }
+
+            foreach($userImport->getUserImportUsers() as $userImportUser) {
+                $userImportUser->setUserImport($userImport);
+            }
+
+            $this->entityManager->persist($userImport);
+            $this->entityManager->flush();
+        }
     }
 
     public function getFirstStepNumber()
