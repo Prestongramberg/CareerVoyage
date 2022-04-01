@@ -17,8 +17,6 @@ const StudentForm = ({
                          onChangeUsername
                      }) => {
 
-    debugger;
-
 
     return (
         <div key={id} className="uk-width-1-1">

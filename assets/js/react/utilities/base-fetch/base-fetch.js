@@ -21,6 +21,22 @@ export function baseFetch(url, options = {}) {
         )
 }
 
+export function baseFetchPromise(url, options = {}) {
+    const baseOptions = {
+        credentials: "same-origin",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+        }
+    }
+
+    if (options.body) {
+        options.body = JSON.stringify(options.body)
+    }
+
+    return window.fetch(url, Object.assign({}, baseOptions, options));
+}
+
 function parseJSON(response) {
     return response.json()
         .then(

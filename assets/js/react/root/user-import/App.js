@@ -3,22 +3,27 @@ import PropTypes from "prop-types";
 import * as api from "../../utilities/api/api";
 import StudentForm from "./components/StudentForm";
 import EducatorForm from "./components/EducatorForm";
+import Loader from "../../components/Loader/Loader";
 
 export default function App(props) {
 
     useEffect(() => {
         // Some initialization logic here
+        setIsLoading(true);
         loadUserImport();
     }, []);
 
-    debugger;
-
     const [userImportUsers, setUserImportUsers] = useState([]);
     const [userImport, setUserImport] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [isImportStarted, setIsImportStarted] = useState(false);
+    const [stopImport, setStopImport] = useState(false);
+    // @see https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
+    const stopImportRef = useRef();
+    stopImportRef.current = stopImport;
 
     const loadUserImport = () => {
 
-        debugger;
         let url = window.Routing.generate("user_import_get", {
             uuid: props.userImportUuid
         });
@@ -26,10 +31,10 @@ export default function App(props) {
         api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
-                    debugger;
                     let items = response.responseBody.userImport.userImportUsers;
                     setUserImportUsers(items);
                     setUserImport(response.responseBody.userImport);
+                    setIsLoading(false);
                 }
             })
             .catch((e) => {
@@ -91,15 +96,33 @@ export default function App(props) {
         }))
     }
 
+    const stopImportClickHandler = useCallback(() => {
+        setStopImport(true);
+    }, []);
 
-    const importClickHandler = useCallback(() => {
+    const importClickHandler = useCallback(async () => {
+
+        setIsImportStarted(true);
+
+        debugger;
 
         // todo 1. disable click button.
         // todo 2. should we show a loader?
         // todo 3. save and persist the data and then update the state.
         // todo 4. need to wire in onChange as well on each form field so you can update and modify the values
 
-        for (let user of userImportUsers) {
+        let usersToImport = userImportUsers.filter(userImportUser => !userImportUser.isImported);
+
+        for (let user of usersToImport) {
+
+            debugger;
+
+            if(stopImportRef.current) {
+                setIsImportStarted(false);
+                setStopImport(false);
+                alert("Stopping Import!");
+                break;
+            }
 
             let url = window.Routing.generate("user_import_save_user", {
                 id: user.id
@@ -109,50 +132,39 @@ export default function App(props) {
                 user: user
             }
 
-            api.post(url, data)
-                .then((response) => {
-                    debugger;
-                    if (response.statusCode < 300) {
-                        debugger;
+            try {
+                let response = await api.post(url, data);
 
-                        let newItem = response.responseBody.userImportUser;
-                        let userImportUserId = response.responseBody.userImportUser.id;
-                        setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                            return item.id !== userImportUserId ? item : { ...newItem }
-                        }))
+                if (response.statusCode < 300) {
+                    let newItem = response.responseBody.userImportUser;
+                    let userImportUserId = response.responseBody.userImportUser.id;
+                    setUserImportUsers(prevItems => prevItems.map((item, index) => {
+                        return item.id !== userImportUserId ? item : { ...newItem }
+                    }))
 
-                        // option 2?
+                } else {
+                    let userImportUserId = response.responseBody.userImportUser.id;
+                    let newItem = response.responseBody.userImportUser;
+                    let errors = response.responseBody.errors;
 
-                        /*  let userImportUserId = response.responseBody.userImportUser.id;
+                    setUserImportUsers(prevItems => prevItems.map((item, index) => {
+                        return item.id !== userImportUserId ? item : { ...newItem }
+                    }))
+                }
 
-                          if (usersToImport.length > 0) {
-                              setUserImportUsers(usersToImport.filter((item, index) => item.id !== userImportUserId));
-                          }*/
+            } catch (e) {
+                // do nothing?
+            } finally {
+                // cleanup?
+            }
 
-                    } else {
-                        debugger;
-
-                        let userImportUserId = response.responseBody.userImportUser.id;
-                        let newItem = response.responseBody.userImportUser;
-                        let errors = response.responseBody.errors;
-
-                        setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                            return item.id !== userImportUserId ? item : { ...newItem }
-                        }))
-
-                    }
-                })
-                .catch((e) => {
-                })
-
+            debugger;
         }
 
-    }, [userImportUsers]);
+    }, [userImportUsers, isImportStarted]);
 
 
     const renderStudentForm = (userImportUser, index) => {
-
-        debugger;
 
         return (
             <StudentForm
@@ -191,8 +203,30 @@ export default function App(props) {
         );
     }
 
+    if(isLoading) {
+        return (
+            <div className="uk-width-1-1 uk-align-center">
+                <Loader />
+            </div>
+        );
+    }
+
+    const importedUserCount = () => {
+        return userImportUsers.filter(userImportUser => userImportUser.isImported).length;
+    }
+
+    const importedUserPercentage = () => {
+        let percent = userImportUsers.filter(userImportUser => userImportUser.isImported).length / userImportUsers.length;
+        return Math.floor(percent * 100) + "%";
+    }
+
     return (
         <div className="uk-grid">
+            <div className={isImportStarted ? 'uk-width-1-1 uk-margin' : 'uk-width-1-1 uk-margin uk-hidden'}>
+                <progress id="js-progressbar" className="uk-progress" value={importedUserCount()} max={userImportUsers.length}></progress>
+                <div>{importedUserPercentage()}</div>
+            </div>
+
             {userImportUsers.filter(userImportUser => !userImportUser.isImported).map((userImportUser, index) => {
                 return (
                     userImport.type === 'Student' && renderStudentForm(userImportUser, index) ||
@@ -200,7 +234,8 @@ export default function App(props) {
                 );
             })}
 
-            <button onClick={importClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button" className="uk-button uk-button-primary">Start Import</button>
+            <button disabled={isImportStarted} onClick={importClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button" className={isImportStarted ? 'uk-button uk-button-primary uk-hidden' : 'uk-button uk-button-primary'}>Start Import</button>
+            <button onClick={stopImportClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button" className={isImportStarted ? 'uk-button uk-button-danger' : 'uk-button uk-button-danger uk-hidden'}>Stop Import</button>
         </div>
     );
 

@@ -7,7 +7,6 @@ const userImport = document.getElementById("user-import");
 
 if (userImport) {
 
-    debugger;
     const userImportUuid = userImport.getAttribute("data-user-import-uuid");
 
     const render = () => {
