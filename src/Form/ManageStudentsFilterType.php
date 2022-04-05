@@ -64,11 +64,16 @@ class ManageStudentsFilterType extends AbstractType
         $userImportChoices = [];
         $userImportChoicesMap = [];
         foreach($userImports as $userImport) {
-            $userImportChoices[] = $userImport->getId();
 
             $usersFinishedBeingImported = $userImport->getUserImportUsers()->filter(function(UserImportUser $userImportUser) {
                 return $userImportUser->getIsImported();
             });
+
+            if(!$usersFinishedBeingImported->count()) {
+                continue;
+            }
+            
+            $userImportChoices[] = $userImport->getId();
 
             $userImportChoicesMap[$userImport->getId()] =
                 sprintf("%s - (%s/%s users)",
