@@ -115,7 +115,7 @@ export default function App(props) {
 
 
         debugger;
-        const chunkSize = 5;
+        const chunkSize = 20;
         for (let i = 0; i < usersToImport.length; i += chunkSize) {
             const chunk = usersToImport.slice(i, i + chunkSize);
             const promises = [];

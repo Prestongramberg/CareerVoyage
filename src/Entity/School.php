@@ -252,12 +252,22 @@ class School
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $studentTempPasssword;
+    private $studentTempPassword;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $educatorTempPassword;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $encodedStudentTempPassword;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $encodedEducatorTempPassword;
 
     public function __construct()
     {
@@ -988,14 +998,14 @@ class School
         return $this;
     }
 
-    public function getStudentTempPasssword(): ?string
+    public function getStudentTempPassword(): ?string
     {
-        return $this->studentTempPasssword;
+        return $this->studentTempPassword;
     }
 
-    public function setStudentTempPasssword(?string $studentTempPasssword): self
+    public function setStudentTempPassword(?string $studentTempPassword): self
     {
-        $this->studentTempPasssword = $studentTempPasssword;
+        $this->studentTempPassword = $studentTempPassword;
 
         return $this;
     }
@@ -1008,6 +1018,30 @@ class School
     public function setEducatorTempPassword(?string $educatorTempPassword): self
     {
         $this->educatorTempPassword = $educatorTempPassword;
+
+        return $this;
+    }
+
+    public function getEncodedStudentTempPassword(): ?string
+    {
+        return $this->encodedStudentTempPassword;
+    }
+
+    public function setEncodedStudentTempPassword(?string $encodedStudentTempPassword): self
+    {
+        $this->encodedStudentTempPassword = $encodedStudentTempPassword;
+
+        return $this;
+    }
+
+    public function getEncodedEducatorTempPassword(): ?string
+    {
+        return $this->encodedEducatorTempPassword;
+    }
+
+    public function setEncodedEducatorTempPassword(?string $encodedEducatorTempPassword): self
+    {
+        $this->encodedEducatorTempPassword = $encodedEducatorTempPassword;
 
         return $this;
     }

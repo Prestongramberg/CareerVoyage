@@ -101,26 +101,6 @@ class UserImportController extends AbstractController
             throw new \Exception("User import object not defined on user to import.");
         }
 
-        if (!$studentTempPassword = $school->getStudentTempPasssword()) {
-            $generator    = new \Nubs\RandomNameGenerator\Alliteration();
-            $tempPassword = $generator->getName();
-            $tempPassword = str_replace(" ", "", strtolower($tempPassword));
-            $school->setStudentTempPasssword($tempPassword);
-            $this->entityManager->persist($school);
-            $this->entityManager->flush();
-        }
-
-        if (!$educatorTempPassword = $school->getEducatorTempPassword()) {
-            $generator    = new \Nubs\RandomNameGenerator\Alliteration();
-            $tempPassword = $generator->getName();
-            $tempPassword = str_replace(" ", "", strtolower($tempPassword));
-            $school->setEducatorTempPassword($tempPassword);
-            $this->entityManager->persist($school);
-            $this->entityManager->flush();
-        }
-
-        $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
-        $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
         $constraintViolationList = new ConstraintViolationList();
 
         if ($userImport && $userImport->getType() === 'Student') {
@@ -129,7 +109,7 @@ class UserImportController extends AbstractController
             $studentUser->setupAsStudent();
             $studentUser->addRole(User::ROLE_DASHBOARD_USER);
             $studentUser->setSchool($school);
-            $studentUser->setTempPasswordEncrypted($encodedStudentTempPassword);
+            $studentUser->setTempPasswordEncrypted($school->getEncodedStudentTempPassword());
             $studentUser->fromDataImportArray($userData);
 
 
@@ -223,7 +203,7 @@ class UserImportController extends AbstractController
             $educatorUser->setupAsEducator();
             $educatorUser->addRole(User::ROLE_DASHBOARD_USER);
             $educatorUser->setSchool($school);
-            $educatorUser->setTempPasswordEncrypted($encodedEducatorTempPassword);
+            $educatorUser->setTempPasswordEncrypted($school->getEncodedEducatorTempPassword());
             $educatorUser->fromDataImportArray($userData);
 
             $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);

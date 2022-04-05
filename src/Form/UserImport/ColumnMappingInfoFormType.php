@@ -158,14 +158,21 @@ class ColumnMappingInfoFormType extends AbstractType
             /** @var \App\Entity\School $school */
             $school = $userImport->getSchool();
 
-            if (!$studentTempPassword = $school->getStudentTempPasssword()) {
+            if (!$studentTempPassword = $school->getStudentTempPassword()) {
                 $generator    = new \Nubs\RandomNameGenerator\Alliteration();
                 $tempPassword = $generator->getName();
                 $tempPassword = str_replace(" ", "", strtolower($tempPassword));
-                $school->setStudentTempPasssword($tempPassword);
+                $school->setStudentTempPassword($tempPassword);
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
                 $studentTempPassword = $tempPassword;
+            }
+
+            if (!$encodedStudentTempPassword = $school->getEncodedStudentTempPassword()) {
+                $encodedStudentTempPassword  = $this->passwordEncoder->encodePassword(new StudentUser(), $studentTempPassword);
+                $school->setEncodedStudentTempPassword($encodedStudentTempPassword);
+                $this->entityManager->persist($school);
+                $this->entityManager->flush();
             }
 
             if (!$educatorTempPassword = $school->getEducatorTempPassword()) {
@@ -176,6 +183,13 @@ class ColumnMappingInfoFormType extends AbstractType
                 $this->entityManager->persist($school);
                 $this->entityManager->flush();
                 $educatorTempPassword = $tempPassword;
+            }
+
+            if (!$encodedEducatorTempPassword = $school->getEncodedEducatorTempPassword()) {
+                $encodedEducatorTempPassword = $this->passwordEncoder->encodePassword(new EducatorUser(), $educatorTempPassword);
+                $school->setEncodedEducatorTempPassword($encodedEducatorTempPassword);
+                $this->entityManager->persist($school);
+                $this->entityManager->flush();
             }
 
             if($userImport->getSkipColumnMappingStep()) {
