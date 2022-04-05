@@ -11,10 +11,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass=UserImportRepository::class)
  */
 class UserImport
 {
+    use Timestampable;
+
     public const TYPE_STUDENT  = 'TYPE_STUDENT';
     public const TYPE_EDUCATOR = 'TYPE_EDUCATOR';
 

@@ -111,6 +111,7 @@ class UserImportController extends AbstractController
             $studentUser->setSchool($school);
             $studentUser->setTempPasswordEncrypted($school->getEncodedStudentTempPassword());
             $studentUser->fromDataImportArray($userData);
+            $userImportUser->setUser($studentUser);
 
 
             // todo!!! Remove hardcoding for testing!
@@ -205,6 +206,7 @@ class UserImportController extends AbstractController
             $educatorUser->setSchool($school);
             $educatorUser->setTempPasswordEncrypted($school->getEncodedEducatorTempPassword());
             $educatorUser->fromDataImportArray($userData);
+            $userImportUser->setUser($educatorUser);
 
             $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 

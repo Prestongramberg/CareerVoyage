@@ -78,6 +78,12 @@ class UserImportUser
      */
     private $errors = [];
 
+    /**
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="userImportUser")
+     * @ORM\JoinColumn(nullable=false, onDelete="SET NULL", nullable=true)
+     */
+    private $user;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -242,4 +248,15 @@ class UserImportUser
         }
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }

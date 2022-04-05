@@ -14,6 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserImportRepository extends ServiceEntityRepository
 {
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, UserImport::class);
@@ -47,4 +48,15 @@ class UserImportRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findBySchoolIds($schoolIds)
+    {
+        return $this->createQueryBuilder('u')
+                    ->innerJoin('u.school', 's')
+                    ->andWhere('s.id IN (:schoolIds)')
+                    ->setParameter('schoolIds', $schoolIds)
+                    ->getQuery()
+                    ->getResult();
+    }
+
 }

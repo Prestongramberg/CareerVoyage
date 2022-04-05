@@ -687,7 +687,7 @@ class ProfessionalUser extends User
     }
 
 
-    public function getActive(): self
+    public function getActive(): ?self
     {
         if ($this->user->deleted == false && $this->user->activated == true) {
             return $this;

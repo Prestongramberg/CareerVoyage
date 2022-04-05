@@ -345,6 +345,11 @@ class User implements UserInterface
     protected $experiences;
 
     /**
+     * @ORM\OneToOne(targetEntity=UserImportUser::class, mappedBy="user")
+     */
+    protected $userImportUser;
+
+    /**
      * @ORM\PrePersist
      */
     public function setProfileStatusEvent(): void
@@ -1847,6 +1852,28 @@ class User implements UserInterface
                 $experience->setCreator(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUserImportUser(): ?UserImportUser
+    {
+        return $this->userImportUser;
+    }
+
+    public function setUserImportUser(?UserImportUser $userImportUser): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($userImportUser === null && $this->userImportUser !== null) {
+            $this->userImportUser->setUser(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($userImportUser !== null && $userImportUser->getUser() !== $this) {
+            $userImportUser->setUser($this);
+        }
+
+        $this->userImportUser = $userImportUser;
 
         return $this;
     }

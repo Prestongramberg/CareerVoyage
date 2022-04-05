@@ -40,3 +40,5 @@ ubuntu-xenial-16.04-cloudimg-console.log
 html
 
 src/Command/Counties/counties.json
+staging_data.sql
+prod_data.sql
