@@ -18,6 +18,7 @@ export default function App(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [isImportStarted, setIsImportStarted] = useState(false);
     const [stopImport, setStopImport] = useState(false);
+    const [totalItems, setTotalItems] = useState(0);
     // @see https://stackoverflow.com/questions/57847594/react-hooks-accessing-up-to-date-state-from-within-a-callback
     const stopImportRef = useRef();
     stopImportRef.current = stopImport;
@@ -31,7 +32,10 @@ export default function App(props) {
         api.get(url)
             .then((response) => {
                 if (response.statusCode < 300) {
+                    debugger;
                     let items = response.responseBody.userImport.userImportUsers;
+                    setTotalItems(items.length);
+                    items = items.filter(item => !item.isImported);
                     setUserImportUsers(items);
                     setUserImport(response.responseBody.userImport);
                     setIsLoading(false);
@@ -47,7 +51,7 @@ export default function App(props) {
         let firstName = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, firstName: firstName }
+            return item.id != userImportUserId ? item : {...item, firstName: firstName}
         }))
     }
 
@@ -56,7 +60,7 @@ export default function App(props) {
         let lastName = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, lastName: lastName }
+            return item.id != userImportUserId ? item : {...item, lastName: lastName}
         }))
     }
 
@@ -65,7 +69,7 @@ export default function App(props) {
         let graduatingYear = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, graduatingYear: graduatingYear }
+            return item.id != userImportUserId ? item : {...item, graduatingYear: graduatingYear}
         }))
     }
 
@@ -74,7 +78,7 @@ export default function App(props) {
         let educatorEmail = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, educatorEmail: educatorEmail }
+            return item.id != userImportUserId ? item : {...item, educatorEmail: educatorEmail}
         }))
     }
 
@@ -83,7 +87,7 @@ export default function App(props) {
         let username = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, username: username }
+            return item.id != userImportUserId ? item : {...item, username: username}
         }))
     }
 
@@ -92,7 +96,7 @@ export default function App(props) {
         let email = event.target.value;
 
         setUserImportUsers(prevItems => prevItems.map((item, index) => {
-            return item.id != userImportUserId ? item : { ...item, email: email }
+            return item.id != userImportUserId ? item : {...item, email: email}
         }))
     }
 
@@ -113,67 +117,56 @@ export default function App(props) {
 
         let usersToImport = userImportUsers.filter(userImportUser => !userImportUser.isImported);
 
-
         debugger;
-        const chunkSize = 20;
+        const chunkSize = 100;
         for (let i = 0; i < usersToImport.length; i += chunkSize) {
             const chunk = usersToImport.slice(i, i + chunkSize);
-            const promises = [];
 
             debugger;
 
-            if(stopImportRef.current) {
+            if (stopImportRef.current) {
                 setIsImportStarted(false);
                 setStopImport(false);
                 alert("Stopping Import!");
                 break;
             }
 
-            for (let user of chunk) {
+            let url = window.Routing.generate("user_import_save_user", {
+                uuid: props.userImportUuid
+            });
 
-                debugger;
-
-                let url = window.Routing.generate("user_import_save_user", {
-                    id: user.id
-                });
-
-                let data = {
-                    user: user
-                }
-
-                promises.push(doSomethingAsync(url, data));
-
+            let data = {
+                users: chunk
             }
 
-            await Promise.all(promises)
-                .then((results) => {
+            debugger;
+            let response = await api.post(url, data);
 
-                    for (let response of results) {
+            debugger;
 
-                        if (response.statusCode < 300) {
-                            let newItem = response.responseBody.userImportUser;
-                            let userImportUserId = response.responseBody.userImportUser.id;
-                            setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                                return item.id !== userImportUserId ? item : { ...newItem }
-                            }))
+            if (response.statusCode < 300) {
 
-                        } else {
-                            let userImportUserId = response.responseBody.userImportUser.id;
-                            let newItem = response.responseBody.userImportUser;
-                            let errors = response.responseBody.errors;
+                debugger;
+                let users = response.responseBody.data;
 
-                            setUserImportUsers(prevItems => prevItems.map((item, index) => {
-                                return item.id !== userImportUserId ? item : { ...newItem }
-                            }))
-                        }
+                setUserImportUsers((prevItems) => {
+
+                    debugger;
+
+                    for (let newItem of users) {
+
+                        let item = prevItems.find((item) => {
+                            return item.id === newItem.id;
+                        })
+
+                        item.isImported = newItem.isImported;
+                        item.errors = newItem.errors;
                     }
 
-                    console.log("All done", results);
+                    return [...prevItems];
                 })
-                .catch((e) => {
-                    debugger;
-                    // Handle errors here
-                });
+
+            }
 
         }
 
@@ -181,11 +174,6 @@ export default function App(props) {
         setStopImport(false);
 
     }, [userImportUsers, isImportStarted]);
-
-
-    function doSomethingAsync(url, data) {
-        return api.post(url, data);
-    }
 
 
     const renderStudentForm = (userImportUser, index) => {
@@ -227,10 +215,10 @@ export default function App(props) {
         );
     }
 
-    if(isLoading) {
+    if (isLoading) {
         return (
             <div className="uk-width-1-1 uk-align-center">
-                <Loader />
+                <Loader/>
             </div>
         );
     }
@@ -247,7 +235,8 @@ export default function App(props) {
     return (
         <div className="uk-grid">
             <div className={isImportStarted ? 'uk-width-1-1 uk-margin' : 'uk-width-1-1 uk-margin uk-hidden'}>
-                <progress id="js-progressbar" className="uk-progress" value={importedUserCount()} max={userImportUsers.length}></progress>
+                <progress id="js-progressbar" className="uk-progress" value={importedUserCount()}
+                          max={totalItems}></progress>
                 <div>{importedUserPercentage()}</div>
             </div>
 
@@ -258,8 +247,16 @@ export default function App(props) {
                 );
             })}
 
-            <button disabled={isImportStarted} onClick={importClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button" className={isImportStarted ? 'uk-button uk-button-primary uk-hidden' : 'uk-button uk-button-primary'}>Start Import</button>
-            <button onClick={stopImportClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button" className={isImportStarted ? 'uk-button uk-button-danger' : 'uk-button uk-button-danger uk-hidden'}>Stop Import</button>
+            <button disabled={isImportStarted} onClick={importClickHandler}
+                    style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button"
+                    className={isImportStarted ? 'uk-button uk-button-primary uk-hidden' : 'uk-button uk-button-primary'}>Start
+                Import
+            </button>
+            <button onClick={stopImportClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}}
+                    type="button"
+                    className={isImportStarted ? 'uk-button uk-button-danger' : 'uk-button uk-button-danger uk-hidden'}>Stop
+                Import
+            </button>
         </div>
     );
 
