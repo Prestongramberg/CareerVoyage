@@ -1,7 +1,17 @@
+{% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+    craue_formflow_button_class_reset: 'uk-button uk-button-primary uk-hidden',
+    craue_formflow_button_class_next: 'uk-button uk-button-primary uk-align-right',
+    craue_formflow_button_label_next: 'Continue',
+    craue_formflow_button_class_last: 'uk-button uk-button-primary',
+    craue_formflow_button_class_back: 'uk-button uk-button-primary user-import-final-back-button',
+    craue_formflow_button_class_finish: 'uk-button uk-button-primary uk-align-right uk-hidden',
+    craue_formflow_button_label_finish: 'Submit',
+} %}
+
 <fieldset class="uk-margin">
 
     <legend class="">
-        User Info (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
+        Check/Edit User Info (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
     </legend>
 
     <div data-user-import-uuid="{{ userImport.uuid }}" id="user-import"></div>

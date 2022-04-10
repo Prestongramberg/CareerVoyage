@@ -10,7 +10,6 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method Lesson|null find($id, $lockMode = null, $lockVersion = null)
  * @method Lesson|null findOneBy(array $criteria, array $orderBy = null)
- * @method Lesson[]    findAll()
  * @method Lesson[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class LessonRepository extends ServiceEntityRepository
@@ -20,7 +19,7 @@ class LessonRepository extends ServiceEntityRepository
         parent::__construct($registry, Lesson::class);
     }
 
-    public function findAll(array $orderBy = null)
+    public function findAll(array $orderBy = null): array
     {
         return $this->findBy(array(), $orderBy);
     }

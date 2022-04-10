@@ -65,21 +65,29 @@ class ManageStudentsFilterType extends AbstractType
         $userImportChoicesMap = [];
         foreach($userImports as $userImport) {
 
-            $usersFinishedBeingImported = $userImport->getUserImportUsers()->filter(function(UserImportUser $userImportUser) {
+     /*       $usersFinishedBeingImported = $userImport->getUserImportUsers()->filter(function(UserImportUser $userImportUser) {
                 return $userImportUser->getIsImported();
             });
 
             if(!$usersFinishedBeingImported->count()) {
                 continue;
             }
+
+            $userImportHasUsers = $userImport->getUserImportUsers()->filter(function(UserImportUser $userImportUser) {
+                return $userImportUser->getUser();
+            });
+
+            if(!$userImportHasUsers->count()) {
+                continue;
+            }*/
             
             $userImportChoices[] = $userImport->getId();
 
             $userImportChoicesMap[$userImport->getId()] =
-                sprintf("%s - (%s/%s users)",
+                sprintf("%s - (%s users on initial import) ",
                     $userImport->getCreatedAt()->format("m/d/Y"),
-                    $usersFinishedBeingImported->count(),
-                    count($userImport->getUserImportUsers()));
+                    $userImport->getUserImportUsers()->count()
+                );
         }
 
         $graduationYears = array_map(function ($gy) {
@@ -153,6 +161,37 @@ class ManageStudentsFilterType extends AbstractType
             'choice_label' => function ($value, $key, $index) use($userImportChoicesMap) {
                 return $userImportChoicesMap[$value];
             }
+        ]);
+
+        $builder->add('showDuplicates', Filters\ChoiceFilterType::class, [
+            'apply_filter' => function (QueryInterface $filterQuery, $field, $values) use($schoolIds) {
+
+                if (empty($values['value'])) {
+                    return null;
+                }
+
+                $studentIds = $this->studentUserRepository->getPotentialDuplicates($schoolIds);
+
+                $queryBuilder = $filterQuery->getQueryBuilder();
+
+                $queryBuilder->andWhere('u.id IN (:ids)')
+                             ->setParameter('ids', $studentIds);
+
+                $newFilterQuery = new ORMQuery($queryBuilder);
+
+                $expression = $newFilterQuery->getExpr()->eq('1', '1');
+
+                return $newFilterQuery->createCondition($expression);
+            },
+            'placeholder'   => '-- Show Potential Duplicates --',
+            'expanded'      => false,
+            'multiple'      => false,
+            'required'      => false,
+            'mapped'        => false,
+            'choices'  => [
+                'Yes' => true,
+                'No' => false,
+            ],
         ]);
 
         $builder->add('graduatingYear', ChoiceType::class, [

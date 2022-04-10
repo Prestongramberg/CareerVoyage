@@ -53,10 +53,11 @@ class UserImportRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('u')
                     ->innerJoin('u.school', 's')
+                    ->innerJoin('u.userImportUsers', 'uiu')
                     ->andWhere('s.id IN (:schoolIds)')
+                    ->andWhere('uiu.user IS NOT NULL')
                     ->setParameter('schoolIds', $schoolIds)
                     ->getQuery()
                     ->getResult();
     }
-
 }

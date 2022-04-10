@@ -19,6 +19,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class StudentUserRepository extends ServiceEntityRepository
 {
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, StudentUser::class);
@@ -54,29 +55,30 @@ class StudentUserRepository extends ServiceEntityRepository
     */
 
     /**
-     * @param string[] $criteria format: array('user' => <user_id>, 'name' => <name>)
+     * @param  string[]  $criteria  format: array('user' => <user_id>, 'name' => <name>)
      *
      * @return array|object[]
      */
     public function findByUniqueCriteria(array $criteria)
     {
-        return $this->_em->getRepository(User::class)->findBy($criteria);
+        return $this->_em->getRepository(User::class)
+                         ->findBy($criteria);
     }
 
     /**
-     * @param        $search
-     * @param School $school
+     * @param          $search
+     * @param  School  $school
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
     public function findBySearchTermAndSchool($search, School $school)
     {
-
         $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id where su.school_id = "%s" and CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%"', $school->getId(), $search);
 
         $em   = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $stmt = $em->getConnection()
+                   ->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll();
@@ -90,37 +92,40 @@ class StudentUserRepository extends ServiceEntityRepository
      */
     public function findBySearchTerm($search)
     {
-
         $query = 'SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u inner join student_user su on u.id = su.id';
 
         $em   = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $stmt = $em->getConnection()
+                   ->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll();
     }
 
     /**
-     * @param        $search
-     * @param array  $regionIds
+     * @param         $search
+     * @param  array  $regionIds
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
     public function findBySearchTermAndRegionIds($search, array $regionIds)
     {
-
         if (empty($regionIds)) {
             return [];
         }
 
-        $query = sprintf('SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        $query = sprintf(
+            'SELECT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
                  inner join student_user su on u.id = su.id
                  INNER JOIN school s on su.school_id = s.id
-            where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN (' . implode(",", $regionIds) . ')', $search);
+            where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" AND s.region_id IN ('.implode(",", $regionIds).')',
+            $search
+        );
 
         $em   = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $stmt = $em->getConnection()
+                   ->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll();
@@ -139,21 +144,25 @@ class StudentUserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param                  $search
-     * @param ProfessionalUser $professionalUser
+     * @param                    $search
+     * @param  ProfessionalUser  $professionalUser
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\DBALException
      */
     public function findByAllowedCommunication($search, ProfessionalUser $professionalUser)
     {
-
-        $query = sprintf('SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
+        $query = sprintf(
+            'SELECT DISTINCT u.id, u.first_name, u.last_name, "ROLE_STUDENT_USER" as role, CONCAT("/media/cache/squared_thumbnail_small/uploads/profile_photo/", u.photo) as photoImageURL from user u 
         inner join student_user su on u.id = su.id inner join allowed_communication ac on su.id = ac.student_user_id 
-        where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.professional_user_id = "%s"', $search, $professionalUser->getId());
+        where CONCAT(u.first_name, " ", u.last_name) LIKE "%%%s%%" and ac.professional_user_id = "%s"',
+            $search,
+            $professionalUser->getId()
+        );
 
         $em   = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $stmt = $em->getConnection()
+                   ->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll();
@@ -182,15 +191,14 @@ class StudentUserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array              $userIds
-     * @param GlobalShareFilters $filters
+     * @param  array               $userIds
+     * @param  GlobalShareFilters  $filters
      *
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getDataForGlobalShare(array $userIds, GlobalShareFilters $filters = null)
     {
-
         $ids = implode("','", $userIds);
 
         $query = "SELECT u.id, CONCAT(\"/media/cache/squared_thumbnail_small/uploads/profile_photo/\", u.photo) as photoImageURL, 'student' as user_role, u.first_name, u.last_name, u.email, u.username, s.id as school_id, 
@@ -205,7 +213,6 @@ class StudentUserRepository extends ServiceEntityRepository
           WHERE u.id IN('$ids')";
 
         if ($filters) {
-
             if (!empty($filters->getInterestSearch())) {
                 $query .= sprintf(' AND su.career_statement LIKE "%%%s%%"', $filters->getInterestSearch());
             }
@@ -224,21 +231,21 @@ class StudentUserRepository extends ServiceEntityRepository
                 $schools = implode("','", $filters->getSchools());
                 $query   .= " AND s.id IN('$schools')";
             }
-
         }
 
         $query .= " ORDER BY u.last_name ASC, u.first_name ASC";
 
 
         $em   = $this->getEntityManager();
-        $stmt = $em->getConnection()->prepare($query);
+        $stmt = $em->getConnection()
+                   ->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll();
     }
 
     /**
-     * @param int $schoolId
+     * @param  int  $schoolId
      *
      * @return mixed[]
      * @throws \Doctrine\DBAL\Driver\Exception
@@ -258,4 +265,45 @@ class StudentUserRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult();
     }
+
+    public function getPotentialDuplicates(array $schoolIds)
+    {
+        $ids = implode("','", $schoolIds);
+
+        $query = "SELECT u.id
+FROM user u
+INNER JOIN student_user su ON su.id = u.id
+WHERE CONCAT(u.first_name, u.last_name) IN
+
+(
+SELECT CONCAT(u.first_name, u.last_name) as concat_name
+FROM user u
+INNER JOIN student_user su ON su.id = u.id
+
+WHERE su.school_id IN('$ids')
+
+GROUP BY CONCAT(u.first_name, u.last_name)
+HAVING count(*) > 1
+)
+
+AND su.school_id IN('$ids')
+AND u.first_name is NOT NULL and u.first_name != ''
+AND u.last_name is NOT NULL and u.last_name != ''";
+
+
+        $em   = $this->getEntityManager();
+        $stmt = $em->getConnection()
+                   ->prepare($query);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll();
+
+        $userIds = [];
+        foreach($results as $result) {
+            $userIds[] = $result['id'];
+        }
+
+        return $userIds;
+    }
+
 }

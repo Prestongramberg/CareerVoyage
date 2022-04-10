@@ -232,12 +232,37 @@ export default function App(props) {
         return Math.floor(percent * 100) + "%";
     }
 
+    const isImportComplete = () => {
+
+        if(userImportUsers.length && userImportUsers.filter(userImportUser => userImportUser.isImported).length === userImportUsers.length) {
+
+            var y = document.getElementsByClassName('user-import-final-back-button');
+
+            if(y.length) {
+                var aNode = y[0];
+                aNode.classList.add("uk-hidden");
+                //aNode.remove();
+            }
+
+            return true;
+        }
+
+        return false;
+
+    }
+
     return (
         <div className="uk-grid">
             <div className={isImportStarted ? 'uk-width-1-1 uk-margin' : 'uk-width-1-1 uk-margin uk-hidden'}>
                 <progress id="js-progressbar" className="uk-progress" value={importedUserCount()}
                           max={totalItems}></progress>
                 <div>{importedUserPercentage()}</div>
+            </div>
+
+            <div className={isImportComplete() ? 'uk-width-1-1 uk-margin' : 'uk-width-1-1 uk-margin uk-hidden'}>
+                <div style={{padding: '10px'}} className='uk-alert-success ' uk-alert>
+                    <p>Import successfully completed</p>
+                </div>
             </div>
 
             {userImportUsers.filter(userImportUser => !userImportUser.isImported).map((userImportUser, index) => {
@@ -249,7 +274,7 @@ export default function App(props) {
 
             <button disabled={isImportStarted} onClick={importClickHandler}
                     style={{"position": "absolute", "top": "80px", "right": "40px"}} type="button"
-                    className={isImportStarted ? 'uk-button uk-button-primary uk-hidden' : 'uk-button uk-button-primary'}>Start
+                    className={isImportStarted || isImportComplete() ? 'uk-button uk-button-primary uk-hidden' : 'uk-button uk-button-primary'}>Start
                 Import
             </button>
             <button onClick={stopImportClickHandler} style={{"position": "absolute", "top": "80px", "right": "40px"}}

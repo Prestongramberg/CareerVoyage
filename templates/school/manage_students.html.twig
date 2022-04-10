@@ -85,6 +85,10 @@
                     {{ form_widget(form.graduatingYear, {'attr': {'class': 'uk-input', 'placeholder': 'Filter By Graduating Year'}}) }}
                 </div>
 
+                <div class="uk-width-1-4@s">
+                    {{ form_widget(form.showDuplicates, {'attr': {'class': 'uk-input', 'placeholder': 'Show Potential Duplicates'}}) }}
+                </div>
+
                 {% if eventRegister %}
                     <input type="hidden" name="event-register" value="{{ eventRegister.id }}">
                 {% endif %}

@@ -1,13 +1,13 @@
 <fieldset class="uk-margin">
 
     <legend class="">
-        Column Mapping (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
+        Column Title Names Matching (Step {{ flow.getCurrentStepNumber() }})<span class="uk-text-danger">*</span>
     </legend>
 
     <div class="uk-grid">
 
         <div class="uk-width-1-1@m uk-margin">
-            <small class="uk-text-muted">So we can reliably import your data, please input the column title names from your spreadsheet/csv file.</small>
+            <small class="uk-text-muted">The titles you used for your columns in your import spreadsheet are different from the ones used in our database. Please input your column titles EXACTLY as they appear in the spreadsheet you used.</small>
             <br>
             <small class="uk-text-danger">Note: Validation is <strong>CASE SENSITIVE</strong>. Please enter the column title names exactly as they appear in your file.</small>
         </div>
@@ -19,36 +19,36 @@
         <div class="uk-width-1-1@m uk-margin">
             <div class="uk-grid">
                 <div style="position: relative" class="uk-width-1-3@m">
-                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your Column Title For First Name:<span class="uk-text-danger">*</span></p>
                     {{ form_widget(form.firstNameMapping, {'attr': {'class': 'uk-input' }}) }}
                     {{ form_errors(form.firstNameMapping) }}
                 </div>
 
-                <span style="margin-top: 5px; padding-left: 10px">-></span>
+              {#  <span style="margin-top: 5px; padding-left: 10px">-></span>
 
                 <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
                     <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
                     <input value="First Name" class="uk-input" type="text" placeholder="Input" disabled>
                 </div>
-
+#}
             </div>
         </div>
 
         <div class="uk-width-1-1@m uk-margin">
             <div class="uk-grid">
                 <div style="position: relative" class="uk-width-1-3@m">
-                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                    <p style="position: absolute; font-size: 8px; padding-left: 5px">Your Column Title For Last Name:<span class="uk-text-danger">*</span></p>
                     {{ form_widget(form.lastNameMapping, {'attr': {'class': 'uk-input' }}) }}
                     {{ form_errors(form.lastNameMapping) }}
                 </div>
 
-                <span style="margin-top: 5px; padding-left: 10px">-></span>
+                {#<span style="margin-top: 5px; padding-left: 10px">-></span>
 
                 <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
                     <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
                     <input value="Last Name" class="uk-input" type="text" placeholder="Input" disabled>
                 </div>
-
+#}
             </div>
         </div>
 
@@ -56,17 +56,17 @@
             <div class="uk-width-1-1@m uk-margin">
                 <div class="uk-grid">
                     <div style="position: relative" class="uk-width-1-3@m">
-                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your Column Title For Email:<span class="uk-text-danger">*</span></p>
                         {{ form_widget(form.emailMapping, {'attr': {'class': 'uk-input' }}) }}
                         {{ form_errors(form.emailMapping) }}
                     </div>
 
-                    <span style="margin-top: 5px; padding-left: 10px">-></span>
+                   {# <span style="margin-top: 5px; padding-left: 10px">-></span>
 
                     <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
                         <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
                         <input value="Email" class="uk-input" type="text" placeholder="Input" disabled>
-                    </div>
+                    </div>#}
 
                 </div>
             </div>
@@ -76,18 +76,18 @@
             <div class="uk-width-1-1@m uk-margin">
                 <div class="uk-grid">
                     <div style="position: relative" class="uk-width-1-3@m">
-                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your Column Title For Educator Email:<span class="uk-text-danger">*</span></p>
                         {{ form_widget(form.educatorEmailMapping, {'attr': {'class': 'uk-input' }}) }}
                         {{ form_errors(form.educatorEmailMapping) }}
                         <small class="uk-text-danger">Every student must be assigned a supervising educator already registered in Future Forward.</small>
                     </div>
 
-                    <span style="margin-top: 5px; padding-left: 10px">-></span>
+                   {# <span style="margin-top: 5px; padding-left: 10px">-></span>
 
                     <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
                         <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
                         <input value="Educator Email" class="uk-input" type="text" placeholder="Input" disabled>
-                    </div>
+                    </div>#}
 
                 </div>
             </div>
@@ -97,17 +97,17 @@
             <div class="uk-width-1-1@m uk-margin">
                 <div class="uk-grid">
                     <div style="position: relative" class="uk-width-1-3@m">
-                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your File:<span class="uk-text-danger">*</span></p>
+                        <p style="position: absolute; font-size: 8px; padding-left: 5px">Your Column Title For Graduating Year:<span class="uk-text-danger">*</span></p>
                         {{ form_widget(form.graduatingYearMapping, {'attr': {'class': 'uk-input' }}) }}
                         {{ form_errors(form.graduatingYearMapping) }}
                     </div>
 
-                    <span style="margin-top: 5px; padding-left: 10px">-></span>
+                   {# <span style="margin-top: 5px; padding-left: 10px">-></span>
 
                     <div style="position: relative; padding-left: 10px" class="uk-width-1-3@m">
                         <p style="position: absolute; font-size: 8px; padding-left: 5px">Our Database:</p>
                         <input value="Graduating Year" class="uk-input" type="text" placeholder="Input" disabled>
-                    </div>
+                    </div>#}
 
                 </div>
             </div>
@@ -123,3 +123,13 @@
     </div>
 
 </fieldset>
+
+{% include '@CraueFormFlow/FormFlow/buttons.html.twig' with {
+    craue_formflow_button_class_reset: 'uk-button uk-button-primary uk-hidden',
+    craue_formflow_button_class_next: 'uk-button uk-button-primary uk-align-right',
+    craue_formflow_button_label_next: 'Continue',
+    craue_formflow_button_class_last: 'uk-button uk-button-primary',
+    craue_formflow_button_class_back: 'uk-button uk-button-primary',
+    craue_formflow_button_class_finish: 'uk-button uk-button-primary uk-align-right',
+    craue_formflow_button_label_finish: 'Submit',
+} %}
