@@ -300,7 +300,7 @@ class EducatorUserRepository extends ServiceEntityRepository
 
         $emails = [];
         foreach($results as $result) {
-            $emails[$result['id']] = $result['email'];
+            $emails[$result['id']] = strtolower($result['email']);
         }
 
         return $emails;

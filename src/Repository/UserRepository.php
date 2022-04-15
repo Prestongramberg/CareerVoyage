@@ -328,7 +328,7 @@ WHERE 1 = 1 AND u.deleted != %s', 1);
 
         $emails = [];
         foreach($results as $result) {
-            $emails[$result['id']] = $result['email'];
+            $emails[$result['id']] = strtolower($result['email']);
         }
 
         return $emails;

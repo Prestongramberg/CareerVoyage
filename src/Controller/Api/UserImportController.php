@@ -93,6 +93,8 @@ class UserImportController extends AbstractController
         $emailCache         = $this->userRepository->getAllEmailAddresses();
         $users              = $request->request->get('users', []);
         $data               = [];
+        $duplicateUsernames = [];
+        $duplicateEmails = [];
 
         if (!$userImport) {
             throw new \Exception("User import object not defined on user to import.");
@@ -102,6 +104,22 @@ class UserImportController extends AbstractController
 
         if (!$school) {
             throw new \Exception("User import object not defined on user to import.");
+        }
+
+        if ($userImport && $userImport->getType() === 'Student') {
+            foreach ($users as $userData) {
+                $duplicateUsernames[] = $userData['username'];
+            }
+
+            $duplicateUsernames = array_unique( array_diff_assoc( $duplicateUsernames, array_unique( $duplicateUsernames ) ) );
+        }
+
+        if ($userImport && $userImport->getType() === 'Educator') {
+            foreach ($users as $userData) {
+                $duplicateEmails[] = strtolower($userData['email']);
+            }
+
+            $duplicateEmails = array_unique( array_diff_assoc( $duplicateEmails, array_unique( $duplicateEmails ) ) );
         }
 
         foreach ($users as $userData) {
@@ -136,7 +154,7 @@ class UserImportController extends AbstractController
                     $errors['educatorEmail'] = $errorsString;
                 }
 
-                $errors2 = $this->validator->validate($studentUser->getUsername(), new UsernameAlreadyExists($usernameCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                $errors2 = $this->validator->validate($studentUser->getUsername(), new UsernameAlreadyExists($usernameCache, $duplicateUsernames, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 
                 if (count($errors2) > 0) {
                     $errorsString       = $errors2->get(0)
@@ -225,7 +243,7 @@ class UserImportController extends AbstractController
                 $educatorUser->setTempPasswordEncrypted($school->getEncodedEducatorTempPassword());
                 $educatorUser->fromDataImportArray($userData);
 
-                $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($emailCache, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
+                $errors1 = $this->validator->validate($educatorUser->getEmail(), new EmailAlreadyExists($emailCache, $duplicateEmails, ['groups' => ['USER_IMPORT_USER_INFO']]), ['USER_IMPORT_USER_INFO']);
 
                 if (count($errors1) > 0) {
                     $errorsString    = $errors1->get(0)

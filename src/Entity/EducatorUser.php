@@ -555,7 +555,7 @@ class EducatorUser extends User
                     $this->setLastName($value);
                     break;
                 case 'email':
-                    $this->setEmail($value);
+                    $this->setEmail(strtolower($value));
                     break;
                 case 'tempPassword':
                     $this->setTempPassword($value);

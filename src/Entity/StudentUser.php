@@ -549,7 +549,7 @@ class StudentUser extends User
                     $this->setLastName($value);
                     break;
                 case 'educatorEmail':
-                    $this->setEducatorEmail($value);
+                    $this->setEducatorEmail(strtolower($value));
                     break;
                 case 'graduatingYear':
                     $this->setGraduatingYear($value);
