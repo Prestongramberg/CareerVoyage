@@ -52,13 +52,12 @@ class EmailAlreadyExistsValidator extends ConstraintValidator
             return;
         }
 
-        $emailCache = $constraint->getEmailCache();
+        $user = $this->userRepository->loadUserByUsername($value);
 
-        if(in_array($value, $emailCache)) {
+        if($user) {
             $this->context->buildViolation($constraint->message)
                           ->atPath('email')
                           ->addViolation();
         }
-
     }
 }

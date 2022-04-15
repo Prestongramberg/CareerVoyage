@@ -2,6 +2,7 @@
 
 namespace App\Validator\Constraints;
 
+use App\Repository\UserRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -10,6 +11,17 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class UsernameAlreadyExistsValidator extends ConstraintValidator
 {
+
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
+     * @param  \App\Repository\UserRepository  $userRepository
+     */
+    public function __construct(UserRepository $userRepository) { $this->userRepository = $userRepository; }
+
     /**
      * @param            $value
      * @param Constraint $constraint
@@ -20,9 +32,11 @@ class UsernameAlreadyExistsValidator extends ConstraintValidator
             return;
         }
 
+        $user = $this->userRepository->loadUserByUsername($value);
+
         $usernameCache = $constraint->getUsernameCache();
 
-        if(in_array($value, $usernameCache)) {
+        if($user) {
             $this->context->buildViolation($constraint->message)
                           ->atPath('username')
                           ->addViolation();
