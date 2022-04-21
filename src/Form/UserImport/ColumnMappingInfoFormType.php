@@ -29,7 +29,7 @@ class ColumnMappingInfoFormType extends AbstractType
 
     use RandomStringGenerator;
 
-    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column title names from your uploaded spreadsheet/csv file do not match the Column Mapping you entered in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping names - Or manually enter any missing data below.';
+    public const ERROR_COLUMN_MAPPING_MESSAGE = 'Some of the column title names from your uploaded spreadsheet file do not match the Column Mapping you entered in Step 2 which can result in missing data. Please go back to Step 2, fix your column mapping names - Or manually enter any missing data below.';
 
     /**
      * @var PhpSpreadsheetHelper;
