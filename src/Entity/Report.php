@@ -320,7 +320,7 @@ class Report
     private $reportColumns;
 
     /**
-     * @ORM\OneToOne(targetEntity=ReportShare::class, mappedBy="report")
+     * @ORM\OneToOne(targetEntity=ReportShare::class, mappedBy="report", cascade={"persist"})
      */
     private $reportShare;
 

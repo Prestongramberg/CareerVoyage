@@ -62,6 +62,16 @@
         <div class="uk-margin-medium-top uk-card uk-card-default uk-card-body uk-margin-auto {{ uk_width }}">
 
             <div class="uk-text-danger" style="float:right;">* indicates required</div>
+            <br>
+            <br>
+
+            {% if flow.steps[flow.getCurrentStepNumber() - 1].name == 'file_info_step' %}
+                <div uk-lightbox>
+                    <div style="float: right;">
+                        <a href="https://youtu.be/yyMsHK8Z7VY" data-caption="YouTube" data-attrs="width: 1280; height: 720;">HELP VIDEO <span uk-icon="video-camera"></span></a>
+                    </div>
+                </div>
+            {% endif %}
 
             {% if type %}
                 <h2>Import {{ type|capitalize ~ 's'}}</h2>
