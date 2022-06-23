@@ -45,7 +45,7 @@ class WelcomeController extends AbstractController
     public function index(Request $request, AuthenticationUtils $authenticationUtils, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator, string $uploadsPath)
     {
 
-        return $this->redirect('http://futureforward.org/');
+ //       return $this->redirect('http://futureforward.org/');
 
         $securityContext = $this->container->get('security.authorization_checker');
         if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
